@@ -17,7 +17,7 @@ S = "${WORKDIR}/glibc-${PV}"
 B = "${WORKDIR}/build-${TARGET_SYS}"
 LIBC_VER_MAIN = "${@'-'.join(CSL_VER_MAIN.split('-')[:-1])}"
 PV = "${CSL_VER_LIBC}-${LIBC_VER_MAIN}"
-PR = "r0"
+PR = "r1"
 
 do_unpack[vardeps] += "unpack_libc"
 do_unpack[postfuncs] += "unpack_libc"
@@ -52,4 +52,4 @@ do_configure () {
     CPPFLAGS="" oe_runconf
 }
 
-require recipes-core/eglibc/eglibc-package.inc
+require recipes/eglibc/eglibc-package-adjusted.inc

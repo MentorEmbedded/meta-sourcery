@@ -1,4 +1,6 @@
-require recipes-core/eglibc/eglibc-package.inc
+ORIG_PACKAGES := "${PACKAGES}"
+
+require recipes/eglibc/eglibc-package-adjusted.inc
 
 INHIBIT_DEFAULT_DEPS = "1"
 
@@ -20,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r9"
+PR = "r10"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -62,16 +64,8 @@ do_install() {
 	rm ${D}${libdir}/bin/*
 	ln -s ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
 
-        including_libc="${@base_conditional('PREFERRED_PROVIDER_virtual/libc', PN, '1', '', d)}"
-        if [ -n "$including_libc" ]; then
-            sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
-            sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
-        else
-            rm -f ${D}${base_libdir}/*.so* ${D}${libdir}/*.so*
-            cp -a $sysroot${base_libdir}/libgcc* ${D}${base_libdir}
-            cp -a $sysroot${libdir}/libstdc++* ${D}${libdir}
-        fi
-
+        sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
+        sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
 	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
 }
 
@@ -88,8 +82,9 @@ external_toolchain_sysroot_adjust() {
 	install -d ${SYSROOT_DESTDIR}/usr/lib
 }
 
-PACKAGES =+ "libgcc libgcc-dev libstdc++ libstdc++-dev libstdc++-staticdev gdbserver gdbserver-dbg"
-PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
+TC_PACKAGES =+ "libgcc libgcc-dev libstdc++ libstdc++-dev libstdc++-staticdev gdbserver gdbserver-dbg"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
+PACKAGES =+ "${TC_PACKAGES}"
 
 # This test should be fixed to ignore .a files in .debug dirs
 INSANE_SKIP_${PN}-dbg = "staticdev"
@@ -99,22 +94,6 @@ INSANE_SKIP_${PN}-utils += "ldflags"
 INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
 INSANE_SKIP_gdbserver += "ldflags"
-
-RPROVIDES_${PN}-dbg += "${TCLIBC}-dbg glibc-dbg"
-RPROVIDES_${PN}-utils += "${TCLIBC}-utils glibc-utils"
-RPROVIDES_${PN}-thread-db += "${TCLIBC}-thread-db glibc-thread-db"
-
-PKG_${PN} = "eglibc"
-PKG_${PN}-dev = "eglibc-dev"
-PKG_${PN}-staticdev = "eglibc-staticdev"
-PKG_${PN}-doc = "eglibc-doc"
-PKG_${PN}-dbg = "eglibc-dbg"
-PKG_${PN}-pic = "eglibc-pic"
-PKG_${PN}-utils = "eglibc-utils"
-PKG_${PN}-gconv = "eglibc-gconv"
-PKG_${PN}-extra-nss = "eglibc-extra-nss"
-PKG_${PN}-thread-db = "eglibc-thread-db"
-PKG_${PN}-pcprofile = "eglibc-pcprofile"
 
 PKGV = "${CSL_VER_LIBC}"
 PKGV_libgcc = "${CSL_VER_GCC}"
@@ -151,5 +130,10 @@ CSL_VER_MAIN ??= ""
 python () {
     if not d.getVar("CSL_VER_MAIN"):
 	raise bb.parse.SkipPackage("External CSL toolchain not configured (CSL_VER_MAIN not set).")
-}
 
+    pn = d.getVar('PN', True)
+    if d.getVar('PREFERRED_PROVIDER_virtual/libc', True) != pn:
+        d.setVar('PACKAGES', '${TC_PACKAGES}')
+        d.delVar('PKG_%s' % pn)
+        d.delVar('RPROVIDES_%s' % pn)
+}
