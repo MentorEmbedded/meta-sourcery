@@ -2,6 +2,10 @@ DEFAULTTUNE ?= "ppce500mc"
 
 require conf/machine/include/powerpc/arch-powerpc.inc
 
+TUNE_PKGARCH = "${TUNE_PKGARCH_tune-${DEFAULTTUNE}}"
+TUNE_PKGARCH_tune-powerpc = "powerpc"
+TUNE_PKGARCH_tune-powerpc-nf = "powerpc-nf"
+
 TUNEVALID[ppce500mc] = "Enable ppce500mc specific processor optimizations"
 TUNE_CCARGS += "${@bb.utils.contains("TUNE_FEATURES", "ppce500mc", "-te500mc", "", d)}"
 
