@@ -43,11 +43,11 @@ TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 # files will be extracted into the OE sysroot
 def exttc_run(d, cmd):
     try:
-        return bb.process.run(cmd, shell=True, stderr=None, env={'PATH': d.getVar('PATH', True)})[0].rstrip()
+        return bb.process.run(cmd, shell=True, env={'PATH': d.getVar('PATH', True)})[0].rstrip()
     except (OSError, bb.process.CmdError):
         return ''
 
-EXTERNAL_TOOLCHAIN_SYSROOT_CMD = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
+EXTERNAL_TOOLCHAIN_SYSROOT_CMD = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot 2>/dev/null"
 EXTERNAL_TOOLCHAIN_SYSROOT ??= "${@exttc_run(d, EXTERNAL_TOOLCHAIN_SYSROOT_CMD)}"
 
 # These bits are here temporarily to sidestep the need to use a separate set
