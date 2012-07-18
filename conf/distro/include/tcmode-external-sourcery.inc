@@ -85,6 +85,7 @@ def csl_multilib_arg(d):
 # this bindir to our PATH, and instead add symlinks to the prefixed binaries
 # to our staging toolchain bindir.
 
+ERROR_QA[type] ?= "list"
 python toolchain_metadata_setup () {
     if not isinstance(e, bb.event.ConfigParsed):
         return
@@ -95,6 +96,15 @@ python toolchain_metadata_setup () {
     l.finalize()
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
         d.setVar('TOOLCHAIN_PATH_ADD', '')
+
+    # The external toolchain may not have been built with the yocto preferred
+    # gnu hash setting, so ensure that the corresponding sanity check is a
+    # warning, not an error.
+    error_qa = oe.data.typed_value('ERROR_QA', l)
+    if 'ldflags' in error_qa:
+        error_qa.remove('ldflags')
+        d.setVar('ERROR_QA', ' '.join(error_qa))
+        d.appendVar('WARN_QA', ' ldflags')
 }
 addhandler toolchain_metadata_setup
 
