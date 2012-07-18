@@ -48,37 +48,10 @@ ENABLE_BINARY_LOCALE_GENERATION = ""
 
 TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 
-# Point to the appropriate multilib sysroot from the external toolchain, whose
-# files will be extracted into the OE sysroot
-def exttc_run(d, cmd):
-    try:
-        return bb.process.run(cmd, shell=True, env={'PATH': d.getVar('PATH', True)})[0].rstrip()
-    except (OSError, bb.process.CmdError):
-        return ''
-
-EXTERNAL_TOOLCHAIN_SYSROOT_CMD = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot 2>/dev/null"
-EXTERNAL_TOOLCHAIN_SYSROOT ??= "${@exttc_run(d, EXTERNAL_TOOLCHAIN_SYSROOT_CMD)}"
-
 # These bits are here temporarily to sidestep the need to use a separate set
 # of tune files to pass the appropriate multilib selection arguments to the
 # sourcery toolchain, as is needed to extract the sysroot content.
 TUNE_CCARGS_append_x86 = " -msgxx-glibc"
-
-CSL_MULTILIB_ARGS[ppce500] = "-te500v1"
-CSL_MULTILIB_ARGS[ppce500v2] = "-te500v2"
-CSL_MULTILIB_ARGS[ppce600] = "-te600"
-CSL_MULTILIB_ARGS[ppce500mc] = "-te500mc"
-
-def csl_multilib_arg(d):
-    argument = d.getVarFlag('CSL_MULTILIB_ARGS', d.getVar('DEFAULTTUNE', True) or '')
-    if argument:
-        return argument
-    else:
-        return ''
-
-#TUNE_CCARGS += " ${@csl_multilib_arg(d)}"
-#EXTERNAL_TOOLCHAIN_SYSROOT_CMD += "${@csl_multilib_arg(d)}"
-
 
 # Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
 # bindir (e.g. gcc, ld). To avoid this messing up our build, we avoid adding
