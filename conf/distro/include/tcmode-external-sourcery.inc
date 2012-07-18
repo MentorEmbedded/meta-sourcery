@@ -7,17 +7,26 @@ EXTERNAL_TOOLCHAIN ?= "/usr/local/csl/${TARGET_ARCH}"
 TOOLCHAIN_PATH_ADD = "${EXTERNAL_TOOLCHAIN}/bin:"
 PATH =. "${TOOLCHAIN_PATH_ADD}"
 
-CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu"
-CSL_TARGET_SYS_powerpc64 ?= "powerpc-linux-gnu"
-CSL_TARGET_SYS_arm ?= "arm-none-linux-gnueabi"
+CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
+CSL_TARGET_SYS_powerpc64 ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
+CSL_TARGET_SYS_arm ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
 CSL_TARGET_SYS_mips ?= "mips-linux-gnu"
 CSL_TARGET_SYS_mipsel ?= "mips-linux-gnu"
 CSL_TARGET_SYS_mips64 ?= "mips-linux-gnu"
-CSL_TARGET_SYS_i686 ?= "i686-pc-linux-gnu"
-CSL_TARGET_SYS_i586 ?= "i686-pc-linux-gnu"
+CSL_TARGET_SYS_i686 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
+CSL_TARGET_SYS_i586 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
 CSL_TARGET_SYS = "${TARGET_SYS}"
 
-TARGET_PREFIX = "${CSL_TARGET_SYS}-"
+def csl_target_sys(d):
+    toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
+
+    for triplet in d.getVar('CSL_TARGET_SYS', True).split():
+        gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
+        if os.path.exists(gcc):
+            return triplet + '-'
+    return ''
+
+TARGET_PREFIX = "${@csl_target_sys(d)}"
 
 PREFERRED_PROVIDER_linux-libc-headers = "external-sourcery-toolchain"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "external-sourcery-toolchain"
