@@ -70,8 +70,12 @@ python toolchain_metadata_setup () {
     l.finalize()
 
     sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
-    toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, l),
-                                       stderr=subprocess.PIPE)[0].rstrip()
+    try:
+        toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, l),
+                                           stderr=subprocess.PIPE,
+                                           env={"PATH": l.getVar('PATH', True)})[0].rstrip()
+    except bb.process.CmdError as exc:
+        bb.warn(str(exc))
     d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', toolchain_sysroot)
 
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
