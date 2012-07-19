@@ -50,7 +50,7 @@ TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 
 CSL_IS_PRO := "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
-TUNE_CCARGS_append_x86 = "${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
+TUNE_CCARGS_append_x86 = " ${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
 
 # Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
 # bindir (e.g. gcc, ld). To avoid this messing up our build, we avoid adding
