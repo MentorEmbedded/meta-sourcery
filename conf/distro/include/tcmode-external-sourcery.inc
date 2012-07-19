@@ -48,11 +48,6 @@ ENABLE_BINARY_LOCALE_GENERATION = ""
 
 TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 
-# These bits are here temporarily to sidestep the need to use a separate set
-# of tune files to pass the appropriate multilib selection arguments to the
-# sourcery toolchain, as is needed to extract the sysroot content.
-TUNE_CCARGS_append_x86 = " -msgxx-glibc"
-
 # Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
 # bindir (e.g. gcc, ld). To avoid this messing up our build, we avoid adding
 # this bindir to our PATH, and instead add symlinks to the prefixed binaries
@@ -80,6 +75,10 @@ python toolchain_metadata_setup () {
 
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
         d.setVar('TOOLCHAIN_PATH_ADD', '')
+
+    if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/license', l)):
+        # Assuming use of a CodeBench Pro toolchain
+        d.setVar('TUNE_CCARGS_append_x86', " -msgxx-glibc")
 
     # The external toolchain may not have been built with the yocto preferred
     # gnu hash setting, so ensure that the corresponding sanity check is a
