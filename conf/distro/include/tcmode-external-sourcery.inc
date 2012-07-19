@@ -63,10 +63,17 @@ python toolchain_metadata_setup () {
     if not isinstance(e, bb.event.ConfigParsed):
         return
 
+    import subprocess
     d = e.data
 
     l = d.createCopy()
     l.finalize()
+
+    sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
+    toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, l),
+                                       stderr=subprocess.PIPE)[0].rstrip()
+    d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', toolchain_sysroot)
+
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
         d.setVar('TOOLCHAIN_PATH_ADD', '')
 

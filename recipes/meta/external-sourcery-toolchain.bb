@@ -30,7 +30,7 @@ SRC_URI = "file://SUPPORTED"
 
 do_install() {
 	# Use optimized files if available
-	sysroot="$(${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot)"
+	sysroot="${EXTERNAL_TOOLCHAIN_SYSROOT}"
 
 	cp -a $sysroot${base_libdir}/. ${D}${base_libdir}
 	cp -a $sysroot/etc/. ${D}${sysconfdir}
