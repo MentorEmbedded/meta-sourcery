@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r10"
+PR = "r11"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -57,12 +57,15 @@ do_install() {
 	fi
 
         ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, '', 'rm -rf ${D}${includedir}/linux ${D}${includedir}/asm*', d)}
-	rm ${D}${sysconfdir}/rpc
-	rm -r ${D}${datadir}/zoneinfo
+	rm -f ${D}${sysconfdir}/rpc
+	rm -rf ${D}${datadir}/zoneinfo
 
-	cp -a ${D}${libdir}/bin/. ${D}${bindir}/
-	rm ${D}${libdir}/bin/*
-	ln -s ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
+	if [ -e ${D}${libdir}/bin ]; then
+		cp -a ${D}${libdir}/bin/. ${D}${bindir}/
+		rm -r ${D}${libdir}/bin
+		install -d ${D}${libdir}/bin
+		ln -s ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
+	fi
 
         sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
         sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
