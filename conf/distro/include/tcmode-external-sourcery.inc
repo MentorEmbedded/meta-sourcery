@@ -50,10 +50,9 @@ def exttc_run(d, cmd):
 EXTERNAL_TOOLCHAIN_SYSROOT_CMD = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
 EXTERNAL_TOOLCHAIN_SYSROOT ??= "${@exttc_run(d, EXTERNAL_TOOLCHAIN_SYSROOT_CMD)}"
 
-# These bits are here temporarily to sidestep the need to use a separate set
-# of tune files to pass the appropriate multilib selection arguments to the
-# sourcery toolchain, as is needed to extract the sysroot content.
-TUNE_CCARGS_append_x86 = " -msgxx-glibc"
+CSL_IS_PRO := "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
+
+TUNE_CCARGS_append_x86 = "${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
 
 CSL_MULTILIB_ARGS[ppce500] = "-te500v1"
 CSL_MULTILIB_ARGS[ppce500v2] = "-te500v2"
