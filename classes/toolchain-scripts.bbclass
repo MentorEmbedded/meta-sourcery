@@ -24,8 +24,8 @@ toolchain_create_sdk_env_script () {
 	echo 'export RANLIB=${TARGET_PREFIX}ranlib' >> $script
 	echo 'export OBJCOPY=${TARGET_PREFIX}objcopy' >> $script
 	echo 'export OBJDUMP=${TARGET_PREFIX}objdump' >> $script
-	echo 'export AR=${TARGET_PREFIX}-ar' >> $script
-	echo 'export NM=${TARGET_PREFIX}-nm' >> $script
+	echo 'export AR=${TARGET_PREFIX}ar' >> $script
+	echo 'export NM=${TARGET_PREFIX}nm' >> $script
 	echo 'export TARGET_PREFIX=${TARGET_PREFIX}' >> $script
 	echo 'export CONFIGURE_FLAGS="--target=${TARGET_SYS} --host=${TARGET_SYS} --build=${SDK_ARCH}-linux --with-libtool-sysroot=${SDKTARGETSYSROOT}"' >> $script
 	if [ "${TARGET_OS}" = "darwin8" ]; then
@@ -68,8 +68,8 @@ toolchain_create_tree_env_script () {
 	echo 'export RANLIB=${TARGET_PREFIX}ranlib' >> $script
 	echo 'export OBJCOPY=${TARGET_PREFIX}objcopy' >> $script
 	echo 'export OBJDUMP=${TARGET_PREFIX}objdump' >> $script
-	echo 'export AR=${TARGET_PREFIX}-ar' >> $script
-	echo 'export NM=${TARGET_PREFIX}-nm' >> $script
+	echo 'export AR=${TARGET_PREFIX}ar' >> $script
+	echo 'export NM=${TARGET_PREFIX}nm' >> $script
 	echo 'export TARGET_PREFIX=${TARGET_PREFIX}' >> $script
 	echo 'export CONFIGURE_FLAGS="--target=${TARGET_SYS} --host=${TARGET_SYS} --build=${BUILD_SYS} --with-libtool-sysroot=${STAGING_DIR_TARGET}"' >> $script
 	if [ "${TARGET_OS}" = "darwin8" ]; then
@@ -111,8 +111,8 @@ toolchain_create_sdk_env_script_for_installer () {
 	echo 'export RANLIB=${TARGET_PREFIX}ranlib' >> $script
 	echo 'export OBJCOPY=${TARGET_PREFIX}objcopy' >> $script
 	echo 'export OBJDUMP=${TARGET_PREFIX}objdump' >> $script
-	echo 'export AR=${TARGET_PREFIX}-ar' >> $script
-	echo 'export NM=${TARGET_PREFIX}-nm' >> $script
+	echo 'export AR=${TARGET_PREFIX}ar' >> $script
+	echo 'export NM=${TARGET_PREFIX}nm' >> $script
 	echo 'export TARGET_PREFIX=${TARGET_PREFIX}' >> $script
 	echo 'export CONFIGURE_FLAGS="--target=${TARGET_SYS} --host=${TARGET_SYS} --build=${SDK_ARCH}-linux --with-libtool-sysroot=##SDKTARGETSYSROOT##"' >> $script
 	if [ "${TARGET_OS}" = "darwin8" ]; then
@@ -136,7 +136,8 @@ toolchain_create_sdk_env_script_for_installer () {
 #we get the cached site config in the runtime
 TOOLCHAIN_CONFIGSITE_NOCACHE = "${@siteinfo_get_files(d, True)}"
 TOOLCHAIN_CONFIGSITE_SYSROOTCACHE = "${STAGING_DATADIR}/${TARGET_SYS}_config_site.d"
-TOOLCHAIN_NEED_CONFIGSITE_CACHE = "virtual/libc ncurses"
+TOOLCHAIN_NEED_CONFIGSITE_CACHE = "${TCLIBC} ncurses"
+TOOLCHAIN_CONFIGSITE_DEPENDS = "virtual/libc ncurses"
 
 #This function create a site config file
 toolchain_create_sdk_siteconfig () {
@@ -173,7 +174,7 @@ toolchain_create_sdk_version[vardepsexclude] = "DATETIME"
 
 python __anonymous () {
     deps = ""
-    for dep in (d.getVar('TOOLCHAIN_NEED_CONFIGSITE_CACHE', True) or "").split():
+    for dep in (d.getVar('TOOLCHAIN_CONFIGSITE_DEPENDS', True) or "").split():
         deps += " %s:do_populate_sysroot" % dep
     d.appendVarFlag('do_configure', 'depends', deps)
 }
