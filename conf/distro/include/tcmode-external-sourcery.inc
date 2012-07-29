@@ -75,7 +75,8 @@ python toolchain_metadata_setup () {
                                            stderr=subprocess.PIPE,
                                            env={"PATH": l.getVar('PATH', True)})[0].rstrip()
     except bb.process.CmdError as exc:
-        bb.warn(str(exc))
+        bb.fatal(str(exc))
+
     d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', toolchain_sysroot)
 
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
