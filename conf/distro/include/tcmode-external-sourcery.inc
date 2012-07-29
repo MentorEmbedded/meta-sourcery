@@ -24,7 +24,7 @@ def csl_target_sys(d):
         gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
         if os.path.exists(gcc):
             return triplet + '-'
-    return ''
+    return '${TARGET_SYS}-'
 
 TARGET_PREFIX = "${@csl_target_sys(d)}"
 
