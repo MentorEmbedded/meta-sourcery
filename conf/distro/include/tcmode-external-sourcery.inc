@@ -69,6 +69,7 @@ python toolchain_metadata_setup () {
 
     l = d.createCopy()
     l.finalize()
+    oe_import(l)
 
     sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
     try:
