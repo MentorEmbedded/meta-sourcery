@@ -5,7 +5,7 @@ PROVIDES += "eglibc"
 TOOLCHAIN_OPTIONS = ""
 
 # sourceryg++-${CSL_VER_MAIN}-${CSL_TARGET_SYS}.src.tar.bz2
-CSL_SRC_URI ??= ""
+CSL_SRC_URI ?= ""
 SRC_URI = "${CSL_SRC_URI} \
            file://etc/ld.so.conf \
            file://generate-supported.mk"
@@ -56,8 +56,8 @@ do_configure () {
 
 require recipes/eglibc/eglibc-package-adjusted.inc
 
-CSL_VER_MAIN ??= ""
-CSL_VER_LIBC ??= ""
+CSL_VER_MAIN ?= ""
+CSL_VER_LIBC ?= ""
 
 python () {
     if not d.getVar("CSL_VER_MAIN"):
