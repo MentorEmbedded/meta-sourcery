@@ -53,3 +53,11 @@ do_configure () {
 }
 
 require recipes/eglibc/eglibc-package-adjusted.inc
+
+CSL_VER_MAIN ??= ""
+CSL_VER_LIBC ??= ""
+
+python () {
+    if not d.getVar("CSL_VER_MAIN"):
+	raise bb.parse.SkipPackage("External CSL toolchain not configured (CSL_VER_MAIN not set).")
+}
