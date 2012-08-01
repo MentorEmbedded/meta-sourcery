@@ -1,5 +1,7 @@
 require recipes-core/eglibc/eglibc.inc
 
+PROVIDES += "eglibc"
+
 TOOLCHAIN_OPTIONS = ""
 
 # sourceryg++-${CSL_VER_MAIN}-${CSL_TARGET_SYS}.src.tar.bz2
