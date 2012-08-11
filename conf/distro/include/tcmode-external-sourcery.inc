@@ -49,6 +49,20 @@ ENABLE_BINARY_LOCALE_GENERATION = ""
 
 TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 
+def sourcery_get_sysroot(d):
+    import subprocess
+    sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
+    try:
+        toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, d),
+                                           stderr=subprocess.PIPE,
+                                           env={"PATH": d.getVar('PATH', True)})[0].rstrip()
+    except bb.process.CmdError as exc:
+        bb.fatal(str(exc))
+    else:
+        return toolchain_sysroot
+
+EXTERNAL_TOOLCHAIN_SYSROOT = "${@sourcery_get_sysroot(d)}"
+
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
 TUNE_CCARGS_append_x86 = " ${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
@@ -70,16 +84,6 @@ python toolchain_metadata_setup () {
     l = d.createCopy()
     l.finalize()
     oe_import(l)
-
-    sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
-    try:
-        toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, l),
-                                           stderr=subprocess.PIPE,
-                                           env={"PATH": l.getVar('PATH', True)})[0].rstrip()
-    except bb.process.CmdError as exc:
-        bb.fatal(str(exc))
-
-    d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', toolchain_sysroot)
 
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
         d.setVar('TOOLCHAIN_PATH_ADD', '')
