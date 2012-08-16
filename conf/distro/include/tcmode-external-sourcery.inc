@@ -85,6 +85,10 @@ python toolchain_metadata_setup () {
     l.finalize()
     oe_import(l)
 
+    external_toolchain = l.getVar('EXTERNAL_TOOLCHAIN', True)
+    if not external_toolchain or not os.path.exists(external_toolchain):
+        bb.fatal("Error: EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
+
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
         d.setVar('TOOLCHAIN_PATH_ADD', '')
         populate_toolchain_links(l)
