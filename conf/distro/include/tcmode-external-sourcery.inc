@@ -29,6 +29,7 @@ def csl_target_sys(d):
 TARGET_PREFIX = "${@csl_target_sys(d)}"
 
 PREFERRED_PROVIDER_linux-libc-headers = "external-sourcery-toolchain"
+PREFERRED_PROVIDER_linux-libc-headers-dev = "external-sourcery-toolchain"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "external-sourcery-toolchain"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial = "external-sourcery-toolchain"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate = "external-sourcery-toolchain"
