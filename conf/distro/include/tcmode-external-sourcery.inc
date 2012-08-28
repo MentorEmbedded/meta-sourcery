@@ -85,27 +85,14 @@ python toolchain_metadata_setup () {
     l.finalize()
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
         d.setVar('TOOLCHAIN_PATH_ADD', '')
+        populate_toolchain_links(l)
 }
 addhandler toolchain_metadata_setup
-
-python toolchain_setup () {
-    if not isinstance(e, bb.event.BuildStarted):
-        return
-
-    d = e.data
-
-    if not d.getVar('TOOLCHAIN_PATH_ADD', True):
-        populate_toolchain_links(d)
-}
-addhandler toolchain_setup
 
 def populate_toolchain_links(d):
     import errno
     import os
     from glob import glob
-
-    d = d.createCopy()
-    d.finalize()
 
     pattern = d.expand('${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}*')
     files = glob(pattern)
