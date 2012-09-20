@@ -69,6 +69,7 @@ CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'
 TUNE_CCARGS_append_x86 = " ${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
 TUNE_CCARGS_append_x86-64 = " ${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
 
+LDEMULATION = ""
 LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in TUNE_FEATURES.split() else 'lt'}"
 LDEMULATION_BITS = "${@'64' if 'n64' in TUNE_FEATURES.split() else '32'}"
 LDEMULATION_mips64 = "elf${LDEMULATION_BITS}${LDEMULATION_ENDIAN}smip${@bb.utils.contains('TUNE_FEATURES', 'n32', 'n32', '', d)}"
