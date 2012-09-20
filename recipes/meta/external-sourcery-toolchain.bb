@@ -42,6 +42,11 @@ do_install() {
 		cp -a $usr_path ${D}/usr/
 	done
 
+        # Copy locale directory if not already present in libdir
+        if [ ! -d ${D}${libdir}/locale ]; then
+		cp -a $sysroot/usr/lib/locale ${D}${libdir}
+	fi
+
 	for datadir_element in man info; do
 		datadir_path=$sysroot/usr/$datadir_element
 		if [ -e $datadir_path ]; then
