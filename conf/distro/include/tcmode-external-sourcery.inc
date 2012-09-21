@@ -9,7 +9,7 @@ PATH =. "${TOOLCHAIN_PATH_ADD}"
 
 python () {
     if oe.utils.inherits(d, 'native'):
-        e.data.setVar('TOOLCHAIN_PATH_ADD', '')
+        d.setVar('TOOLCHAIN_PATH_ADD', '')
 }
 
 CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
