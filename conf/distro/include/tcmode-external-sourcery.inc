@@ -7,6 +7,11 @@ EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 TOOLCHAIN_PATH_ADD = "${EXTERNAL_TOOLCHAIN}/bin:"
 PATH =. "${TOOLCHAIN_PATH_ADD}"
 
+python () {
+    if oe.utils.inherits(d, 'native'):
+        e.data.setVar('TOOLCHAIN_PATH_ADD', '')
+}
+
 CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
 CSL_TARGET_SYS_powerpc64 ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
 CSL_TARGET_SYS_arm ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
