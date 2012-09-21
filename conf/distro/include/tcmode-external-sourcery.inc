@@ -12,6 +12,8 @@ python () {
         d.setVar('TOOLCHAIN_PATH_ADD', '')
 }
 
+localedir = "${exec_prefix}/lib/locale"
+
 CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
 CSL_TARGET_SYS_powerpc64 ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
 CSL_TARGET_SYS_arm ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
