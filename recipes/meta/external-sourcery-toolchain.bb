@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r12"
+PR = "r13"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -41,6 +41,12 @@ do_install() {
 		usr_path=$sysroot/usr/$usr_element
 		cp -a $usr_path ${D}/usr/
 	done
+	if [ "${base_libdir}" != "lib" ]; then
+		if [ -d $sysroot/usr/lib/locale ]; then
+			install -d ${D}/usr/lib
+			cp -a $sysroot/usr/lib/locale ${D}/usr/lib/
+		fi
+	fi
 
 	for datadir_element in man info; do
 		datadir_path=$sysroot/usr/$datadir_element
