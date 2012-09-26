@@ -95,6 +95,9 @@ TC_PACKAGES =+ "libgcc libgcc-dev libstdc++ libstdc++-dev libstdc++-staticdev gd
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
 PACKAGES =+ "${TC_PACKAGES}"
 
+# Inhibit warnings about files being stripped, we can't do anything about it.
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+
 # This test should be fixed to ignore .a files in .debug dirs
 INSANE_SKIP_${PN}-dbg = "staticdev"
 
