@@ -145,4 +145,4 @@ def populate_toolchain_links(d):
 
 require conf/distro/include/csl-versions.inc
 
-BUILDCFG_VARS += "CSL_VER_MAIN"
+BUILDCFG_VARS += "CSL_VER_MAIN EXTERNAL_TOOLCHAIN"
