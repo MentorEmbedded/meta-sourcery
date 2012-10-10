@@ -33,7 +33,6 @@ do_install() {
 	sysroot="${EXTERNAL_TOOLCHAIN_SYSROOT}"
 
 	cp -a $sysroot${base_libdir}/. ${D}${base_libdir}
-	cp -a $sysroot/etc/. ${D}${sysconfdir}
 	cp -a $sysroot/sbin/. ${D}${base_sbindir}
 
 	install -d ${D}/usr
@@ -63,7 +62,6 @@ do_install() {
 	fi
 
         ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, '', 'rm -rf ${D}${includedir}/linux ${D}${includedir}/asm*', d)}
-	rm -f ${D}${sysconfdir}/rpc
 	rm -rf ${D}${datadir}/zoneinfo
 
 	if [ -e ${D}${libdir}/bin ]; then
@@ -91,7 +89,10 @@ external_toolchain_sysroot_adjust() {
 	install -d ${SYSROOT_DESTDIR}/usr/lib
 }
 
-TC_PACKAGES =+ "libgcc libgcc-dev libstdc++ libstdc++-dev libstdc++-staticdev gdbserver gdbserver-dbg"
+TC_PACKAGES =+ "libgcc libgcc-dev"
+TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
+TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
+TC_PACKAGES =+ "gdbserver gdbserver-dbg"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
 PACKAGES =+ "${TC_PACKAGES}"
 
@@ -103,13 +104,17 @@ INSANE_SKIP_${PN}-dbg = "staticdev"
 
 # We don't care about GNU_HASH in prebuilt binaries
 INSANE_SKIP_${PN}-utils += "ldflags"
-INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
+INSANE_SKIP_libgomp += "ldflags"
+INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_gdbserver += "ldflags"
 
 PKGV = "${CSL_VER_LIBC}"
 PKGV_libgcc = "${CSL_VER_GCC}"
 PKGV_libgcc-dev = "${CSL_VER_GCC}"
+PKGV_libgomp = "${CSL_VER_GCC}"
+PKGV_libgomp-dev = "${CSL_VER_GCC}"
+PKGV_libgomp-staticdev = "${CSL_VER_GCC}"
 PKGV_libstdc++ = "${CSL_VER_GCC}"
 PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
@@ -120,6 +125,9 @@ PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
 
 FILES_libgcc = "${base_libdir}/libgcc_s.so.1"
 FILES_libgcc-dev = "${base_libdir}/libgcc_s.so"
+FILES_libgomp = "${libdir}/libgomp.so.*"
+FILES_libgomp-dev = "${libdir}/libgomp.so"
+FILES_libgomp-staticdev = "${libdir}/libgomp.a"
 FILES_libstdc++ = "${libdir}/libstdc++.so.*"
 FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 	${libdir}/libstdc++.so \
