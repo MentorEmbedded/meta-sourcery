@@ -107,6 +107,9 @@ INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
 INSANE_SKIP_gdbserver += "ldflags"
 
+# Suppress warnings about unshipped files and directores
+INSANE_SKIP_${PN} += "installed_vs_shipped"
+
 PKGV = "${CSL_VER_LIBC}"
 PKGV_libgcc = "${CSL_VER_GCC}"
 PKGV_libgcc-dev = "${CSL_VER_GCC}"
