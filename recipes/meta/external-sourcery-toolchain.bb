@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r13"
+PR = "r14"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -94,6 +94,7 @@ TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
+TC_PACKAGES =+ "oprofile"
 PACKAGES =+ "${TC_PACKAGES}"
 
 # Inhibit warnings about files being stripped, we can't do anything about it.
@@ -122,6 +123,7 @@ PKGV_linux-libc-headers = "${CSL_VER_KERNEL}"
 PKGV_linux-libc-headers-dev = "${CSL_VER_KERNEL}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
+PKGV_oprofile = "${CSL_VER_GCC}"
 
 FILES_libgcc = "${base_libdir}/libgcc_s.so.1"
 FILES_libgcc-dev = "${base_libdir}/libgcc_s.so"
@@ -144,6 +146,7 @@ FILES_linux-libc-headers = "${includedir}/asm* \
 "
 FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
 FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver"
+FILES_oprofile = "${datadir}/oprofile/* ${libdir}/oprofile/* ${datadir}/stl.pat"
 
 CSL_VER_MAIN ??= ""
 
