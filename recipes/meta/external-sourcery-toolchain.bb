@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r14"
+PR = "r15"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
