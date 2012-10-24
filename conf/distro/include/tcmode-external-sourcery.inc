@@ -99,6 +99,14 @@ python toolchain_metadata_setup () {
     l.finalize()
     oe_import(l)
 
+    # Remove already-added toolchain install paths from the PATH, as they can
+    # break the build (in particular, the ia32 toolchain, as it provdes
+    # non-prefixed binaries).
+    install_prefix_default = bb.data.expand('${HOME}/CodeSourcery/', l)
+    path = d.getVar('PATH', True).split(':')
+    path = filter(lambda p: not p.startswith(install_prefix_default), path)
+    d.setVar('PATH', ':'.join(path))
+
     external_toolchain = l.getVar('EXTERNAL_TOOLCHAIN', True)
     if not external_toolchain or external_toolchain == 'UNDEFINED':
         bb.fatal("Error: EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
