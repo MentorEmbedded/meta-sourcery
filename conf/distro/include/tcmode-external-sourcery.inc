@@ -103,7 +103,7 @@ python toolchain_metadata_setup () {
     # break the build (in particular, the ia32 toolchain, as it provdes
     # non-prefixed binaries).
     install_prefix_default = bb.data.expand('${HOME}/CodeSourcery/', l)
-    path = d.getVar('PATH', True).split(':')
+    path = d.getVar('PATH', False).split(':')
     path = filter(lambda p: not p.startswith(install_prefix_default), path)
     d.setVar('PATH', ':'.join(path))
 
