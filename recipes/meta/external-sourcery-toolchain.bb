@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r16"
+PR = "r17"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -74,15 +74,29 @@ do_install() {
         sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
         sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
 	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
+
+	create_multilib_link ${D}
+}
+
+def sysroot_multilib_suffix(d):
+    PATH = d.getVar('PATH', True)
+    cmd = '${CC} -print-sysroot | sed -e "s,^${STAGING_DIR_HOST},,; s,^/,,"'
+    return oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH})
+
+FILES_${PN}-dev += "/${@sysroot_multilib_suffix(d)}"
+
+create_multilib_link () {
+	dest="$1"
+	sysroot_multilib_suffix="${@sysroot_multilib_suffix(d)}"
+	if [ -n "$sysroot_multilib_suffix" ]; then
+		rm -f $dest/$sysroot_multilib_suffix
+		ln -s . $dest/$sysroot_multilib_suffix
+	fi
 }
 
 SYSROOT_PREPROCESS_FUNCS += "external_toolchain_sysroot_adjust"
 external_toolchain_sysroot_adjust() {
-	dest_sysroot="$(${CC} -print-sysroot | sed -e's,^${STAGING_DIR_HOST},,; s,/$,,')"
-	if [ -n "$dest_sysroot" ]; then
-		rm -f ${SYSROOT_DESTDIR}/$dest_sysroot
-		ln -s . ${SYSROOT_DESTDIR}/$dest_sysroot
-	fi
+	create_multilib_link ${SYSROOT_DESTDIR}
 
 	# If the usr/lib directory doesn't exist, the toolchain fails to even
 	# try to find crti.o in a completely different directory (usr/lib64)
