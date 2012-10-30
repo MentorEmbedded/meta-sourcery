@@ -11,6 +11,9 @@ PATH =. "${TOOLCHAIN_PATH_ADD}"
 # Don't ship any toolchain binaries in the sdk for the time being
 TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
 
+# Add the external toolchain to the sdk setup script PATH
+INHERIT += "toolchain-scripts-external"
+
 localedir = "${exec_prefix}/lib/locale"
 
 CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
