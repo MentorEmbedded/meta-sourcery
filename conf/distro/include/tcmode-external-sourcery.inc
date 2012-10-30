@@ -4,13 +4,9 @@
 
 EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 
-TOOLCHAIN_PATH_ADD = "${EXTERNAL_TOOLCHAIN}/bin:"
+TOOLCHAIN_PATH_ADD = ""
+TOOLCHAIN_PATH_ADD_class-target = "${EXTERNAL_TOOLCHAIN}/bin:"
 PATH =. "${TOOLCHAIN_PATH_ADD}"
-
-python () {
-    if oe.utils.inherits(d, 'native'):
-        d.setVar('TOOLCHAIN_PATH_ADD', '')
-}
 
 # Don't ship any toolchain binaries in the sdk for the time being
 TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
@@ -118,7 +114,7 @@ python toolchain_metadata_setup () {
         bb.fatal("Error: EXTERNAL_TOOLCHAIN path '%s' does not exist" % external_toolchain)
 
     if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
-        d.setVar('TOOLCHAIN_PATH_ADD', '')
+        d.setVar('TOOLCHAIN_PATH_ADD_class-target', '')
         populate_toolchain_links(l)
 
     # The external toolchain may not have been built with the yocto preferred
