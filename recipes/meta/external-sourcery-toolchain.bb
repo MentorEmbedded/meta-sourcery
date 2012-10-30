@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r15"
+PR = "r16"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -93,7 +93,6 @@ TC_PACKAGES =+ "libgcc libgcc-dev"
 TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
-TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
 TC_PACKAGES =+ "oprofile"
 PACKAGES =+ "${TC_PACKAGES}"
 
@@ -119,8 +118,6 @@ PKGV_libgomp-staticdev = "${CSL_VER_GCC}"
 PKGV_libstdc++ = "${CSL_VER_GCC}"
 PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
-PKGV_linux-libc-headers = "${CSL_VER_KERNEL}"
-PKGV_linux-libc-headers-dev = "${CSL_VER_KERNEL}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
 PKGV_oprofile = "${CSL_VER_GCC}"
@@ -136,14 +133,6 @@ FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 	${libdir}/libstdc++.la \
 	${libdir}/libsupc++.la"
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a ${libdir}/libsupc++.a"
-FILES_linux-libc-headers = "${includedir}/asm* \
-	${includedir}/linux \
-	${includedir}/mtd \
-	${includedir}/rdma \
-	${includedir}/scsi \
-	${includedir}/sound \
-	${includedir}/video \
-"
 FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
 FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver"
 FILES_oprofile = "${datadir}/oprofile/* ${libdir}/oprofile/* ${datadir}/stl.pat"
