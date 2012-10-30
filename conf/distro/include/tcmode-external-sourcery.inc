@@ -12,6 +12,9 @@ python () {
         d.setVar('TOOLCHAIN_PATH_ADD', '')
 }
 
+# Don't ship any toolchain binaries in the sdk for the time being
+TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
+
 localedir = "${exec_prefix}/lib/locale"
 
 CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
