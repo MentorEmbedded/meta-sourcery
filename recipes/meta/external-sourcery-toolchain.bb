@@ -81,7 +81,7 @@ do_install() {
 def sysroot_multilib_suffix(d):
     PATH = d.getVar('PATH', True)
     cmd = '${CC} -print-sysroot | sed -e "s,^${STAGING_DIR_HOST},,; s,^/,,"'
-    return oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH})
+    return oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH}).rstrip()
 
 FILES_${PN}-dev += "/${@sysroot_multilib_suffix(d)}"
 
