@@ -84,6 +84,9 @@ def sysroot_multilib_suffix(d):
     return oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH}).rstrip()
 
 FILES_${PN}-dev += "/${@sysroot_multilib_suffix(d)}"
+FILES_${PN} += "${prefix}/libexec/*"
+FILES_${PN}-dbg += "${prefix}/libexec/*/.debug"
+
 
 create_multilib_link () {
 	dest="$1"
