@@ -79,6 +79,12 @@ do_install() {
 	create_multilib_link ${D}
 }
 
+# These files are picked up out of the sysroot by eglibc-locale, so we don't
+# need to keep them around ourselves.
+do_install_locale_append() {
+	rm -fr ${D}${exec_prefix}/lib/locale
+}
+
 def sysroot_multilib_suffix(d):
     PATH = d.getVar('PATH', True)
     cmd = '${CC} -print-sysroot | sed -e "s,^${STAGING_DIR_HOST},,; s,^/,,"'
