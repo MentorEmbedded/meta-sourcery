@@ -130,6 +130,7 @@ INSANE_SKIP_${PN}-dbg = "staticdev"
 INSANE_SKIP_${PN}-utils += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
 INSANE_SKIP_libgomp += "ldflags"
+INSANE_SKIP_libquadmath += "ldflags"
 INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_gdbserver += "ldflags"
 
