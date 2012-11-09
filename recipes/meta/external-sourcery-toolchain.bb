@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r17"
+PR = "r18"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -76,6 +76,12 @@ do_install() {
 	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
 
 	create_multilib_link ${D}
+}
+
+# These files are picked up out of the sysroot by eglibc-locale, so we don't
+# need to keep them around ourselves.
+do_install_locale_append() {
+	rm -fr ${D}${exec_prefix}/lib/locale
 }
 
 def sysroot_multilib_suffix(d):
