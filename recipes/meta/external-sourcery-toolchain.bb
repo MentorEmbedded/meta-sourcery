@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r18"
+PR = "r19"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -76,6 +76,9 @@ do_install() {
 	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
 
 	create_multilib_link ${D}
+
+	rm -rf ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat \
+	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/oprofile* ${D}${docdir}/oprofile
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
@@ -117,7 +120,6 @@ TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
 TC_PACKAGES =+ "libquadmath libquadmath-dev libquadmath-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
-TC_PACKAGES =+ "oprofile"
 PACKAGES =+ "${TC_PACKAGES}"
 
 # Inhibit warnings about files being stripped, we can't do anything about it.
@@ -148,7 +150,6 @@ PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
-PKGV_oprofile = "${CSL_VER_GCC}"
 
 FILES_libgcc = "${base_libdir}/libgcc_s.so.1"
 FILES_libgcc-dev = "${base_libdir}/libgcc_s.so"
@@ -166,7 +167,6 @@ FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a ${libdir}/libsupc++.a"
 FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
 FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver"
-FILES_oprofile = "${datadir}/oprofile/* ${libdir}/oprofile/* ${datadir}/stl.pat"
 
 CSL_VER_MAIN ??= ""
 
