@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r19"
+PR = "r20"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -90,9 +90,13 @@ do_install_locale_append() {
 def sysroot_multilib_suffix(d):
     PATH = d.getVar('PATH', True)
     cmd = '${CC} -print-sysroot | sed -e "s,^${STAGING_DIR_HOST},,; s,^/,,"'
-    return oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH}).rstrip()
+    multilib_suffix = oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH}).rstrip()
+    if multilib_suffix:
+        return '/' + multilib_suffix
+    else:
+        return ''
 
-FILES_${PN}-dev += "/${@sysroot_multilib_suffix(d)}"
+FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
 FILES_${PN} += "${prefix}/libexec/*"
 FILES_${PN}-dbg += "${prefix}/libexec/*/.debug"
 
