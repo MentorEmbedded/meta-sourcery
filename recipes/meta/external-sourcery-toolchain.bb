@@ -22,7 +22,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r20"
+PR = "r21"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -77,8 +77,9 @@ do_install() {
 
 	create_multilib_link ${D}
 
+        rm -f ${D}${bindir}/sysroot-*
 	rm -rf ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat \
-	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/oprofile* ${D}${docdir}/oprofile
+	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/op* ${D}${docdir}/oprofile
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
