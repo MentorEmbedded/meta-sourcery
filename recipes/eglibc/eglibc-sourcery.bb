@@ -50,6 +50,14 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
 
 EXTRA_OECONF += "${@get_libc_fpu_setting(bb, d)}"
 
+oe_runmake () {
+    if [ "$1" = "config" ]; then
+        return
+    else
+	${MAKE} ${EXTRA_OEMAKE} "$@"
+    fi
+}
+
 do_configure () {
     CPPFLAGS="" oe_runconf
 }
