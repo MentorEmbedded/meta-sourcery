@@ -17,12 +17,13 @@ PROVIDES = "\
 	virtual/${TARGET_PREFIX}gcc-intermediate \
 	virtual/${TARGET_PREFIX}binutils \
 	virtual/${TARGET_PREFIX}compilerlibs \
+	virtual/${TARGET_PREFIX}libc-initial \
         ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers', '', d)} \
         ${@base_conditional('PREFERRED_PROVIDER_virtual/libc', PN, 'virtual/libc virtual/libiconv virtual/libintl virtual/${TARGET_PREFIX}libc-for-gcc ${TCLIBC}', '', d)} \
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r17"
+PR = "r18"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
