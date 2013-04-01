@@ -156,4 +156,16 @@ def populate_toolchain_links(d):
 
 require conf/distro/include/csl-versions.inc
 
+def get_gcc_version_prefix(d):
+    ver = d.getVar('CSL_VER_GCC', True)
+    if ver:
+        components = ver.split('.')
+        if len(components) > 1:
+            return '.'.join(components[:2])
+    else:
+        return '4.7%'
+
+# Prefer a matching gcc version
+GCCVERSION ?= "${@get_gcc_version_prefix(d)}%"
+
 BUILDCFG_VARS += "CSL_VER_MAIN EXTERNAL_TOOLCHAIN"

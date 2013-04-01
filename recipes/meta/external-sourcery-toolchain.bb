@@ -23,7 +23,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r18"
+PR = "r21"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -77,6 +77,10 @@ do_install() {
 	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
 
 	create_multilib_link ${D}
+
+        rm -f ${D}${bindir}/sysroot-*
+	rm -rf ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat \
+	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/op* ${D}${docdir}/oprofile
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
@@ -88,9 +92,16 @@ do_install_locale_append() {
 def sysroot_multilib_suffix(d):
     PATH = d.getVar('PATH', True)
     cmd = '${CC} -print-sysroot | sed -e "s,^${STAGING_DIR_HOST},,; s,^/,,"'
-    return oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH}).rstrip()
+    multilib_suffix = oe.path.check_output(bb.data.expand(cmd, d), shell=True, env={'PATH': PATH}).rstrip()
+    if multilib_suffix:
+        return '/' + multilib_suffix
+    else:
+        return ''
 
-FILES_${PN}-dev += "/${@sysroot_multilib_suffix(d)}"
+FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
+FILES_${PN} += "${prefix}/libexec/*"
+FILES_${PN}-dbg += "${prefix}/libexec/*/.debug"
+
 
 create_multilib_link () {
 	dest="$1"
@@ -112,9 +123,9 @@ external_toolchain_sysroot_adjust() {
 
 TC_PACKAGES =+ "libgcc libgcc-dev"
 TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
+TC_PACKAGES =+ "libquadmath libquadmath-dev libquadmath-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
-TC_PACKAGES =+ "oprofile"
 PACKAGES =+ "${TC_PACKAGES}"
 
 # Inhibit warnings about files being stripped, we can't do anything about it.
@@ -127,6 +138,7 @@ INSANE_SKIP_${PN}-dbg = "staticdev"
 INSANE_SKIP_${PN}-utils += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
 INSANE_SKIP_libgomp += "ldflags"
+INSANE_SKIP_libquadmath += "ldflags"
 INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_gdbserver += "ldflags"
 
@@ -136,18 +148,23 @@ PKGV_libgcc-dev = "${CSL_VER_GCC}"
 PKGV_libgomp = "${CSL_VER_GCC}"
 PKGV_libgomp-dev = "${CSL_VER_GCC}"
 PKGV_libgomp-staticdev = "${CSL_VER_GCC}"
+PKGV_libquadmath = "${CSL_VER_GCC}"
+PKGV_libquadmath-dev = "${CSL_VER_GCC}"
+PKGV_libquadmath-staticdev = "${CSL_VER_GCC}"
 PKGV_libstdc++ = "${CSL_VER_GCC}"
 PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
-PKGV_oprofile = "${CSL_VER_GCC}"
 
 FILES_libgcc = "${base_libdir}/libgcc_s.so.1"
 FILES_libgcc-dev = "${base_libdir}/libgcc_s.so"
 FILES_libgomp = "${libdir}/libgomp.so.*"
 FILES_libgomp-dev = "${libdir}/libgomp.so"
 FILES_libgomp-staticdev = "${libdir}/libgomp.a"
+FILES_libquadmath = "${libdir}/libquadmath.so.*"
+FILES_libquadmath-dev = "${libdir}/libquadmath.so"
+FILES_libquadmath-staticdev = "${libdir}/libquadmath.so"
 FILES_libstdc++ = "${libdir}/libstdc++.so.*"
 FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 	${libdir}/libstdc++.so \
@@ -156,7 +173,6 @@ FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a ${libdir}/libsupc++.a"
 FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
 FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver"
-FILES_oprofile = "${datadir}/oprofile/* ${libdir}/oprofile/* ${datadir}/stl.pat"
 
 CSL_VER_MAIN ??= ""
 
