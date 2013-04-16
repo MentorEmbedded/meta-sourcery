@@ -172,7 +172,7 @@ FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 	${libdir}/libsupc++.la"
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a ${libdir}/libsupc++.a"
 FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
-FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver"
+FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver.debug"
 
 CSL_VER_MAIN ??= ""
 
