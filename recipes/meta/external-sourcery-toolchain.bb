@@ -23,7 +23,7 @@ PROVIDES = "\
 	libgcc \
 "
 PV = "${CSL_VER_MAIN}"
-PR = "r21"
+PR = "r22"
 
 #SRC_URI = "http://www.codesourcery.com/public/gnu_toolchain/${CSL_TARGET_SYS}/arm-${PV}-${TARGET_PREFIX}i686-pc-linux-gnu.tar.bz2"
 
@@ -156,6 +156,23 @@ PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
+
+def csl_get_gdb_license(d):
+    try:
+        stdout, stderr = csl_run(d, 'gdb', '-v')
+    except bb.process.CmdError as c:
+        return 'UNKNOWN(%s)' % c
+    else:
+        for line in stdout.splitlines():
+            if line.startswith('License '):
+                lic = line.split(':', 1)[0]
+                return lic.replace('License ', '')
+
+        return 'UNKNOWN'
+
+CSL_LIC_GDB = "${@csl_get_gdb_license(d)}"
+LICENSE_gdbserver = "${CSL_LIC_GDB}"
+LICENSE_gdbserver-dbg = "${CSL_LIC_GDB}"
 
 FILES_libgcc = "${base_libdir}/libgcc_s.so.1"
 FILES_libgcc-dev = "${base_libdir}/libgcc_s.so"
