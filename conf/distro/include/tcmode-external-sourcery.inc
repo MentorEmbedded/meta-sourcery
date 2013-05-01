@@ -155,9 +155,8 @@ def populate_toolchain_links(d):
         try:
             os.symlink(ld, ld_bfd)
         except OSError as exc:
-            if exc.errno == errno.EEXIST:
-                break
-            bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (ld_bfd, exc))
+            if exc.errno != errno.EEXIST:
+                bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (ld_bfd, exc))
 
 require conf/distro/include/csl-versions.inc
 
