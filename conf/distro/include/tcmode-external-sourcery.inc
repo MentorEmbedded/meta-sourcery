@@ -4,10 +4,6 @@
 
 EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 
-TOOLCHAIN_PATH_ADD = ""
-TOOLCHAIN_PATH_ADD_class-target = "${EXTERNAL_TOOLCHAIN}/bin:"
-PATH =. "${TOOLCHAIN_PATH_ADD}"
-
 # Don't ship any toolchain binaries in the sdk for the time being
 TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
 
@@ -117,9 +113,7 @@ python toolchain_metadata_setup () {
     if not os.path.exists(external_toolchain):
         bb.fatal("Error: EXTERNAL_TOOLCHAIN path '%s' does not exist" % external_toolchain)
 
-    if os.path.exists(bb.data.expand('${EXTERNAL_TOOLCHAIN}/bin/gcc', l)):
-        d.setVar('TOOLCHAIN_PATH_ADD_class-target', '')
-        populate_toolchain_links(l)
+    populate_toolchain_links(l)
 
     # The external toolchain may not have been built with the yocto preferred
     # gnu hash setting, so ensure that the corresponding sanity check is a
@@ -153,6 +147,17 @@ def populate_toolchain_links(d):
             if exc.errno == errno.EEXIST:
                 break
             bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (newpath, exc))
+
+    # Ensure that we have a ld.bfd available, now that KERNEL_LD uses it
+    ld = d.expand('${TARGET_PREFIX}ld')
+    ld_bfd = os.path.join(bindir, ld + '.bfd')
+    if not os.path.exists(ld_bfd):
+        try:
+            os.symlink(ld, ld_bfd)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST:
+                break
+            bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (ld_bfd, exc))
 
 require conf/distro/include/csl-versions.inc
 
