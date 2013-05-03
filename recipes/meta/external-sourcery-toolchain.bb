@@ -29,6 +29,8 @@ PR = "r22"
 
 SRC_URI = "file://SUPPORTED"
 
+LINUX_LIBC_HEADER_DIRS = "video mtd asm drm linux rdma asm-generic sound xen"
+
 do_install() {
 	# Use optimized files if available
 	sysroot="${EXTERNAL_TOOLCHAIN_SYSROOT}"
@@ -57,12 +59,13 @@ do_install() {
 
 	# Some toolchains have headers under the core specific area
 	if [ -e $sysroot/usr/include ]; then
-		cp -a $sysroot/usr/include/. ${D}${includedir}
+		includedir=$sysroot/usr/include
 	else
-		cp -a $sysroot/../usr/include/. ${D}${includedir}
+		includedir=$sysroot/../usr/include
 	fi
+	cp -a $includedir/. ${D}${includedir}
 
-        ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, '', 'rm -rf ${D}${includedir}/linux ${D}${includedir}/asm*', d)}
+	${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, '', 'for dir in ${LINUX_LIBC_HEADER_DIRS}; do rm -rf ${D}${includedir}/$dir; done', d)}
 	rm -rf ${D}${datadir}/zoneinfo
 
 	if [ -e ${D}${libdir}/bin ]; then
