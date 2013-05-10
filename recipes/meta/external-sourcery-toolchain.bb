@@ -126,6 +126,7 @@ TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
 TC_PACKAGES =+ "libquadmath libquadmath-dev libquadmath-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
 PACKAGES =+ "${TC_PACKAGES}"
 
 # Inhibit warnings about files being stripped, we can't do anything about it.
