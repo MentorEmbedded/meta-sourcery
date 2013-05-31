@@ -1,4 +1,3 @@
-PRINC := "${@int(PRINC) + 1}"
 FILESEXTRAPATHS_prepend := "${THISDIR}/irda-utils:"
 SRC_URI += "file://ldflags.patch"
 
