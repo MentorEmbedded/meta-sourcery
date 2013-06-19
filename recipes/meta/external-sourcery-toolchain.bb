@@ -85,7 +85,8 @@ do_install() {
 
         rm -f ${D}${bindir}/sysroot-*
 	rm -rf ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat \
-	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/op* ${D}${docdir}/oprofile
+	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/op* ${D}${docdir}/oprofile \
+	       ${D}${bindir}/.debug/op*
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
