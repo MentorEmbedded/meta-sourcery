@@ -173,3 +173,9 @@ def get_gcc_version_prefix(d):
 GCCVERSION ?= "${@get_gcc_version_prefix(d)}%"
 
 BUILDCFG_VARS += "CSL_VER_MAIN EXTERNAL_TOOLCHAIN"
+SDKGCCVERSION ?= "${GCCVERSION}"
+PREFERRED_VERSION_gcc-crosssdk ?= "${SDKGCCVERSION}"
+PREFERRED_VERSION_gcc-crosssdk-initial ?= "${SDKGCCVERSION}"
+PREFERRED_VERSION_gcc-crosssdk-intermediate ?= "${SDKGCCVERSION}"
+PREFERRED_VERSION_nativesdk-gcc-runtime ?= "${SDKGCCVERSION}"
+PREFERRED_VERSION_nativesdk-libgcc ?= "${SDKGCCVERSION}"
