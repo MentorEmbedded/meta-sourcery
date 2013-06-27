@@ -5,7 +5,11 @@
 EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 
 # Don't ship any toolchain binaries in the sdk for the time being
-TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
+# FIXME: find a way to do this just for the recipes which include those
+# binaries. Potentially we could replace the packagegroup with an alternative
+# version which includes nothing, or provide a bbclass which filters it out at
+# RecipeParsed time.
+#TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
 
 # Add the external toolchain to the sdk setup script PATH
 INHERIT += "toolchain-scripts-external"
