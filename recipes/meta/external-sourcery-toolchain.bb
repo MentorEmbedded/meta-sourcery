@@ -78,10 +78,16 @@ do_install() {
 
 	create_multilib_link ${D}
 
-        rm -f ${D}${bindir}/sysroot-*
-	rm -rf ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat \
-	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/op* ${D}${docdir}/oprofile \
-	       ${D}${bindir}/.debug/op*
+	rm -f ${D}${bindir}/sysroot-*
+
+	# libuuid alone is of limited use, we'll end up building e2fsprogs anyway
+	rm -rf ${D}${libdir}/libuuid* ${D}${libdir}/.debug/libuuid* ${D}${includedir}/uuid
+
+	${@base_conditional('PREFERRED_PROVIDER_oprofile', PN, '', 'rm -rf ${D}${bindir}/op* ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat ${D}${mandir}/man1/oprofile* ${D}${docdir}/oprofile ${D}${bindir}/.debug/op*', d)}
+	${@base_conditional('PREFERRED_PROVIDER_popt', PN, '', 'rm -rf ${D}${libdir}/libpopt.* ${D}${includedir}/popt.h', d)}
+	${@base_conditional('PREFERRED_PROVIDER_liburcu', PN, '', 'rm -rf ${D}${libdir}/liburcu*.* ${D}${includedir}/urcu*', d)}
+	${@base_conditional('PREFERRED_PROVIDER_lttng-ust', PN, '', 'rm -rf ${D}${libdir}/liblttng-ust*.* ${D}${libdir}/libmet* ${D}${libdir}/mettools ${D}${includedir}/lttng/bug.h ${D}${includedir}/lttng/align.h ${D}${includedir}/lttng/ust*.h ${D}${includedir}/lttng/tracepoint*.h ${D}${includedir}/lttng/ringbuffer*.h', d)}
+	${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, '', 'rm -rf ${D}${bindir}/lttng* ${D}${libdir}/liblttng-ctl.so.* ${D}${libdir}/lttng ${D}${libdir}/liblttng-ctl.so ${D}${libdir}/liblttng-ctl.a ${D}${includedir}/lttng/lttng.h', d)}
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
@@ -128,7 +134,34 @@ TC_PACKAGES =+ "libquadmath libquadmath-dev libquadmath-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_oprofile', PN, 'oprofile oprofile-doc', '', d)}"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_popt', PN, 'popt popt-dev', '', d)}"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_liburcu', PN, 'liburcu liburcu-dev', '', d)}"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_lttng-ust', PN, 'lttng-ust lttng-ust-dev', '', d)}"
+TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, 'lttng-tools lttng-tools-dev', '', d)}"
 PACKAGES =+ "${TC_PACKAGES}"
+
+FILES_oprofile = "${bindir}/op* ${datadir}/oprofile ${libdir}/oprofile ${datadir}/stl.pat"
+FILES_oprofile-doc = "${mandir}/man1/oprofile* ${docdir}/oprofile"
+FILES_${PN}-dbg += "${bindir}/.debug/op*"
+
+FILES_popt = "${libdir}/libpopt.so.*"
+FILES_popt-dev = "${libdir}/libpopt.so ${libdir}/libpopt.a ${includedir}/popt.h"
+FILES_lttng-tools = "${bindir}/lttng* ${libdir}/liblttng-ctl.so.* ${libdir}/lttng"
+FILES_lttng-tools-dev = "${libdir}/liblttng-ctl.so ${libdir}/liblttng-ctl.a ${includedir}/lttng/lttng.h"
+FILES_liburcu = "${libdir}/liburcu*.so.*"
+FILES_liburcu-dev = "${libdir}/liburcu*.so ${libdir}/liburcu.a ${includedir}/urcu*"
+FILES_lttng-ust = "${libdir}/liblttng-ust*.so.* ${libdir}/libmet*.so.* \
+                   ${libdir}/mettools/*.so"
+FILES_lttng-ust-dev = "${libdir}/liblttng-ust*.so ${libdir}/liblttng-ust.a \
+		       ${libdir}/libmet*.so ${libdir}/mettools/.debug \
+                       ${includedir}/lttng/bug.h \
+                       ${includedir}/lttng/align.h \
+                       ${includedir}/lttng/ust*.h \
+                       ${includedir}/lttng/tracepoint*.h \
+                       ${includedir}/lttng/ringbuffer*.h \
+                       "
+FILES_${PN}-dbg += "${libdir}/mettools/.debug"
 
 # Inhibit warnings about files being stripped, we can't do anything about it.
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
