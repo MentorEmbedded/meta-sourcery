@@ -4,6 +4,11 @@
 
 EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 
+# Ensure that pseudo builds both 32 bit and 64 bit binaries, as we need the
+# 32 bit pseudo to execute the 32 bit external toolchain binaries without
+# errors or warnings.
+NO32LIBS ?= "0"
+
 # Don't ship any toolchain binaries in the sdk for the time being
 # FIXME: find a way to do this just for the recipes which include those
 # binaries. Potentially we could replace the packagegroup with an alternative
