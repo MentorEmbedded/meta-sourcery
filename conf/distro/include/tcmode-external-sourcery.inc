@@ -4,6 +4,11 @@
 
 EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 
+# Ensure that pseudo builds both 32 bit and 64 bit binaries, as we need the
+# 32 bit pseudo to execute the 32 bit external toolchain binaries without
+# errors or warnings.
+NO32LIBS ?= "0"
+
 TOOLCHAIN_PATH_ADD = ""
 TOOLCHAIN_PATH_ADD_class-target = "${EXTERNAL_TOOLCHAIN}/bin:"
 PATH =. "${TOOLCHAIN_PATH_ADD}"
