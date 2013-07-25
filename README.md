@@ -16,7 +16,8 @@ Usage & Instructions
   priority over meta.
 - Set `EXTERNAL_TOOLCHAIN = "/path/to/your/sourcery-g++-install"` in `conf/local.conf`.
 
-Optional functionality:
+Optional Functionality
+----------------------
 
 - If the user chooses to, they may optionally decide to rebuild the Sourcery G++ eglibc
   from source, if they have downloaded the corresponding source archive from Mentor
