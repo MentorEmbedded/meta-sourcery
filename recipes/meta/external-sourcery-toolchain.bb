@@ -39,7 +39,9 @@ do_install() {
 	install -d ${D}/usr
 	for usr_element in bin libexec sbin share ${base_libdir}; do
 		usr_path=$sysroot/usr/$usr_element
-		cp -a $usr_path ${D}/usr/
+		if [ -e "$usr_path" ]; then
+			cp -a $usr_path ${D}/usr/
+		fi
 	done
 	if [ "${base_libdir}" != "lib" ]; then
 		if [ -d $sysroot/usr/lib/locale ]; then
@@ -72,8 +74,8 @@ do_install() {
 		ln -s ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
 	fi
 
-        sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
-        sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
+	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
+	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
 	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
 
 	create_multilib_link ${D}
