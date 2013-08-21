@@ -4,7 +4,7 @@ require conf/machine/include/powerpc/arch-powerpc.inc
 
 TUNEVALID[ppce500v2] = "Enable ppce500v2 specific processor optimizations"
 
-PPCE500V2_CCARG = "${@'-te500v2' if CSL_IS_PRO == '1' else '-mcpu=8548 -mabi=spe -mspe -mfloat-gprs=double'}"
+PPCE500V2_CCARG = "${@'-te500v2' if d.getVar('CSL_IS_PRO', True) == '1' else '-mcpu=8548 -mabi=spe -mspe -mfloat-gprs=double'}"
 TUNE_CCARGS += "${@bb.utils.contains("TUNE_FEATURES", "ppce500v2", PPCE500V2_CCARG, "", d)}"
 
 # Note that SPE is implied by the ppce500v2 feature
