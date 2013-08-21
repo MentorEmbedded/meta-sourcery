@@ -38,27 +38,36 @@ def csl_target_sys(d):
     for triplet in d.getVar('CSL_TARGET_SYS', True).split():
         gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
         if os.path.exists(gcc):
-            return triplet + '-'
-    return '${TARGET_SYS}-'
+            return triplet
+    return '${TARGET_SYS}'
 
-TARGET_PREFIX = "${@csl_target_sys(d)}"
+# We used to set TARGET_PREFIX, but this breaks multilibs if both
+# multilibs use the same CSL_TARGET_SYS value.
+TOOLCHAIN_BINARY_TRIPLET = "${@csl_target_sys(d)}"
+TOOLCHAIN_BINARY_PREFIX = "${TOOLCHAIN_BINARY_TRIPLET}-"
 
-PREFERRED_PROVIDER_linux-libc-headers = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_linux-libc-headers-dev = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_libgcc = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_eglibc ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/libc ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/libintl ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/libiconv ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_gdbserver = "external-sourcery-toolchain"
+PREFERRED_PROVIDER_linux-libc-headers = "external-sourcery-prebuilt"
+PREFERRED_PROVIDER_linux-libc-headers-dev = "external-sourcery-prebuilt"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "external-sourcery-prebuilt"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "external-sourcery-toolchain-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial = "external-sourcery-toolchain-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate = "external-sourcery-toolchain-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ = "external-sourcery-toolchain-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "external-sourcery-toolchain-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs = "external-sourcery-toolchain-cross"
+PREFERRED_PROVIDER_libgcc = "external-sourcery-prebuilt"
+PREFERRED_PROVIDER_gdbserver = "external-sourcery-prebuilt"
+PREFERRED_PROVIDER_binutils-cross-canadian-${TRANSLATED_TARGET_ARCH} = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+PREFERRED_PROVIDER_gcc-cross-canadian-${TRANSLATED_TARGET_ARCH} = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+PREFERRED_PROVIDER_gdb-cross-canadian-${TRANSLATED_TARGET_ARCH} = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+
+# The tcmode-external-sourcery-rebuild-libc file would override these
+# with eglibc-sourcery, which rebuilds from source.
+PREFERRED_PROVIDER_virtual/libc ?= "eglibc-sourcery-prebuilt"
+PREFERRED_PROVIDER_virtual/libiconv ?= "eglibc-sourcery-prebuilt"
+PREFERRED_PROVIDER_virtual/libintl ?= "eglibc-sourcery-prebuilt"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "eglibc-sourcery-prebuilt"
+PREFERRED_PROVIDER_eglibc ?= "eglibc-sourcery-prebuilt"
 
 # No need to re-compile the locale files
 GLIBC_INTERNAL_USE_BINARY_LOCALE = "precompiled"
@@ -66,19 +75,60 @@ ENABLE_BINARY_LOCALE_GENERATION = ""
 
 TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 
-def sourcery_get_sysroot(d):
+# Get the "base" sysroot.
+def sourcery_get_base_sysroot(d):
     import subprocess
-    sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
+    # When looking at native things, we probably don't have a binary toolchain
+    # for them, so we wouldn't be able to check it anyway.
+    if bb.data.inherits_class("native", d):
+        return ""
+    sysroot_cmd = "${EXTERNAL_TOOLCHAIN}/bin/${TOOLCHAIN_BINARY_PREFIX}gcc -print-sysroot"
     try:
         toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, d),
                                            stderr=subprocess.PIPE,
                                            env={"PATH": d.getVar('PATH', True)})[0].rstrip()
     except bb.process.CmdError as exc:
+        bb.warn("Failed with path: %s" % d.getVar('PATH', True))
         bb.fatal(str(exc))
     else:
         return toolchain_sysroot
 
+# Get the multilib-specific sysroot.
+def sourcery_get_sysroot(d):
+    import subprocess
+    # When looking at native things, we probably don't have a binary toolchain
+    # for them, so we wouldn't be able to check it anyway.
+    if bb.data.inherits_class("native", d):
+        return ""
+    sysroot_cmd = "${EXTERNAL_TOOLCHAIN}/bin/${TOOLCHAIN_BINARY_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
+    try:
+        toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, d),
+                                           stderr=subprocess.PIPE,
+                                           env={"PATH": d.getVar('PATH', True)})[0].rstrip()
+    except bb.process.CmdError as exc:
+        bb.warn("Failed with path: %s" % d.getVar('PATH', True))
+        bb.fatal(str(exc))
+    else:
+        return toolchain_sysroot
+
+# Get the multilib subdir.
+def sourcery_get_sysroot_multilib(d):
+    base = d.getVar("EXTERNAL_TOOLCHAIN_BASE_SYSROOT", True)
+    sysroot = d.getVar("EXTERNAL_TOOLCHAIN_SYSROOT", True)
+    if sysroot.startswith(base):
+        remainder = sysroot[len(base):]
+        if remainder.startswith("/"):
+            return remainder[1:]
+        else:
+            return ""
+    else:
+        bb.fatal("Error: Sysroot directory does not start with base sysroot directory?")
+        return "UNKNOWN"
+
+
 EXTERNAL_TOOLCHAIN_SYSROOT = "${@sourcery_get_sysroot(d)}"
+EXTERNAL_TOOLCHAIN_BASE_SYSROOT = "${@sourcery_get_base_sysroot(d)}"
+EXTERNAL_TOOLCHAIN_SYSROOT_MULTILIB = "${@sourcery_get_sysroot_multilib(d)}"
 
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
@@ -123,8 +173,6 @@ python toolchain_metadata_setup () {
     if not os.path.exists(external_toolchain):
         bb.fatal("Error: EXTERNAL_TOOLCHAIN path '%s' does not exist" % external_toolchain)
 
-    populate_toolchain_links(l)
-
     # The external toolchain may not have been built with the yocto preferred
     # gnu hash setting, so ensure that the corresponding sanity check is a
     # warning, not an error.
@@ -135,38 +183,6 @@ python toolchain_metadata_setup () {
         d.appendVar('WARN_QA', ' ldflags')
 }
 addhandler toolchain_metadata_setup
-
-def populate_toolchain_links(d):
-    import errno
-    import os
-    from glob import glob
-
-    pattern = d.expand('${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}*')
-    files = glob(pattern)
-    if not files:
-        bb.fatal("Unable to populate toolchain binary symlinks in %s" % pattern)
-
-    bindir = d.getVar('STAGING_BINDIR_TOOLCHAIN', True)
-    bb.mkdirhier(bindir)
-    for f in files:
-        base = os.path.basename(f)
-        newpath = os.path.join(bindir, base)
-        try:
-            os.symlink(f, newpath)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST:
-                break
-            bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (newpath, exc))
-
-    # Ensure that we have a ld.bfd available, now that KERNEL_LD uses it
-    ld = d.expand('${TARGET_PREFIX}ld')
-    ld_bfd = os.path.join(bindir, ld + '.bfd')
-    if not os.path.exists(ld_bfd):
-        try:
-            os.symlink(ld, ld_bfd)
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (ld_bfd, exc))
 
 require conf/distro/include/csl-versions.inc
 
@@ -189,3 +205,18 @@ PREFERRED_VERSION_gcc-crosssdk-initial ?= "${SDKGCCVERSION}"
 PREFERRED_VERSION_gcc-crosssdk-intermediate ?= "${SDKGCCVERSION}"
 PREFERRED_VERSION_nativesdk-gcc-runtime ?= "${SDKGCCVERSION}"
 PREFERRED_VERSION_nativesdk-libgcc ?= "${SDKGCCVERSION}"
+
+# Shared workspace for a copy of the prebuilt toolchain.
+TOOLCHAIN_SYSROOT_COPY = "${TMPDIR}/work-shared/wrl-toolchain-binaries-${DEFAULTTUNE}"
+# Some prebuilt layers might specify a different debug path.
+EXTERNAL_SOURCERY_DEBUGSRC = "/usr/src/debug"
+# The toolchain links should all be in one place, so we can find all
+# the sets of toolchain links.
+TOOLCHAIN_SHARED_BINDIR = "${STAGING_DIR_NATIVE}${bindir_native}/${TOOLCHAIN_BINARY_TRIPLET}"
+PATH .= ":${TOOLCHAIN_SHARED_BINDIR}"
+
+# By default, we don't allow you to rebuild from source...
+PNBLACKLIST[eglibc-sourcery] = "Use the external-sourcery-rebuild-libc TCMODE to rebuild from source."
+
+require conf/distro/include/external-sourcery-blacklist.inc
+
