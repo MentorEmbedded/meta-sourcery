@@ -62,7 +62,7 @@ do_configure () {
     CPPFLAGS="" oe_runconf
 }
 
-require recipes/eglibc/eglibc-package-adjusted.inc
+require eglibc-package-adjusted.inc
 
 CSL_VER_MAIN ?= ""
 CSL_VER_LIBC ?= ""
