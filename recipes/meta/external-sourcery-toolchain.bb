@@ -87,6 +87,11 @@ do_install() {
 	rm -rf ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat \
 	       ${D}${mandir}/man1/oprofile* ${D}${bindir}/op* ${D}${docdir}/oprofile \
 	       ${D}${bindir}/.debug/op*
+	rm -rf ${D}${libdir}/libuuid* ${D}${libdir}/.debug/libuuid* ${D}${includedir}/uuid
+	rm -rf ${D}${libdir}/libpopt.* ${D}${includedir}/popt.h
+	rm -rf ${D}${libdir}/liburcu*.* ${D}${includedir}/urcu*
+	rm -rf ${D}${libdir}/liblttng-ust*.* ${D}${libdir}/libmet* ${D}${libdir}/mettools ${D}${includedir}/lttng/bug.h ${D}${includedir}/lttng/align.h ${D}${includedir}/lttng/ust*.h ${D}${includedir}/lttng/tracepoint*.h ${D}${includedir}/lttng/ringbuffer*.h
+	rm -rf ${D}${bindir}/lttng* ${D}${libdir}/liblttng-ctl.so.* ${D}${libdir}/lttng ${D}${libdir}/liblttng-ctl.so ${D}${libdir}/liblttng-ctl.a ${D}${includedir}/lttng/lttng.h
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
