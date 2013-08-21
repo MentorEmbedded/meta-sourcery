@@ -5,7 +5,7 @@ require conf/machine/include/powerpc/arch-powerpc.inc
 TUNEVALID[ppce500mc] = "Enable ppce500mc specific processor optimizations"
 
 PPCE500MC_CCARG = "${@'-te500mc' if d.getVar('CSL_IS_PRO', True) == '1' else '-mcpu=e500mc'}"
-TUNE_CCARGS += "${@bb.utils.contains("TUNE_FEATURES", "ppce500mc", PPCE500MC_CCARG, "", d)}"
+TUNE_CCARGS_append = " ${@bb.utils.contains("TUNE_FEATURES", "ppce500mc", PPCE500MC_CCARG, "", d)}"
 
 AVAILTUNES += "ppce500mc"
 TUNE_FEATURES_tune-ppce500mc = "m32 fpu-hard ppce500mc"
