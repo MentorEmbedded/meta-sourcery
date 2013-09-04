@@ -246,7 +246,7 @@ def populate_toolchain_links(d):
     # early on.
     sysname = d.getVar('CSL_TARGET_SYS', True)
     for f in ('prelink', 'mklibs', 'mklibs-readelf', 'prelink-rtld'):
-        optional_symlink(binary_prefix + '-' + f, bindir, f)
+        optional_symlink(binary_prefix + f, bindir, f)
 
     for f in files:
         # Create a symlink using the name we actually want.
