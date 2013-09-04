@@ -1,0 +1,9 @@
+Open questions:
+* Does it hurt anything to have the sysroot setup in -shared instead
+  of only including it in eglibc-sourcery-prebuilt, cross-canadian,
+  and toolchain-prebuilt? In particular, what happens with it for -cross
+  and for eglibc-sourcery?
+
+Where I'm at:
+
+* Fix CSL_TARGET_CORE setting (or work around it) 

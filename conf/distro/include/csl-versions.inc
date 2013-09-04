@@ -7,7 +7,7 @@ def csl_run(d, cmd, *args):
 	if not toolchain_path:
 		return 'UNKNOWN', 'UNKNOWN'
 
-	target_prefix = d.getVar('TARGET_PREFIX', True)
+	target_prefix = d.getVar('TOOLCHAIN_BINARY_PREFIX', True)
 	path = os.path.join(toolchain_path, 'bin', target_prefix + cmd)
 	args = [path] + list(args)
 
@@ -38,6 +38,17 @@ def csl_get_gcc_version(d):
 		return version
 
 def csl_get_libc_version(d):
+	import os,bb
+	syspath = d.expand('${EXTERNAL_TOOLCHAIN}/${CSL_TARGET_SYS}')
+        # We like to archive the libc directory, so looking at the name
+	# of libc-VERSION.so doesn't always work. One option is to just
+	# have a file that exists only to communicate this.
+	if syspath and os.path.exists(syspath):
+		for file in os.listdir(syspath):
+			if file.find('libc-version-') == 0:
+				return file[13:]
+
+	# Okay, how about we try searching for a libc-VERSION.so then?
 	sysroot = d.getVar('EXTERNAL_TOOLCHAIN_SYSROOT', True)
 	if not sysroot:
 	        return 'UNKNOWN'
@@ -90,8 +101,11 @@ python csl_version_handler () {
 
     d.setVar('CSL_VER_MAIN', csl_get_main_version(ld))
     d.setVar('CSL_VER_GCC', csl_get_gcc_version(ld))
-    d.setVar('CSL_VER_LIBC', csl_get_libc_version(ld))
-    d.setVar('CSL_VER_KERNEL', csl_get_kernel_version(ld))
+    # Allow manual specification of libc/kernel versions.
+    if not d.getVar('CSL_VER_LIBC'):
+        d.setVar('CSL_VER_LIBC', csl_get_libc_version(ld))
+    if not d.getVar('CSL_VER_KERNEL'):
+        d.setVar('CSL_VER_KERNEL', csl_get_kernel_version(ld))
     d.setVar('CSL_VER_GDB', csl_get_gdb_version(ld))
 }
 addhandler csl_version_handler
