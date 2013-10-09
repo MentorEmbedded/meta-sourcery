@@ -11,6 +11,9 @@ SRC_URI = "file://prelink.conf"
 # for a multilib.
 FILESEXTRAPATHS_prepend := "${THISDIR}/external-sourcery-toolchain:"
 
+do_configure[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
+SSTATEPREINSTFUNCS += " external_toolchain_binary_links"
+
 # In fact, mklibs and prelink are really cross tools; they run on
 # the host, and affect target binaries. But because they are in
 # principle sort of architecture-neutral, they're considered -native.
@@ -71,11 +74,15 @@ do_install() {
 		install -d ${D}${sbindir}
 		install -d ${D}${libexecdir}
 		install -m 0644 ${WORKDIR}/prelink.conf ${D}${sysconfdir}/prelink.conf
-		# The CS prelink looks for this in libexec, not in $PATH, but
-		# some other Yocto components look for it in $PATH.
-		tccp -L ${TOOLCHAIN_SHARED_BINDIR}/prelink-rtld ${D}${libexecdir}/${CSL_TARGET_SYS}-prelink-rtld
-		ln -sf ../libexec/${CSL_TARGET_SYS}-prelink-rtld ${D}${bindir}/prelink-rtld
+		# The CS prelink looks for prelink-rtld in libexec, not in
+		# $PATH, but some other Yocto components look for it in $PATH.
+		ln -sf ${TOOLCHAIN_SHARED_BINDIR}/${CSL_TARGET_SYS}-prelink-rtld ${D}${libexecdir}/.
+		ln -sf ${TOOLCHAIN_SHARED_BINDIR}/${CSL_TARGET_SYS}-prelink-rtld ${D}${sbindir}/.
+		# And make sure there's links without the prefix.
 		ln -sf ${CSL_TARGET_SYS}-prelink-rtld ${D}${libexecdir}/prelink-rtld
-		tccp -L ${TOOLCHAIN_SHARED_BINDIR}/prelink ${D}${sbindir}
+		ln -sf ${CSL_TARGET_SYS}-prelink-rtld ${D}${sbindir}/prelink-rtld
+
+		# Prelink is typically installed in sbin by Yocto.
+		tccp -L ${TOOLCHAIN_SHARED_BINDIR}/prelink ${D}${sbindir}/prelink
 	fi
 }

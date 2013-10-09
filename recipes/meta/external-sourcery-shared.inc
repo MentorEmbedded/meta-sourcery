@@ -84,3 +84,52 @@ external_toolchain_links() {
         # try to find crti.o in a completely different directory (usr/lib64)
         install -d $1/usr/lib
 }
+
+external_toolchain_binary_links() {
+	# Experimental: Also do the symlinking here.
+	external="$(readlink -f "${EXTERNAL_TOOLCHAIN}")"
+	bindir="${TOOLCHAIN_SHARED_BINDIR}"
+	host_prefix="${HOST_PREFIX}"
+	binary_prefix="${TOOLCHAIN_BINARY_PREFIX}"
+	sysroot_dir="${STAGING_DIR_HOST}"
+
+	all_files=""
+
+	echo "Creating symlinks for $host_prefix."
+	for dir in bin libexec sbin; do
+		files=$(cd $external; echo $dir/$binary_prefix*)
+		case $files in
+		*\**)	echo "No $dir files.";;
+		*)	all_files="$all_files $files";;
+		esac
+	done
+
+	mkdir -p $bindir
+	mkdir -p $sysroot_dir
+
+	# This is an ugly workaround for a special case in the gcc build.
+	ln -s "." "$sysroot_dir/system-glibc" || true
+
+	# Try to symlink these to their CS-specific names
+	for file in prelink mklibs mklibs-readelf prelink-rtld; do
+		ln -s "$binary_prefix$file" "$bindir/$file" || true
+	done
+
+	for path in $all_files; do
+		dir=${path%/*}
+		file=${path##*/}
+		linkname="$host_prefix${file#$binary_prefix}"
+		ln -s "$external/$path" "$bindir/$file" || true
+		ln -s "$external/$path" "$bindir/$linkname" || true
+		case $binary_prefix in
+		powerpc*)
+			# add SPE variants in case we need them.
+			file="$(echo $file | sed -e s/-gnu-/-gnuspe-/)"
+			linkname="$(echo $linkname | sed -e s/-gnu-/-gnuspe-/)"
+			ln -s "$external/$path" "$bindir/$file" || true
+			ln -s "$external/$path" "$bindir/$linkname" || true
+			;;
+		esac
+	done
+	ln -s "${host_prefix}ld" "$bindir/${host_prefix}ld.bfd" || true
+}

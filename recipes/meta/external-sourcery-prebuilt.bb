@@ -9,6 +9,10 @@ include external-sourcery-shared.inc
 do_configure[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
 do_install[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
 
+# Make sure the binary links get created too, even if this is
+# pulled in from sstate.
+SSTATEPOSTINSTFUNCS += " external_toolchain_binary_links"
+
 BASEDEPENDS = ""
 
 PKGV = "${CSL_VER_GCC}"
@@ -158,57 +162,12 @@ toolchain_binary_install() {
 
 # Shareable setup code.
 do_setup_shared() {
+	# Make sure the toolchain binary symlinks are handy.
+	external_toolchain_binary_links
+
         # This section copies the tuning-specific sysroot and other
         # files into the shared directory ${TOOLCHAIN_SYSROOT_COPY},
         # to make them available for other packages.
-	set -x
-
-	# Experimental: Also do the symlinking here.
-	external="$(readlink -f "${EXTERNAL_TOOLCHAIN}")"
-	bindir="${TOOLCHAIN_SHARED_BINDIR}"
-	host_prefix="${HOST_PREFIX}"
-	binary_prefix="${TOOLCHAIN_BINARY_PREFIX}"
-	sysroot_dir="${STAGING_DIR_HOST}"
-
-	all_files=""
-
-	echo "Creating symlinks for $host_prefix."
-	for dir in bin libexec sbin; do
-		files=$(cd $external; echo $dir/$binary_prefix*)
-		case $files in
-		*\**)	echo "No $dir files.";;
-		*)	all_files="$all_files $files";;
-		esac
-	done
-
-	mkdir -p $bindir
-	mkdir -p $sysroot_dir
-
-	# This is an ugly workaround for a special case in the gcc build.
-	ln -s "." "$sysroot_dir/system-glibc"
-
-	# Try to symlink these to their CS-specific names
-	for file in prelink mklibs mklibs-readelf prelink-rtld; do
-		ln -s "$binary_prefix$file" "$bindir/$file" || true
-	done
-
-	for path in $all_files; do
-		dir=${path%/*}
-		file=${path##*/}
-		linkname="$host_prefix${file#$binary_prefix}"
-		ln -s "$external/$path" "$bindir/$file" || true
-		ln -s "$external/$path" "$bindir/$linkname" || true
-		case $binary_prefix in
-		powerpc*)
-			# add SPE variants in case we need them.
-			file="$(echo $file | sed -e s/-gnu-/-gnuspe-/)"
-			linkname="$(echo $linkname | sed -e s/-gnu-/-gnuspe-/)"
-			ln -s "$external/$path" "$bindir/$file" || true
-			ln -s "$external/$path" "$bindir/$linkname" || true
-			;;
-		esac
-	done
-	ln -s "${host_prefix}ld" "$bindir/${host_prefix}ld.bfd" || true
 
 	# Use optimized files if available
 	base_sysroot="${EXTERNAL_TOOLCHAIN}/${CSL_TARGET_SYS}/libc"
