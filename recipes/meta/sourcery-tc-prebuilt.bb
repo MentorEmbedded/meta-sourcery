@@ -3,7 +3,7 @@
 #
 # Target binaries which are used whether or not we rebuild glibc.
 
-include external-sourcery-shared.inc
+include sourcery-tc-shared.inc
 
 # Extract the multilib stuff before trying to do anything else fancy.
 do_configure[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"

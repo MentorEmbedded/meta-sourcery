@@ -1,7 +1,7 @@
 #
 # Copyright (C) 2012,2013 Wind River Systems, Inc.
 #
-include external-sourcery-shared.inc
+include sourcery-tc-shared.inc
 
 inherit cross-canadian
 
@@ -11,8 +11,8 @@ INHIBIT_DEFAULT_DEPS = '1'
 
 SKIP_FILEDEPS = '1'
 
-PN = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
-BPN = "external-sourcery-toolchain"
+PN = "sourcery-tc-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+BPN = "sourcery-tc"
 
 PROVIDES += " \
 	${PN}-dev \
@@ -26,8 +26,6 @@ RPROVIDES_${PN} += " \
 	gcc-cross-canadian-${TRANSLATED_TARGET_ARCH} \
 	gdb-cross-canadian-${TRANSLATED_TARGET_ARCH} \
 	"
-
-include external-sourcery-toolchain-sysroot.inc
 
 do_install() {
 	for dir in bin lib/gcc libexec/gcc share/doc ${CSL_TARGET_SYS}; do

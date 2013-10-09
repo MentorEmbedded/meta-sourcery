@@ -1,7 +1,7 @@
 #
 # Copyright (C) 2012, 2013 Wind River Systems, Inc.
 #
-include external-sourcery-shared.inc
+include sourcery-tc-shared.inc
 
 INHIBIT_DEFAULT_DEPS = "1"
 
@@ -9,7 +9,7 @@ SRC_URI = "file://prelink.conf"
 
 # The following is needed for bitbake to find files when building
 # for a multilib.
-FILESEXTRAPATHS_prepend := "${THISDIR}/external-sourcery-toolchain:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/sourcery-tc:"
 
 do_configure[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
 SSTATEPREINSTFUNCS += " external_toolchain_binary_links"

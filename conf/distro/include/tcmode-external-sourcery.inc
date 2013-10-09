@@ -46,28 +46,28 @@ def csl_target_sys(d):
 TOOLCHAIN_BINARY_TRIPLET = "${@csl_target_sys(d)}"
 TOOLCHAIN_BINARY_PREFIX = "${TOOLCHAIN_BINARY_TRIPLET}-"
 
-PREFERRED_PROVIDER_linux-libc-headers = "external-sourcery-prebuilt"
-PREFERRED_PROVIDER_linux-libc-headers-dev = "external-sourcery-prebuilt"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "external-sourcery-prebuilt"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "external-sourcery-toolchain-cross"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial = "external-sourcery-toolchain-cross"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate = "external-sourcery-toolchain-cross"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ = "external-sourcery-toolchain-cross"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "external-sourcery-toolchain-cross"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs = "external-sourcery-toolchain-cross"
-PREFERRED_PROVIDER_libgcc = "external-sourcery-prebuilt"
-PREFERRED_PROVIDER_gdbserver = "external-sourcery-prebuilt"
-PREFERRED_PROVIDER_binutils-cross-canadian-${TRANSLATED_TARGET_ARCH} = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
-PREFERRED_PROVIDER_gcc-cross-canadian-${TRANSLATED_TARGET_ARCH} = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
-PREFERRED_PROVIDER_gdb-cross-canadian-${TRANSLATED_TARGET_ARCH} = "external-sourcery-toolchain-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+PREFERRED_PROVIDER_linux-libc-headers = "sourcery-tc-prebuilt"
+PREFERRED_PROVIDER_linux-libc-headers-dev = "sourcery-tc-prebuilt"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial = "sourcery-tc-prebuilt"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "sourcery-tc-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial = "sourcery-tc-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate = "sourcery-tc-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ = "sourcery-tc-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "sourcery-tc-cross"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs = "sourcery-tc-cross"
+PREFERRED_PROVIDER_libgcc = "sourcery-tc-prebuilt"
+PREFERRED_PROVIDER_gdbserver = "sourcery-tc-prebuilt"
+PREFERRED_PROVIDER_binutils-cross-canadian-${TRANSLATED_TARGET_ARCH} = "sourcery-tc-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+PREFERRED_PROVIDER_gcc-cross-canadian-${TRANSLATED_TARGET_ARCH} = "sourcery-tc-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+PREFERRED_PROVIDER_gdb-cross-canadian-${TRANSLATED_TARGET_ARCH} = "sourcery-tc-cross-canadian-${TRANSLATED_TARGET_ARCH}"
 
 # The tcmode-external-sourcery-rebuild-libc file would override these
 # with eglibc-sourcery, which rebuilds from source.
-PREFERRED_PROVIDER_virtual/libc ?= "eglibc-sourcery-prebuilt"
-PREFERRED_PROVIDER_virtual/libiconv ?= "eglibc-sourcery-prebuilt"
-PREFERRED_PROVIDER_virtual/libintl ?= "eglibc-sourcery-prebuilt"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "eglibc-sourcery-prebuilt"
-PREFERRED_PROVIDER_eglibc ?= "eglibc-sourcery-prebuilt"
+PREFERRED_PROVIDER_virtual/libc ?= "eglibc-sourcery-binary"
+PREFERRED_PROVIDER_virtual/libiconv ?= "eglibc-sourcery-binary"
+PREFERRED_PROVIDER_virtual/libintl ?= "eglibc-sourcery-binary"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "eglibc-sourcery-binary"
+PREFERRED_PROVIDER_eglibc ?= "eglibc-sourcery-binary"
 
 # No need to re-compile the locale files
 GLIBC_INTERNAL_USE_BINARY_LOCALE = "precompiled"
@@ -216,7 +216,7 @@ TOOLCHAIN_SHARED_BINDIR = "${STAGING_DIR_NATIVE}${bindir_native}/${TOOLCHAIN_BIN
 PATH .= ":${TOOLCHAIN_SHARED_BINDIR}"
 
 # By default, we don't allow you to rebuild from source...
-PNBLACKLIST[eglibc-sourcery] = "Use the external-sourcery-rebuild-libc TCMODE to rebuild from source."
+PNBLACKLIST[eglibc-sourcery-compile] = "Use the external-sourcery-rebuild-libc TCMODE to rebuild from source."
 
 require conf/distro/include/external-sourcery-blacklist.inc
 

@@ -1,4 +1,4 @@
-require external-sourcery-shared.inc
+require sourcery-tc-shared.inc
 
 # Extract the multilib stuff before trying to do anything else fancy.
 # (We need this for preliminary headers.)
@@ -7,7 +7,7 @@ do_install[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
 
 require recipes-core/eglibc/eglibc.inc
 
-DEPENDS += "external-sourcery-prebuilt"
+DEPENDS += "sourcery-tc-prebuilt"
 
 PROVIDES += "eglibc"
 

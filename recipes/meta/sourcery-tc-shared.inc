@@ -26,7 +26,7 @@ EXTERNAL_SOURCERY_TOOLCHAIN_VARIANT = "${@['', (d.getVar("BBEXTENDVARIANT", True
 # There's a fancy bit of setup code that copies/extracts relevant hunks of
 # the prebuilts, including multilib-specific binaries. A single target covers
 # it so sstate can save us time.
-EXTERNAL_SOURCERY_TOOLCHAIN_SETUP = "${EXTERNAL_SOURCERY_TOOLCHAIN_VARIANT}external-sourcery-prebuilt:do_setup_shared"
+EXTERNAL_SOURCERY_TOOLCHAIN_SETUP = "${EXTERNAL_SOURCERY_TOOLCHAIN_VARIANT}sourcery-tc-prebuilt:do_setup_shared"
 
 # We keep needing this function.
 

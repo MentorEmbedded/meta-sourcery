@@ -1,8 +1,8 @@
-# Separated out from the rest of external-sourcery-toolchain to make
-# the swap between this and eglibc-sourcery.bb cleaner.
+# Separated out from the rest of sourcery-tc to make
+# the swap between this and eglibc-sourcery-compile.bb cleaner.
 
 # Various default setup (some of which will then be overwritten)
-require external-sourcery-shared.inc
+require sourcery-tc-shared.inc
 
 # The basic eglibc packaging.
 require eglibc-package-adjusted.inc
@@ -11,7 +11,7 @@ require eglibc-package-adjusted.inc
 do_configure[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
 do_install[depends] += "${EXTERNAL_SOURCERY_TOOLCHAIN_SETUP}"
 
-DEPENDS += "external-sourcery-prebuilt"
+DEPENDS += "sourcery-tc-prebuilt"
 
 # The following is needed for bitbake to find files shared with
 # the rebuilding case.
@@ -23,7 +23,7 @@ PROVIDES += "\
 "
 
 # Define a local PN  (this ensures any virtclass variants on PN are preserved!)
-LPN := "${@d.getVar('PN', True).replace("eglibc-sourcery-prebuilt", "eglibc")}"
+LPN := "${@d.getVar('PN', True).replace("eglibc-sourcery-binary", "eglibc")}"
 
 #RDEPENDS_${PN}-dev += "linux-libc-headers-dev"
 
