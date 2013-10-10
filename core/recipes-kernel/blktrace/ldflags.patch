@@ -1,3 +1,14 @@
+blktrace: obey LDFLAGS
+
+Upstream-Status: Pending
+
+Signed-off-by: Christopher Larson <chris_larson@mentor.com>
+
+the patch was imported from meta-mentor layer on yoctoproject git server
+http://git.yoctoproject.org/cgit/cgit.cgi/meta-mentor as of commit id
+aed463414e2e2bf8ca44ba54ee5973e7ed599e57
+
+Signed-off-by: Fahad Usman <fahad_usman@mentor.com>
 ---
  Makefile          |   11 ++++++-----
  btreplay/Makefile |    3 ++-
@@ -48,8 +59,12 @@
  INCS	= -I. -I.. -I../btt
  OCFLAGS	= -UCOUNT_IOS -UDEBUG -DNDEBUG
  XCFLAGS	= -D_GNU_SOURCE -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
-@@ -35,7 +36,7 @@ btrecord: btrecord.o
- 	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^)
+@@ -32,10 +33,10 @@ clean: docsclean
+ 	$(CC) $(CFLAGS) -c -o $*.o $<
+ 
+ btrecord: btrecord.o
+-	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^)
++	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^) $(LDFLAGS)
  
  btreplay: btreplay.o
 -	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^) $(LIBS)
