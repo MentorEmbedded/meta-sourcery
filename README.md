@@ -22,7 +22,8 @@ Optional Functionality
 - If the user chooses to, they may optionally decide to rebuild the Sourcery G++ eglibc
   from source, if they have downloaded the corresponding source archive from Mentor
   Graphics. To so, set `TCMODE = "external-sourcery-rebuild-libc"`, rather than relying
-  on the default value of `external-sourcery`.
+  on the default value of `external-sourcery`. After setting TCMODE appropriately, you
+  must also set `CSL_SRC_FILE = "/path/to/your/sourcery-g++-source-tarball"`.
 
 Description of Behavior
 -----------------------
