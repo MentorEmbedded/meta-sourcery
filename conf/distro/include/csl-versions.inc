@@ -75,8 +75,8 @@ def csl_get_kernel_version(d):
 def csl_get_gdb_version(d):
 	try:
 		stdout, stderr = csl_run(d, 'gdb', '-v')
-	except bb.process.CmdError as c:
-		return 'UNKNOWN(%s)' % c
+	except bb.process.CmdError:
+		return 'UNKNOWN'
 	else:
 		first_line = stdout.splitlines()[0]
 		return first_line.split()[-1]
