@@ -20,13 +20,16 @@ def csl_get_version(d):
 		bb.error('Failed to obtain CodeSourcery toolchain version: %s' % exc)
 		return 'UNKNOWN'
 	else:
-		last_line = stderr.splitlines()[-1]
+		last_line = stderr.splitlines()[-1].rstrip()
 		return last_line
 
 def csl_get_main_version(d):
 	version = csl_get_version(d)
 	if version != 'UNKNOWN':
-		return version.split()[-1].rstrip(')')
+		main_version = version.split()[-1].rstrip(')')
+		if main_version == 'Preview':
+			main_version = version.split()[-3]
+		return main_version
 	else:
 		return version
 
