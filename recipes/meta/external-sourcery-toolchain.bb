@@ -85,7 +85,7 @@ do_install() {
 	# libuuid alone is of limited use, we'll end up building e2fsprogs anyway
 	rm -rf ${D}${libdir}/libuuid* ${D}${libdir}/.debug/libuuid* ${D}${includedir}/uuid
 
-	${@base_conditional('PREFERRED_PROVIDER_oprofile', PN, '', 'rm -rf ${D}${bindir}/op* ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat ${D}${mandir}/man1/oprofile* ${D}${docdir}/oprofile ${D}${bindir}/.debug/op*', d)}
+	${@base_conditional('PREFERRED_PROVIDER_oprofile', PN, '', 'rm -rf ${D}${bindir}/op* ${D}${datadir}/oprofile ${D}${libdir}/oprofile ${D}${datadir}/stl.pat ${D}${mandir}/man1/oprofile* ${D}${docdir}/oprofile ${D}${bindir}/.debug/op* ${D}${includedir}/opagent.h', d)}
 	${@base_conditional('PREFERRED_PROVIDER_popt', PN, '', 'rm -rf ${D}${libdir}/libpopt.* ${D}${includedir}/popt.h', d)}
 	${@base_conditional('PREFERRED_PROVIDER_liburcu', PN, '', 'rm -rf ${D}${libdir}/liburcu*.* ${D}${includedir}/urcu*', d)}
 	${@base_conditional('PREFERRED_PROVIDER_lttng-ust', PN, '', 'rm -rf ${D}${libdir}/liblttng-ust*.* ${D}${libdir}/libmet* ${D}${libdir}/mettools ${D}${includedir}/lttng/bug.h ${D}${includedir}/lttng/align.h ${D}${includedir}/lttng/ust*.h ${D}${includedir}/lttng/tracepoint*.h ${D}${includedir}/lttng/ringbuffer*.h', d)}
