@@ -108,11 +108,6 @@ def sysroot_multilib_suffix(d):
     else:
         return ''
 
-FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
-FILES_${PN} += "${prefix}/libexec/*"
-FILES_${PN}-dbg += "${prefix}/libexec/*/.debug"
-
-
 create_multilib_link () {
 	dest="$1"
 	sysroot_multilib_suffix="${@sysroot_multilib_suffix(d)}"
@@ -136,6 +131,7 @@ TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
 TC_PACKAGES =+ "libquadmath libquadmath-dev libquadmath-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
 TC_PACKAGES =+ "gdbserver gdbserver-dbg"
+TC_PACKAGES =+ "libatomic libatomic-dev"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_oprofile', PN, 'oprofile oprofile-doc', '', d)}"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_popt', PN, 'popt popt-dev', '', d)}"
@@ -144,6 +140,12 @@ TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_lttng-ust', PN, 'lttng-u
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, 'lttng-tools lttng-tools-dev', '', d)}"
 PACKAGES =+ "${TC_PACKAGES}"
 
+FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
+FILES_${PN} += "${prefix}/libexec/*"
+FILES_${PN}-dbg += "${prefix}/libexec/*/.debug"
+
+FILES_libatomic = "${libdir}/libatomic.so.*"
+FILES_libatomic-dev = "${libdir}/libatomic.so"
 FILES_oprofile = "${bindir}/op* ${datadir}/oprofile ${libdir}/oprofile ${datadir}/stl.pat"
 FILES_oprofile-doc = "${mandir}/man1/oprofile* ${docdir}/oprofile"
 FILES_${PN}-dbg += "${bindir}/.debug/op*"
@@ -175,6 +177,7 @@ INSANE_SKIP_${PN}-dbg = "staticdev"
 # We don't care about GNU_HASH in prebuilt binaries
 INSANE_SKIP_${PN}-utils += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
+INSANE_SKIP_libatomic += "ldflags"
 INSANE_SKIP_libgomp += "ldflags"
 INSANE_SKIP_libquadmath += "ldflags"
 INSANE_SKIP_libstdc++ += "ldflags"
