@@ -64,7 +64,7 @@ do_install() {
 		cp -a $sysroot/../usr/include/. ${D}${includedir}
 	fi
 
-        ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, '', 'rm -rf ${D}${includedir}/linux ${D}${includedir}/asm*', d)}
+        ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'sed -i -e "s/__packed/__attribute__ ((packed))/" ${D}${includedir}/mtd/ubi-user.h', 'rm -rf ${D}${includedir}/linux ${D}${includedir}/asm* ${D}${includedir}/drm ${D}${includedir}/video ${D}${includedir}/sound ${D}${includedir}/mtd ${D}${includedir}/rdma', d)}
 	rm -rf ${D}${datadir}/zoneinfo
 
 	if [ -e ${D}${libdir}/bin ]; then
@@ -76,7 +76,6 @@ do_install() {
 
 	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
 	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
-	sed -i -e 's/__packed/__attribute__ ((packed))/' ${D}${includedir}/mtd/ubi-user.h
 
 	create_multilib_link ${D}
 
