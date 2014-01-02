@@ -133,3 +133,15 @@ external_toolchain_binary_links() {
 	done
 	ln -s "${host_prefix}ld" "$bindir/${host_prefix}ld.bfd" || true
 }
+
+# There's some files which are typically part of the CS sysroot, and
+# which should be installed by our prebuilts package, or by the kernel.
+# And they should NOT be installed by eglibc.
+LIKELY_KERNEL_HEADERS = "${includedir}/asm* \
+	${includedir}/linux \
+	${includedir}/mtd \
+	${includedir}/rdma \
+	${includedir}/scsi \
+	${includedir}/sound \
+	${includedir}/video \
+"

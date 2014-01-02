@@ -81,16 +81,7 @@ FILES_libgcc = "${base_libdir}/libgcc_s.so.1 /usr/lib"
 # containing the symlink back to the sysroot for a multilib.
 FILES_libgcc-dev = "${base_libdir}/libgcc_s.so ${@'/' + CSL_TARGET_CORE if CSL_TARGET_CORE else ''}"
 FILES_linux-libc-headers = ""
-# This name exists to be a name which won't be renamed for multilib
-# builds.
-LIKELY_KERNEL_HEADERS = "${includedir}/asm* \
-	${includedir}/linux \
-	${includedir}/mtd \
-	${includedir}/rdma \
-	${includedir}/scsi \
-	${includedir}/sound \
-	${includedir}/video \
-"
+# LIKELY_KERNEL_HEADERS is defined in sourcery-tc-shared.inc.
 FILES_linux-libc-headers-dev = "${LIKELY_KERNEL_HEADERS}"
 
 FILES_libstdc++ = "${libdir}/libstdc++.so.*"
@@ -239,6 +230,7 @@ do_setup_shared() {
 addtask do_setup_shared
 
 DO_HEADERS = "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', BPN, 'true', 'false', d)}"
+
 do_install() {
 	install -d ${D}${bindir}
 	install -d ${D}${libdir}/bin
