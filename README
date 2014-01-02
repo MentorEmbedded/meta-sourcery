@@ -1,0 +1,32 @@
+meta-sourcery
+=============
+
+This layer provides support for using the Code Sourcery prebuilt binary
+toolchains. The "README.md" file is the original README associated with
+the upstream layer.
+
+Dependencies
+------------
+This layer requires a prebuilt binary toolchain, and possibly also the
+corresponding source. It also requires additional configuration, which
+is provided in the wr-toolchain-shim layer in wrlinux.
+
+Maintenance
+-----------
+This version of the layer is maintained by Wind River Systems, Inc.
+Contact <support@windriver.com> or your support representative for more
+information on submitting changes. It is based on the upstream
+meta-sourcery layer:
+	https://github.com/MentorEmbedded/meta-sourcery
+
+Building the meta-sourcery layer
+--------------------------------
+The meta-sourcery layer is the default build option when using the
+wrlinux configure wrapper. To use it directly, you must define a
+few specific values, such as EXTERNAL_TOOLCHAIN. The exact details
+will vary with the binary toolchain you're using it with.
+
+License
+-------
+The metadata in this layer is provided under the MIT license.
+
