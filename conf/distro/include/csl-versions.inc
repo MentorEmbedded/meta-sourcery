@@ -11,13 +11,19 @@ def csl_run(d, cmd, *args):
 	path = os.path.join(toolchain_path, 'bin', target_prefix + cmd)
 	args = [path] + list(args)
 
-	return bb.process.run(args, cwd=topdir, stderr=subprocess.PIPE)
+	# When built with Python support, gdb may need $PYTHONHOME set to
+	# run. This needs to use a cleaned-up path that doesn't have ..s
+	# or symlinks, or especially anything like "symlink/..", in it.
+	new_env = os.environ.copy()
+	new_env['PYTHONHOME'] = os.path.realpath(toolchain_path)
+
+	return bb.process.run(args, cwd=topdir, stderr=subprocess.PIPE, env=new_env)
 
 def csl_get_version(d):
         try:
 		stdout, stderr = csl_run(d, 'gcc', '-v')
 	except bb.process.CmdError as exc:
-		bb.error('Failed to obtain CodeSourcery toolchain version: %s' % exc)
+		bb.warn('Failed to obtain CodeSourcery toolchain version: %s' % exc)
 		return 'UNKNOWN'
 	else:
 		last_line = stderr.splitlines()[-1]
@@ -99,14 +105,17 @@ python csl_version_handler () {
     ld = d.createCopy()
     ld.finalize()
 
-    d.setVar('CSL_VER_MAIN', csl_get_main_version(ld))
-    d.setVar('CSL_VER_GCC', csl_get_gcc_version(ld))
-    # Allow manual specification of libc/kernel versions.
+    # Allow manual overrides of versions
+    if not d.getVar('CSL_VER_MAIN'):
+        d.setVar('CSL_VER_MAIN', csl_get_main_version(ld))
+    if not d.getVar('CSL_VER_GCC'):
+        d.setVar('CSL_VER_GCC', csl_get_gcc_version(ld))
     if not d.getVar('CSL_VER_LIBC'):
         d.setVar('CSL_VER_LIBC', csl_get_libc_version(ld))
     if not d.getVar('CSL_VER_KERNEL'):
         d.setVar('CSL_VER_KERNEL', csl_get_kernel_version(ld))
-    d.setVar('CSL_VER_GDB', csl_get_gdb_version(ld))
+    if not d.getVar('CSL_VER_GDB'):
+        d.setVar('CSL_VER_GDB', csl_get_gdb_version(ld))
 }
 addhandler csl_version_handler
 

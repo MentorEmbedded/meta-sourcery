@@ -32,6 +32,10 @@ CSL_TARGET_SYS_i686 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
 CSL_TARGET_SYS_i586 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
 CSL_TARGET_SYS = "${TARGET_SYS}"
 
+# Shared configuration and code for the various sourcery toolchain things.
+# XXX -- this should be the sysroot subdir, fix later
+CSL_TARGET_CORE ?= "${EXTERNAL_TOOLCHAIN_SYSROOT_MULTILIB}"
+
 def csl_target_sys(d):
     toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
 
@@ -69,6 +73,18 @@ PREFERRED_PROVIDER_virtual/libintl ?= "eglibc-sourcery-binary"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "eglibc-sourcery-binary"
 PREFERRED_PROVIDER_eglibc ?= "eglibc-sourcery-binary"
 
+# Set the sourcery-tc to be the preferred toolchain provider
+# Oprofile requires an actually compiled binutils...
+#PREFERRED_PROVIDER_binutils ?= "sourcery-tc"
+PREFERRED_PROVIDER_gcc      ?= "sourcery-tc"
+PREFERRED_PROVIDER_prelink  ?= "sourcery-tc"
+
+VIRTUAL-RUNTIME_toolchain        = "sourcery-tc toolchain-wrappers-${@(d.getVar("DEFAULTTUNE", True) or "").replace('-', '_')}${TARGET_VENDOR}-${TARGET_OS}"
+
+# Due to the nature of multilibs, we need to manually specify the libgcc dependency so 
+# we can be sure to get the x86-64 specific version.
+VIRTUAL-RUNTIME_toolchain_x86-64 = "lib32-sourcery-tc toolchain-wrappers-${@(d.getVar("DEFAULTTUNE", True) or "").replace('-', '_')}${TARGET_VENDOR}-${TARGET_OS} libgcc"
+
 # No need to re-compile the locale files
 GLIBC_INTERNAL_USE_BINARY_LOCALE = "precompiled"
 ENABLE_BINARY_LOCALE_GENERATION = ""
@@ -89,7 +105,8 @@ def sourcery_get_base_sysroot(d):
                                            env={"PATH": d.getVar('PATH', True)})[0].rstrip()
     except bb.process.CmdError as exc:
         bb.warn("Failed with path: %s" % d.getVar('PATH', True))
-        bb.fatal(str(exc))
+        bb.warn(str(exc))
+        return "INVALID_CONFIG"
     else:
         return toolchain_sysroot
 
@@ -107,7 +124,8 @@ def sourcery_get_sysroot(d):
                                            env={"PATH": d.getVar('PATH', True)})[0].rstrip()
     except bb.process.CmdError as exc:
         bb.warn("Failed with path: %s" % d.getVar('PATH', True))
-        bb.fatal(str(exc))
+        bb.warn(str(exc))
+        return "INVALID_CONFIG"
     else:
         return toolchain_sysroot
 
@@ -212,11 +230,15 @@ TOOLCHAIN_SYSROOT_COPY = "${TMPDIR}/work-shared/wrl-toolchain-binaries-${DEFAULT
 EXTERNAL_SOURCERY_DEBUGSRC = "/usr/src/debug"
 # The toolchain links should all be in one place, so we can find all
 # the sets of toolchain links.
-TOOLCHAIN_SHARED_BINDIR = "${STAGING_DIR_NATIVE}${bindir_native}/${TOOLCHAIN_BINARY_TRIPLET}"
+TOOLCHAIN_SHARED_BINDIR ?= "${STAGING_DIR_NATIVE}${bindir_native}/${TOOLCHAIN_BINARY_TRIPLET}"
 PATH .= ":${TOOLCHAIN_SHARED_BINDIR}"
 
 # By default, we don't allow you to rebuild from source...
-PNBLACKLIST[eglibc-sourcery-compile] = "Use the external-sourcery-rebuild-libc TCMODE to rebuild from source."
+PNBLACKLIST[eglibc-sourcery-compile] = "Use the external-sourcery-build-libc TCMODE_EXTRA to rebuild from source."
 
 require conf/distro/include/external-sourcery-blacklist.inc
 
+TCMODE_EXTRA ?= ""
+
+include conf/distro/include/tcmode-extra-${@["", "build-target-toolchain"]["build-target-toolchain" in d.getVar('TCMODE_EXTRA', True).split()]}.inc
+include conf/distro/include/tcmode-extra-${@["", "build-libc"]["build-libc" in d.getVar('TCMODE_EXTRA', True).split()]}.inc

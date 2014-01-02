@@ -1,7 +1,3 @@
-# Shared configuration and code for the various sourcery toolchain things.
-# XXX -- this should be the sysroot subdir, fix later
-CSL_TARGET_CORE = "${EXTERNAL_TOOLCHAIN_SYSROOT_MULTILIB}"
-
 # Prebuilt toolchains don't build the way most code does.
 INHIBIT_DEFAULT_DEPS = "1"
 
@@ -85,6 +81,33 @@ external_toolchain_links() {
         install -d $1/usr/lib
 }
 
+# Create links using tuning-specific names.
+external_toolchain_additional_links() {
+	if [ -n "$1" ]; then
+		bindir="$1"
+	else
+		bindir="${TOOLCHAIN_SHARED_BINDIR}"
+	fi
+	target_prefix="${TARGET_PREFIX}"
+	binary_prefix="${TOOLCHAIN_BINARY_PREFIX}"
+	echo "Creating toolchain symlinks for $target_prefix."
+
+	echo "looking in $bindir"
+	for file in $(cd $bindir; echo "$binary_prefix"*); do
+		linkname="$target_prefix${file#$binary_prefix}"
+		echo "linking $linkname => $file"
+		ln -s "$file" "$bindir/$linkname" || true
+		case $binary_prefix in
+		powerpc*)
+			# add SPE variants in case we need them.
+			linkname="$(echo $linkname | sed -e s/-gnu-/-gnuspe-/)"
+			ln -s "$file" "$linkname" || true
+			;;
+		esac
+	done
+}
+
+# Create links out to the external toolchain.
 external_toolchain_binary_links() {
 	# Experimental: Also do the symlinking here.
 	external="$(readlink -f "${EXTERNAL_TOOLCHAIN}")"
@@ -95,7 +118,7 @@ external_toolchain_binary_links() {
 
 	all_files=""
 
-	echo "Creating symlinks for $host_prefix."
+	echo "Creating base toolchain symlinks."
 	for dir in bin libexec sbin; do
 		files=$(cd $external; echo $dir/$binary_prefix*)
 		case $files in
@@ -107,9 +130,6 @@ external_toolchain_binary_links() {
 	mkdir -p $bindir
 	mkdir -p $sysroot_dir
 
-	# This is an ugly workaround for a special case in the gcc build.
-	ln -s "." "$sysroot_dir/system-glibc" || true
-
 	# Try to symlink these to their CS-specific names
 	for file in prelink mklibs mklibs-readelf prelink-rtld; do
 		ln -s "$binary_prefix$file" "$bindir/$file" || true
@@ -118,19 +138,13 @@ external_toolchain_binary_links() {
 	for path in $all_files; do
 		dir=${path%/*}
 		file=${path##*/}
-		linkname="$host_prefix${file#$binary_prefix}"
 		ln -s "$external/$path" "$bindir/$file" || true
-		ln -s "$external/$path" "$bindir/$linkname" || true
-		case $binary_prefix in
-		powerpc*)
-			# add SPE variants in case we need them.
-			file="$(echo $file | sed -e s/-gnu-/-gnuspe-/)"
-			linkname="$(echo $linkname | sed -e s/-gnu-/-gnuspe-/)"
-			ln -s "$external/$path" "$bindir/$file" || true
-			ln -s "$external/$path" "$bindir/$linkname" || true
-			;;
-		esac
 	done
+	# We only want the extra links if HOST_PREFIX is set, otherwise
+	# they're going to cause problems.
+	if [ -n "${HOST_PREFIX}" ]; then
+		external_toolchain_additional_links
+	fi
 	ln -s "${host_prefix}ld" "$bindir/${host_prefix}ld.bfd" || true
 }
 
@@ -138,10 +152,16 @@ external_toolchain_binary_links() {
 # which should be installed by our prebuilts package, or by the kernel.
 # And they should NOT be installed by eglibc.
 LIKELY_KERNEL_HEADERS = "${includedir}/asm* \
+	${includedir}/drm \
 	${includedir}/linux \
 	${includedir}/mtd \
 	${includedir}/rdma \
 	${includedir}/scsi \
 	${includedir}/sound \
+	${includedir}/uapi \
 	${includedir}/video \
+	${includedir}/xen \
 "
+
+# So, in aarch64, everything is in /lib64... EXCEPT ld-linux.so.
+EXTERNAL_SOURCERY_EXTRA_SYSROOT_FILES_append_aarch64 = " lib/ld-linux-aarch64.so.1"

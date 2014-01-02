@@ -16,12 +16,11 @@ SSTATEPOSTINSTFUNCS += " external_toolchain_binary_links"
 BASEDEPENDS = ""
 
 PKGV = "${CSL_VER_GCC}"
-PR = "r0"
 
 # List libgomp before libgcc so it won't inadvertantly pick up
 # some of libgomp's files.
 PROVIDES += " \
-	eglibc-source-dbg \
+	${PN}-dbg \
         ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', BPN, 'linux-libc-headers', '', d)} \
         ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', BPN, 'virtual/linux-libc-headers', '', d)} \
         libgomp \
@@ -30,31 +29,45 @@ PROVIDES += " \
         libgomp-dbg \
         libgcc \
         libgcc-dev \
+        libgcov-dev \
         libstdc++ \
         libstdc++-dev \
         libstdc++-staticdev \
+	libssp \
+	libssp-dev \
+	libssp-staticdev \
 	gdb \
 	gdbserver \
 	virtual/${TARGET_PREFIX}libc-initial \
 "
 
-PACKAGES = "eglibc-source-dbg gdb gdb-dbg gdbserver gdbserver-dbg \
+PACKAGES = "gdb gdb-dbg gdbserver gdbserver-dbg \
              libstdc++ libstdc++-dev libstdc++-dbg libstdc++-staticdev \
              ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', BPN, 'linux-libc-headers', '', d)} \
              ${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', BPN, 'linux-libc-headers-dev', '', d)} \
              libgomp libgomp-staticdev libgomp-dev libgomp-dbg \
-             libgcc libgcc-dev \
+             libgcc libgcov-dev libssp libssp-dev libssp-staticdev libgcc-dbg libgcc-dev \
+             ${PN}-dbg \
              "
 
-PKGV_eglibc-source-dbg = "${CSL_VER_LIBC}"
+PKGV_${PN}-dbg = "${CSL_VER_LIBC}"
 PKGV_gdb = "${CSL_VER_GDB}"
 PKGV_gdb-dbg = "${CSL_VER_GDB}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
 PKGV_linux-libc-headers = "${CSL_VER_KERNEL}"
 PKGV_linux-libc-headers-dev = "${CSL_VER_KERNEL}"
+PKG_libgcc = "libgcc1"
 PKGV_libgcc = "${CSL_VER_GCC}"
+PKG_libgcc-dev = "libgcc-s-dev"
 PKGV_libgcc-dev = "${CSL_VER_GCC}"
+PKGV_libgcov-dev = "${CSL_VER_GCC}"
+PKG_libssp = "libssp0"
+PKGV_libssp = "${CSL_VER_GCC}"
+PKGV_libssp-dev = "${CSL_VER_GCC}"
+PKGV_libssp-staticdev = "${CSL_VER_GCC}"
+PKG_libgcc-dbg = "libgcc-s-dbg"
+PKGV_libgcc-dbg = "${CSL_VER_GCC}"
 PKGV_libgomp = "${CSL_VER_GCC}"
 PKGV_libgomp-dev = "${CSL_VER_GCC}"
 PKGV_libgomp-staticdev = "${CSL_VER_GCC}"
@@ -64,7 +77,7 @@ PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-dbg = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
 
-FILES_eglibc-source-dbg = "/usr/src/debug ${EXTERNAL_SOURCERY_DEBUGSRC}"
+FILES_${PN}-dbg = "/usr/src/debug ${EXTERNAL_SOURCERY_DEBUGSRC}"
 FILES_gdb = "${bindir}/gdb"
 FILES_gdb-dbg = "${bindir}/.debug/gdb"
 RDEPENDS_gdb_append = " glibc-thread-db "
@@ -72,24 +85,41 @@ FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
 FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver ${libdir}/bin/.debug/sysroot-gdbserver"
 RDEPENDS_gdbserver_append = " glibc-thread-db "
 FILES_libgomp = "${libdir}/libgomp.so.*"
-FILES_libgomp-dev = "${libdir}/libgomp.so"
+FILES_libgomp-dev = "${libdir}/libgomp.so ${libdir}/gcc/${TARGET_SYS}/${CSL_VER_GCC}/include/omp.h"
 FILES_libgomp-staticdev = "${libdir}/libgomp.a"
 FILES_libgomp-dbg = "${libdir}/.debug/libgomp*"
-FILES_libgcc = "${base_libdir}/libgcc_s.so.1 /usr/lib"
+FILES_libgcc = "${base_libdir}/libgcc_s.so.1"
+FILES_libgcc-dbg += "${base_libdir}/.debug/libgcc_s.so.1 /usr/src/debug/gcc/libgcc /usr/src/debug/generated/gcc/*/libgcc /usr/src/debug/generated/gcc/*/*/libgcc ${base_libdir}/.debug/libgcc_s.so.1 ${libdir}/.debug/libssp*"
+RDEPENDS_libgcc-dev = "eglibc-dev libgcc"
+# This is needed to overcome a limitation in RPM multilib package selection
+FILERDEPENDSFLIST_libgcc-dev_append = " ${base_libdir}/libgcc_s.so"
+FILERDEPENDS_${base_libdir}/libgcc_s.so_libgcc-dev = " ${base_libdir}/libgcc_s.so.1"
 # /usr/lib has to exist for the compiler to work.
 # CSL_TARGET_CORE is the (possibly empty, if none's needed) directory
 # containing the symlink back to the sysroot for a multilib.
-FILES_libgcc-dev = "${base_libdir}/libgcc_s.so ${@'/' + CSL_TARGET_CORE if CSL_TARGET_CORE else ''}"
+FILES_libgcc-dev = "${base_libdir}/libgcc_s.so ${@'/' + CSL_TARGET_CORE if CSL_TARGET_CORE else ''} /lib /usr/lib /lib64 /usr/lib64"
+FILES_libgcc-dev += "${libdir}/gcc/${TARGET_SYS}/${CSL_VER_GCC}"
+INSANE_SKIP_${MLPREFIX}libgcc-dev += "staticdev"
+FILES_libgcov-dev = "${libdir}/${TARGET_SYS}/${CSL_VER_GCC}/libgcov.a"
+INSANE_SKIP_${MLPREFIX}libgcov-dev += "staticdev"
+FILES_libssp = "${libdir}/libssp.so.0 ${libdir}/libssp.so.0.0.0"
+FILES_libssp-dev = "${libdir}/libssp.la ${libdir}/libssp_nonshared.a ${libdir}/libssp_nonshared.la ${libdir}/libssp.so ${libdir}/gcc/${TARGET_SYS}/${CSL_VER_GCC}/include/ssp"
+FILES_libssp-staticdev = "${libdir}/libssp.a"
 FILES_linux-libc-headers = ""
 # LIKELY_KERNEL_HEADERS is defined in sourcery-tc-shared.inc.
 FILES_linux-libc-headers-dev = "${LIKELY_KERNEL_HEADERS}"
 
-FILES_libstdc++ = "${libdir}/libstdc++.so.*"
-FILES_libstdc++-dbg = "${libdir}/.debug/libstdc++* ${datadir}/gdb/*"
-FILES_libstdc++-dev = "${includedir}/c++/${PV} \
+FILES_libstdc++ = "${libdir}/libstdc++.so.* ${datadir}/gdb/*"
+FILES_libstdc++-dbg = "${libdir}/.debug/libstdc++*"
+FILES_libstdc++-dev = "${includedir}/c++ \
 	${libdir}/libstdc++.so \
 	${libdir}/libstdc++.la \
 	${libdir}/libsupc++.la"
+RDEPENDS_libstdc++-dev += "eglibc-dev libstdc++"
+# This is needed to overcome a limitation in RPM multilib package selection
+FILERDEPENDSFLIST_libstdc++-dev_append = " ${libdir}/libstdc++.so"
+FILERDEPENDS_${libdir}/libstdc++.so_libstdc++-dev = " ${libdir}/libstdc++.so.6.0.18"
+
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a ${libdir}/libsupc++.a"
 
 # usage:
@@ -107,13 +137,13 @@ cpioextract() {
         fi
 }
 
-USR_SUBDIRS = "bin ${baselib} libexec sbin share lib/locale"
+USR_SUBDIRS = "bin ${baselib} libexec sbin share lib/locale lib/gconv"
 
 toolchain_binary_install() {
         libc=$1
         libpath=$2
         tc_source="$libc${libpath:+/}$libpath"
-        echo "tc_source: $tc_source ($libpath in $libc)"
+        echo "tc_source: $tc_source ($libpath/${baselib} in $libc)"
 
         mkdir -p "${TOOLCHAIN_SYSROOT_COPY}"
 
@@ -121,6 +151,12 @@ toolchain_binary_install() {
                 sysroot=$tc_source
                 echo "Extracting prebuilt binaries from $tc_source."
                 tccp $sysroot/${baselib}/. ${TOOLCHAIN_SYSROOT_COPY}/${base_libdir}
+		if [ -n "${EXTERNAL_SOURCERY_EXTRA_SYSROOT_FILES}" ]; then
+			for file in ${EXTERNAL_SOURCERY_EXTRA_SYSROOT_FILES}; do
+				subdir="$(dirname $file)"
+				tccp -R $sysroot/$file ${TOOLCHAIN_SYSROOT_COPY}/$subdir
+			done
+		fi
                 tccp $sysroot/etc/. ${TOOLCHAIN_SYSROOT_COPY}${sysconfdir}
                 tccp $sysroot/sbin/. ${TOOLCHAIN_SYSROOT_COPY}${base_sbindir}
                 mkdir -p ${TOOLCHAIN_SYSROOT_COPY}/usr
@@ -137,7 +173,7 @@ toolchain_binary_install() {
                         subdirs="$subdirs usr/$subdir/* "
                 done
                 echo "Extracting prebuilt binaries from $tc_source."
-                cpioextract "$tc_source" ${TOOLCHAIN_SYSROOT_COPY} ${baselib}/\* etc/\* sbin/\* $subdirs
+                cpioextract "$tc_source" ${TOOLCHAIN_SYSROOT_COPY} ${baselib}/\* etc/\* sbin/\* $subdirs ${EXTERNAL_SOURCERY_EXTRA_SYSROOT_FILES}
                 echo "Extracting generic headers from $libc.cpio"
                 cpioextract $libc.cpio ${TOOLCHAIN_SYSROOT_COPY} usr/include/\*
         else
@@ -249,12 +285,13 @@ do_install() {
 		install -d ${D}/usr/src
 		tccp ${TOOLCHAIN_SYSROOT_COPY}/usr/src/debug/. ${D}/usr/src/debug
 	fi
-        tccp ${TOOLCHAIN_SYSROOT_COPY}/${bindir}/gdb ${D}${bindir}/.
-        tccp ${TOOLCHAIN_SYSROOT_COPY}/${bindir}/gdbserver ${D}${bindir}/.
-        ln -sf ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
+	tccp ${TOOLCHAIN_SYSROOT_COPY}/${bindir}/gdb ${D}${bindir}/.
+	tccp ${TOOLCHAIN_SYSROOT_COPY}/${bindir}/gdbserver ${D}${bindir}/.
+	ln -sf ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
 
-        # install libgcc, libstdc++, and maybe kernel headers
-        # (prebuilt headers other than the kernheaders are over in wrl-glibc-*.)
+	# install libgcc, libstdc++, and maybe kernel headers
+	# (prebuilt headers other than the kernheaders are over in
+	# eglibc-sourcery-*.)
 	install -d ${D}${base_libdir}
 	install -d ${D}${libdir}
 
@@ -273,19 +310,87 @@ do_install() {
 			# Handle asm* by globbing in the right directory.
 			subdirs="$(cd ${TOOLCHAIN_SYSROOT_COPY}${includedir}; echo ${subdir#X${includedir}/})"
 			for subsub in $subdirs; do
+				# Not all of the kernel directories exist
+				# in all sets of headers.
+				if [ ! -d "${TOOLCHAIN_SYSROOT_COPY}${includedir}/$subsub" ]; then
+					continue
+				fi
 				install -d ${D}${includedir}/$subsub
 				tccp ${TOOLCHAIN_SYSROOT_COPY}${includedir}/$subsub/. ${D}${includedir}/$subsub
 			done
 		done
 	fi
-        tccp ${TOOLCHAIN_SYSROOT_COPY}${base_libdir}/libgcc* ${D}${base_libdir}
-        tccp ${TOOLCHAIN_SYSROOT_COPY}${libdir}/libgomp* ${D}${libdir}
-        tccp ${TOOLCHAIN_SYSROOT_COPY}${libdir}/libstdc++* ${D}${libdir}
-        
-        external_toolchain_links ${D}
+	tccp ${TOOLCHAIN_SYSROOT_COPY}${base_libdir}/libgcc* ${D}${base_libdir}
+	tccp ${TOOLCHAIN_SYSROOT_COPY}${libdir}/libgomp* ${D}${libdir}
+	tccp ${TOOLCHAIN_SYSROOT_COPY}${libdir}/libstdc++* ${D}${libdir}
+	tccp ${TOOLCHAIN_SYSROOT_COPY}${libdir}/libssp* ${D}${libdir}
+	
+	external_toolchain_links ${D}
+
+	# We also need other bits of libgcc-s-dev, such as the crtbegin.o, headers, etc.
+	# We write them not in the sourcer-tc location, but to match the oe-core locations.
+	# Doing that will allow us to build a target toolchain from source if needed.
+	libgcc_src=`${CC} -print-file-name=crtbegin.o`
+	libgcc_path=`dirname $libgcc_src`
+
+	if [ "$libgcc_path" = '.' ]; then
+		echo "ERROR: Unable to find crtbegin.o"
+		echo $libgcc_src -- $libgcc_path
+	fi
+
+	libgcc_multidir=`${CC} -print-multi-directory`
+
+	libgcc_srcdir=""
+	if [ "$libgcc_multidir" != '.' ]; then
+		libgcc_srcdir=`echo $libgcc_multidir | sed 's,[^/]*,..,g'`
+	fi
+
+	install -d ${D}${libdir}/${TARGET_SYS}/${CSL_VER_GCC}/
+	cp $libgcc_path/crt*.o $libgcc_path/libgcc*.a $libgcc_path/libgcov.a \
+		${D}${libdir}/${TARGET_SYS}/${CSL_VER_GCC}/.
+
+	install -d ${D}${libdir}/gcc/${TARGET_SYS}/${CSL_VER_GCC}/include
+	cp -r $libgcc_path/$libgcc_srcdir/include/omp.h \
+	   $libgcc_path/$libgcc_srcdir/include/ssp \
+	   ${D}${libdir}/gcc/${TARGET_SYS}/${CSL_VER_GCC}/include/.
+
+	# We need to attempt to find the C++ headers
+	# ${CPP} -Wp,-lang-c++,-v - 2>&1 < /dev/null || :
+	for each in `${CPP} -Wp,-lang-c++,-v - 2>&1 < /dev/null | sed -n '/^ .*${CSL_VER_GCC}/p' || :` ; do
+		echo "Checking for $each/c++..."
+		if [ -d $each/c++/${CSL_VER_GCC} ]; then
+			echo "Found C++ headers!"
+			install -d ${D}${includedir}/c++
+			cp -r $each/c++/${CSL_VER_GCC}/* ${D}${includedir}/c++/.
+			src="${includedir}/c++/${CSL_TARGET_SYS}"
+			dest="${includedir}/c++/${TARGET_SYS}"
+			install -d ${D}$dest
+			if [ "$src" != "$dest" ] || [ "$src" = "$dest" -a "$libgcc_multidir" != "." ]; then
+				# Make sure if there was a previous 'bits' we remove it
+				# so that we can copy in the correct contents for this system...
+				rm -rf ${D}$dest/bits
+				mv ${D}$src/$libgcc_multidir/bits ${D}$dest/.
+			fi
+			if [ "$src" != "$dest" ]; then
+				# Cleanup leftover droppings...
+				rm -rf ${D}$src
+			fi
+			break
+		fi
+	done
+
+	if [ ! -d ${D}${includedir}/c++ ]; then
+		echo "Unable to find/copy the C++ headers!"
+		exit 1
+	fi
 
 	install -d ${D}${datadir}/gdb/auto-load
 	if [ -f ${D}${libdir}/libstd*.py ]; then
 		mv ${D}${libdir}/libstd*.py  ${D}${datadir}/gdb/auto-load
 	fi
+
+	if [ -n "${SOURCERY_KERNEL_HEADERS_TARBALL}" -a -f "${SOURCERY_KERNEL_HEADERS_TARBALL}" ]; then
+		tar -C ${TOOLCHAIN_SYSROOT_COPY} -xjf ${SOURCERY_KERNEL_HEADERS_TARBALL}
+	fi
+
 }

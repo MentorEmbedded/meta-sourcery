@@ -1,26 +1,43 @@
 require recipes-core/eglibc/eglibc-package.inc
 
-PKG_${PN} = "eglibc"
 RPROVIDES_${PN} += "${TCLIBC} eglibc"
-PKG_${PN}-dbg = "eglibc-dbg"
 RPROVIDES_${PN}-dbg += "${TCLIBC}-dbg eglibc-dbg"
-PKG_${PN}-dev = "eglibc-dev"
 RPROVIDES_${PN}-dev += "${TCLIBC}-dev eglibc-dev"
-PKG_${PN}-doc = "eglibc-doc"
 RPROVIDES_${PN}-doc += "${TCLIBC}-doc eglibc-doc"
-PKG_${PN}-extra-nss = "eglibc-extra-nss"
 RPROVIDES_${PN}-extra-nss += "${TCLIBC}-extra-nss eglibc-extra-nss"
-PKG_${PN}-gconv = "eglibc-gconv"
 RPROVIDES_${PN}-gconv += "${TCLIBC}-gconv eglibc-gconv"
-PKG_${PN}-mtrace = "eglibc-mtrace"
 RPROVIDES_${PN}-mtrace += "${TCLIBC}-mtrace eglibc-mtrace"
-PKG_${PN}-pcprofile = "eglibc-pcprofile"
 RPROVIDES_${PN}-pcprofile += "${TCLIBC}-pcprofile eglibc-pcprofile"
-PKG_${PN}-pic = "eglibc-pic"
 RPROVIDES_${PN}-pic += "${TCLIBC}-pic eglibc-pic"
-PKG_${PN}-staticdev = "eglibc-staticdev"
 RPROVIDES_${PN}-staticdev += "${TCLIBC}-staticdev eglibc-staticdev"
-PKG_${PN}-thread-db = "eglibc-thread-db"
 RPROVIDES_${PN}-thread-db += "${TCLIBC}-thread-db eglibc-thread-db"
-PKG_${PN}-utils = "eglibc-utils"
 RPROVIDES_${PN}-utils += "${TCLIBC}-utils eglibc-utils"
+
+# Following was copied from and adapted from libc-common and 
+# it is needed to set various PKG_ and related values correctly.
+python populate_packages_prepend () {
+    pkgs = d.getVar('PACKAGES', True).split()
+    bpn = d.getVar('BPN', True)
+    prefix = d.getVar('MLPREFIX', True) or ""
+    newprefix = 'eglibc'
+    if d.getVar('DEBIAN_NAMES', True):
+        newprefix = 'libc6'
+
+    # Set the base package...
+    d.setVar('PKG_' + prefix + bpn, prefix + newprefix)
+    initial = prefix + bpn + '-'
+    initial_eglibc = prefix + 'eglibc' + '-'
+    for p in pkgs:
+        # And all the subpackages.
+        if p.startswith(initial):
+            renamed = p.replace(bpn, newprefix, 1)
+            d.setVar('PKG_' + p, renamed)
+        elif p.startswith(initial_eglibc):
+            renamed = p.replace('eglibc', newprefix, 1)
+            d.setVar('PKG_' + p, renamed)
+    # For backward compatibility with old -dbg package
+    d.appendVar('RPROVIDES_' + initial + 'dbg', ' ' + prefix + 'libc-dbg')
+    d.appendVar('RCONFLICTS_' + initial + 'dbg', ' ' + prefix + 'libc-dbg')
+    d.appendVar('RREPLACES_' + initial + 'dbg', ' ' + prefix + 'libc-dbg')
+}
+

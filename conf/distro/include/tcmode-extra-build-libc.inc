@@ -1,8 +1,6 @@
-require conf/distro/include/tcmode-external-sourcery.inc
-
 # Disable the prebuilt package.
 PNBLACKLIST[eglibc-sourcery-compile] = ""
-PNBLACKLIST[eglibc-sourcery-binary] = "You are building libc from source, and cannot use the prebuilt. Check TCMODE."
+PNBLACKLIST[eglibc-sourcery-binary] = "You are building libc from source, and cannot use the prebuilt. Check TCMODE_EXTRA."
 
 PREFERRED_PROVIDER_virtual/libc = "eglibc-sourcery-compile"
 PREFERRED_PROVIDER_virtual/libiconv = "eglibc-sourcery-compile"
