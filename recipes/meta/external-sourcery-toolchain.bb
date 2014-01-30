@@ -180,6 +180,7 @@ INSANE_SKIP_${PN}-dbg = "staticdev"
 # We don't care about GNU_HASH in prebuilt binaries
 INSANE_SKIP_${PN}-utils += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
+INSANE_SKIP_libasan += "ldflags"
 INSANE_SKIP_libatomic += "ldflags"
 INSANE_SKIP_libgomp += "ldflags"
 INSANE_SKIP_libquadmath += "ldflags"
