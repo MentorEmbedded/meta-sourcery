@@ -1,0 +1,43 @@
+From 26cb9d81e0dff472f3da338ab8b2de1cd77676a7 Mon Sep 17 00:00:00 2001
+From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Date: Sun, 24 Nov 2013 03:31:44 -0500
+Subject: [PATCH] Blacklist ARM gcc 4.8.0, 4.8.1, 4.8.2
+
+It produces clobbered frame accesses, which can lead to stack corruption
+when racing with signal handlers nested on stack.
+
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+---
+ urcu/compiler.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+diff --git a/urcu/compiler.h b/urcu/compiler.h
+index 19534f0..1e30903 100644
+--- a/urcu/compiler.h
++++ b/urcu/compiler.h
+@@ -108,4 +108,23 @@
+
+ #define CAA_ARRAY_SIZE(x)	(sizeof(x) / sizeof((x)[0]))
+
++/*
++ * Don't allow compiling with buggy compiler.
++ */
++
++#ifdef __GNUC__
++# define URCU_GCC_VERSION	(__GNUC__ * 10000 \
++				+ __GNUC_MINOR__ * 100 \
++				+ __GNUC_PATCHLEVEL__)
++
++/*
++ * http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58854
++ */
++# ifdef __ARMEL__
++#  if URCU_GCC_VERSION >= 40800 && URCU_GCC_VERSION <= 40802
++#   error Your gcc version produces clobbered frame accesses
++#  endif
++# endif
++#endif
++
+ #endif /* _URCU_COMPILER_H */
+--
+1.8.3.4

@@ -1,0 +1,25 @@
+Index: git/wrapper/compiler.h
+===================================================================
+--- git.orig/wrapper/compiler.h	2014-02-17 17:49:58.336081938 +0500
++++ git/wrapper/compiler.h	2014-02-17 18:13:37.632079922 +0500
+@@ -34,7 +34,19 @@
+  */
+ # ifdef __ARMEL__
+ #  if GCC_VERSION >= 40800 && GCC_VERSION <= 40802
+-#   error Your gcc version produces clobbered frame accesses
++#   ifdef __CS_SOURCERYGXX_MAJ__
++#    if __CS_SOURCERYGXX_MAJ__ < 2013
++#     error Sourcery CodeBench 2013.11-32 or higher is required
++#    endif
++#    if __CS_SOURCERYGXX_MAJ__ == 2013 && __CS_SOURCERYGXX_MIN__ < 11
++#     error Sourcery CodeBench 2013.11-32 or higher is required
++#    endif
++#    if __CS_SOURCERYGXX_MAJ__ == 2013 && __CS_SOURCERYGXX_MIN__ == 11 && __CS_SOURCERYGXX_REV__ < 32
++#     error Sourcery CodeBench 2013.11-32 or higher is required
++#    endif
++#   else
++#    error Your gcc version produces clobbered frame accesses
++#   endif
+ #  endif
+ # endif
+ #endif
