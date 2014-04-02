@@ -174,6 +174,10 @@ FILES_${PN}-dbg += "${libdir}/mettools/.debug"
 # Inhibit warnings about files being stripped, we can't do anything about it.
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
+# We support multiple toolchain versions, so an unpackaged file isn't
+# necessarily a problem.
+ERROR_QA_remove = "installed-vs-shipped"
+
 # This test should be fixed to ignore .a files in .debug dirs
 INSANE_SKIP_${PN}-dbg = "staticdev"
 
@@ -186,6 +190,9 @@ INSANE_SKIP_libgomp += "ldflags"
 INSANE_SKIP_libquadmath += "ldflags"
 INSANE_SKIP_libstdc++ += "ldflags"
 INSANE_SKIP_gdbserver += "ldflags"
+
+# We don't care about rpaths in third party binaries
+INSANE_SKIP_${PN}-utils += "useless-rpaths"
 
 PKGV = "${CSL_VER_LIBC}"
 PKGV_libgcc = "${CSL_VER_GCC}"
