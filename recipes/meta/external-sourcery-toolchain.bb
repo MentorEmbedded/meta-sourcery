@@ -89,6 +89,17 @@ do_install() {
 	${@base_conditional('PREFERRED_PROVIDER_lttng-ust', PN, '', 'rm -rf ${D}${libdir}/liblttng-ust*.* ${D}${libdir}/libmet* ${D}${libdir}/mettools ${D}${includedir}/lttng/bug.h ${D}${includedir}/lttng/align.h ${D}${includedir}/lttng/ust*.h ${D}${includedir}/lttng/tracepoint*.h ${D}${includedir}/lttng/ringbuffer*.h', d)}
 	${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, '', 'rm -rf ${D}${bindir}/lttng* ${D}${libdir}/liblttng-ctl.so.* ${D}${libdir}/lttng ${D}${libdir}/liblttng-ctl.so ${D}${libdir}/liblttng-ctl.a ${D}${includedir}/lttng/lttng.h', d)}
 	chown -R 0:0 ${D}
+
+	if [ "${PACKAGE_DEBUG_SPLIT_STYLE}" == "debug-file-directory"  ]; then
+
+		install -d ${D}${libdir}/debug
+
+		for dir in ${base_libdir} ${base_sbindir} ${libdir} ${bindir} ${sbindir} ${libdir}/audit ${libexecdir}/getconf; do
+			install -d ${D}${libdir}/debug$dir
+			mv ${D}$dir/.debug/*.debug  ${D}${libdir}/debug$dir || true
+			rm -rf ${D}$dir/.debug
+		done
+	fi
 }
 
 # These files are picked up out of the sysroot by eglibc-locale, so we don't
@@ -244,6 +255,7 @@ FILES_libstdc++-dev = "${includedir}/c++/${PV} \
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a ${libdir}/libsupc++.a"
 FILES_gdbserver = "${bindir}/gdbserver ${libdir}/bin/sysroot-gdbserver"
 FILES_gdbserver-dbg = "${bindir}/.debug/gdbserver.debug"
+FILES_gdbserver-dbg += "${libdir}/debug${bindir}/gdbserver.debug"
 
 CSL_VER_MAIN ??= ""
 
