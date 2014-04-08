@@ -11,8 +11,6 @@ SRC_URI = "http://lttng.org/files/urcu/userspace-rcu-${PV}.tar.bz2"
 SRC_URI[md5sum] = "2ca6671b20a550aa0e8020a1a9a96fd4"
 SRC_URI[sha256sum] = "96c0a157e94a15b1506efe9aedd98145e6eb41a3fbcf5b0d118b7a783b22fe12"
 
-SRC_URI_append_arm = " file://whitelist-sourcery-codebench-2013.11-32.patch"
-
 S = "${WORKDIR}/userspace-rcu-${PV}"
 CFLAGS_append_libc-uclibc = " -D_GNU_SOURCE"
 inherit autotools
