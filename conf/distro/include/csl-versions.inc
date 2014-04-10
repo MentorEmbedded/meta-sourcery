@@ -85,8 +85,6 @@ def csl_get_gdb_version(d):
 		return first_line.split()[-1]
 
 python csl_version_handler () {
-    if not isinstance(e, bb.event.ConfigParsed):
-        return
     d = e.data
     ld = d.createCopy()
     ld.finalize()
@@ -97,6 +95,7 @@ python csl_version_handler () {
     d.setVar('CSL_VER_KERNEL', csl_get_kernel_version(ld))
     d.setVar('CSL_VER_GDB', csl_get_gdb_version(ld))
 }
+csl_version_handler[eventmask] = "bb.event.ConfigParsed"
 addhandler csl_version_handler
 
 # Ensure that any variable which includes the --sysroot (CC, CXX, etc) also
