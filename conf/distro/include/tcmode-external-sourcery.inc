@@ -98,9 +98,6 @@ TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
 
 ERROR_QA[type] ?= "list"
 python toolchain_metadata_setup () {
-    if not isinstance(e, bb.event.ConfigParsed):
-        return
-
     import subprocess
     d = e.data
 
@@ -134,6 +131,7 @@ python toolchain_metadata_setup () {
         d.setVar('ERROR_QA', ' '.join(error_qa))
         d.appendVar('WARN_QA', ' ldflags')
 }
+toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler toolchain_metadata_setup
 
 def populate_toolchain_links(d):
@@ -151,12 +149,12 @@ def populate_toolchain_links(d):
     for f in files:
         base = os.path.basename(f)
         newpath = os.path.join(bindir, base)
-        try:
-            os.symlink(f, newpath)
-        except OSError as exc:
-            if exc.errno == errno.EEXIST:
-                break
-            bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (newpath, exc))
+        if not os.path.exists(newpath):
+            with open(newpath, 'w') as new:
+                new.write('#!/bin/sh\n')
+                new.write('export PSEUDO_UNLOAD=1\n')
+                new.write('exec {0} "$@"\n'.format(f))
+            os.chmod(newpath, 0755)
 
     # Ensure that we have a ld.bfd available, now that KERNEL_LD uses it
     ld = d.expand('${TARGET_PREFIX}ld')
