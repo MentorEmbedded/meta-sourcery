@@ -98,9 +98,6 @@ TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
 
 ERROR_QA[type] ?= "list"
 python toolchain_metadata_setup () {
-    if not isinstance(e, bb.event.ConfigParsed):
-        return
-
     import subprocess
     d = e.data
 
@@ -134,6 +131,7 @@ python toolchain_metadata_setup () {
         d.setVar('ERROR_QA', ' '.join(error_qa))
         d.appendVar('WARN_QA', ' ldflags')
 }
+toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler toolchain_metadata_setup
 
 def populate_toolchain_links(d):
