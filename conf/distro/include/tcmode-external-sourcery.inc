@@ -9,6 +9,11 @@ EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 # errors or warnings.
 NO32LIBS ?= "0"
 
+# Ensure that we only attempt to package up locales which are available in the
+# external toolchain. In the future, we should examine the external toolchain
+# sysroot and determine this accurately.
+GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
+
 # Don't ship any toolchain binaries in the sdk for the time being
 # FIXME: find a way to do this just for the recipes which include those
 # binaries. Potentially we could replace the packagegroup with an alternative
