@@ -14,6 +14,10 @@ NO32LIBS ?= "0"
 # sysroot and determine this accurately.
 GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
 
+# Ensure that the licensing variables are available to the toolchain
+export MGLS
+export LM_LICENSE_FILE
+
 # Don't ship any toolchain binaries in the sdk for the time being
 # FIXME: find a way to do this just for the recipes which include those
 # binaries. Potentially we could replace the packagegroup with an alternative
