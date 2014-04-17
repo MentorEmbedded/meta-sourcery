@@ -14,10 +14,6 @@ NO32LIBS ?= "0"
 # sysroot and determine this accurately.
 GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
 
-# Ensure that the licensing variables are available to the toolchain
-export MGLS
-export LM_LICENSE_FILE
-
 # Don't ship any toolchain binaries in the sdk for the time being
 # FIXME: find a way to do this just for the recipes which include those
 # binaries. Potentially we could replace the packagegroup with an alternative
@@ -99,6 +95,11 @@ LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in TUNE_FEATURES.split() else 'lt'}
 LDEMULATION_BITS = "${@'64' if 'n64' in TUNE_FEATURES.split() else '32'}"
 LDEMULATION_mips64 = "elf${LDEMULATION_BITS}${LDEMULATION_ENDIAN}smip${@bb.utils.contains('TUNE_FEATURES', 'n32', 'n32', '', d)}"
 TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
+
+# Ensure that the licensing variables are available to the toolchain.
+export MGLS
+export LM_LICENSE_FILE
+BB_HASHBASE_WHITELIST_append = " MGLS LM_LICENSE_FILE"
 
 # Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
 # bindir (e.g. gcc, ld). To avoid this messing up our build, we avoid adding
