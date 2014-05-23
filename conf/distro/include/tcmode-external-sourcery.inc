@@ -159,12 +159,12 @@ def populate_toolchain_links(d):
     for f in files:
         base = os.path.basename(f)
         newpath = os.path.join(bindir, base)
-        if not os.path.exists(newpath):
-            with open(newpath, 'w') as new:
-                new.write('#!/bin/sh\n')
-                new.write('export PSEUDO_UNLOAD=1\n')
-                new.write('exec {0} "$@"\n'.format(f))
-            os.chmod(newpath, 0755)
+        try:
+            os.symlink(f, newpath)
+        except OSError as exc:
+            if exc.errno == errno.EEXIST:
+                break
+            bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (newpath, exc))
 
     # Ensure that we have a ld.bfd available, now that KERNEL_LD uses it
     ld = d.expand('${TARGET_PREFIX}ld')
