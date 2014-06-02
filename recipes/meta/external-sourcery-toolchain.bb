@@ -42,7 +42,7 @@ do_install() {
 			cp -a $usr_path ${D}/usr/
 		fi
 	done
-	if [ "${base_libdir}" != "lib" ]; then
+	if [ "${base_libdir}" != "/lib" ]; then
 		if [ -d $sysroot/usr/lib/locale ]; then
 			install -d ${D}/usr/lib
 			cp -a $sysroot/usr/lib/locale ${D}/usr/lib/
