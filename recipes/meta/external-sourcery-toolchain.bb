@@ -73,6 +73,12 @@ do_install() {
 		ln -s ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
 	fi
 
+	if [ ! -e ${D}${libdir}/libc.so ]; then
+		bbfatal "Unable to locate installed libc.so file (${D}${libdir}/libc.so)." \
+                        "This may mean that your external toolchain uses a different" \
+                        "multi-lib setup than your machine configuration"
+	fi
+
 	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
 	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
 
