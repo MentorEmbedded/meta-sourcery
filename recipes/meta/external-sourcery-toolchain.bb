@@ -42,7 +42,7 @@ do_install() {
 			cp -a $usr_path ${D}/usr/
 		fi
 	done
-	if [ "${base_libdir}" != "lib" ]; then
+	if [ "${base_libdir}" != "/lib" ]; then
 		if [ -d $sysroot/usr/lib/locale ]; then
 			install -d ${D}/usr/lib
 			cp -a $sysroot/usr/lib/locale ${D}/usr/lib/
@@ -71,6 +71,12 @@ do_install() {
 		rm -r ${D}${libdir}/bin
 		install -d ${D}${libdir}/bin
 		ln -s ../../bin/gdbserver ${D}${libdir}/bin/sysroot-gdbserver
+	fi
+
+	if [ ! -e ${D}${libdir}/libc.so ]; then
+		bbfatal "Unable to locate installed libc.so file (${D}${libdir}/libc.so)." \
+                        "This may mean that your external toolchain uses a different" \
+                        "multi-lib setup than your machine configuration"
 	fi
 
 	sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
@@ -144,6 +150,7 @@ TC_PACKAGES =+ "libasan libasan-dev"
 TC_PACKAGES =+ "libtsan libtsan-dev"
 TC_PACKAGES =+ "libitm libitm-dev"
 TC_PACKAGES =+ "libatomic libatomic-dev"
+TC_PACKAGES =+ "libinproctrace"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_linux-libc-headers', PN, 'linux-libc-headers linux-libc-headers-dev', '', d)}"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_oprofile', PN, 'oprofile oprofile-doc', '', d)}"
 TC_PACKAGES =+ "${@base_conditional('PREFERRED_PROVIDER_popt', PN, 'popt popt-dev', '', d)}"
@@ -162,6 +169,7 @@ FILES_libasan = "${libdir}/libasan.so.*"
 FILES_libasan-dev = "${libdir}/libasan.so"
 FILES_libatomic = "${libdir}/libatomic.so.*"
 FILES_libatomic-dev = "${libdir}/libatomic.so"
+FILES_libinproctrace = "${libdir}/libinproctrace.so"
 FILES_oprofile = "${bindir}/op* ${datadir}/oprofile ${libdir}/oprofile ${datadir}/stl.pat"
 FILES_oprofile-doc = "${mandir}/man1/oprofile* ${docdir}/oprofile"
 FILES_${PN}-dbg += "${bindir}/.debug/op*"
@@ -209,6 +217,7 @@ INSANE_SKIP_${PN}-utils += "ldflags"
 INSANE_SKIP_libgcc += "ldflags"
 INSANE_SKIP_libasan += "ldflags"
 INSANE_SKIP_libatomic += "ldflags"
+INSANE_SKIP_libinproctrace += "ldflags"
 INSANE_SKIP_libgomp += "ldflags"
 INSANE_SKIP_libitm += "ldflags"
 INSANE_SKIP_libquadmath += "ldflags"
@@ -237,6 +246,7 @@ PKGV_libstdc++-dev = "${CSL_VER_GCC}"
 PKGV_libstdc++-staticdev = "${CSL_VER_GCC}"
 PKGV_libtsan = "${CSL_VER_GCC}"
 PKGV_libtsan-dev = "${CSL_VER_GCC}"
+PKGV_libinproctrace = "${CSL_VER_GCC}"
 PKGV_gdbserver = "${CSL_VER_GDB}"
 PKGV_gdbserver-dbg = "${CSL_VER_GDB}"
 
