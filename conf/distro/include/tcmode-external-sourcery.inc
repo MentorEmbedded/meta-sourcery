@@ -99,7 +99,6 @@ TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
 # Ensure that the licensing variables are available to the toolchain.
 export MGLS
 export LM_LICENSE_FILE
-BB_HASHBASE_WHITELIST_append = " MGLS LM_LICENSE_FILE"
 
 # Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
 # bindir (e.g. gcc, ld). To avoid this messing up our build, we avoid adding
@@ -110,6 +109,9 @@ ERROR_QA[type] ?= "list"
 python toolchain_metadata_setup () {
     import subprocess
     d = e.data
+
+    # Ensure that changes to toolchain licensing don't affect checksums
+    d.appendVar('BB_HASHBASE_WHITELIST', ' MGLS LM_LICENSE_FILE')
 
     l = d.createCopy()
     l.finalize()
