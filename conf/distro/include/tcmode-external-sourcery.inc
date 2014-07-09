@@ -97,7 +97,7 @@ LDEMULATION_mips64 = "elf${LDEMULATION_BITS}${LDEMULATION_ENDIAN}smip${@bb.utils
 TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
 
 # Ensure that the licensing variables are available to the toolchain.
-export MGLS
+export MGLS_LICENSE_FILE
 export LM_LICENSE_FILE
 
 # Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
@@ -111,7 +111,7 @@ python toolchain_metadata_setup () {
     d = e.data
 
     # Ensure that changes to toolchain licensing don't affect checksums
-    d.appendVar('BB_HASHBASE_WHITELIST', ' MGLS LM_LICENSE_FILE')
+    d.appendVar('BB_HASHBASE_WHITELIST', ' MGLS_LICENSE_FILE LM_LICENSE_FILE')
 
     l = d.createCopy()
     l.finalize()
