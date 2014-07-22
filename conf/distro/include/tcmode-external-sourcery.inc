@@ -156,23 +156,26 @@ def populate_toolchain_links(d):
     if not files:
         bb.fatal("Unable to populate toolchain binary symlinks in %s" % pattern)
 
-
-    origenv = d.getVar('BB_ORIGENV', False)
-    logname = origenv.get('LOGNAME', 'unknown')
-    tmpdir = os.path.join(origenv.get('TMPDIR', '/tmp'), 'sourcery-%s' % logname)
-    bb.utils.mkdirhier(tmpdir)
-
     bindir = d.getVar('STAGING_BINDIR_TOOLCHAIN', True)
     bb.utils.mkdirhier(bindir)
+    wrapped = ['gcc', 'g++', 'cpp']
     for f in files:
         base = os.path.basename(f)
         newpath = os.path.join(bindir, base)
         if not os.path.exists(newpath):
-            with open(newpath, 'w') as new:
-                new.write('#!/bin/sh\n')
-                new.write('export TMPDIR="{0}"\n'.format(tmpdir))
-                new.write('exec "{0}" "$@"\n'.format(f))
-                os.fchmod(new.fileno(), 0755)
+            if any(base.endswith(w) for w in wrapped):
+                with open(newpath, 'w') as new:
+                    new.write('#!/bin/sh\n')
+                    new.write('export PSEUDO_UNLOAD=1\n')
+                    new.write('exec {0} "$@"\n'.format(f))
+                os.chmod(newpath, 0755)
+            else:
+                try:
+                    os.symlink(f, newpath)
+                except OSError as exc:
+                    if exc.errno == errno.EEXIST:
+                        break
+                    bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (newpath, exc))
 
     # Ensure that we have a ld.bfd available, now that KERNEL_LD uses it
     ld = d.expand('${TARGET_PREFIX}ld')
