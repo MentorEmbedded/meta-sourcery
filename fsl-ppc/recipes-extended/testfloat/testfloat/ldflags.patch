@@ -1,0 +1,11 @@
+--- TestFloat-2a/testfloat/powerpc-linux-gcc/Makefile
++++ TestFloat-2a/testfloat/powerpc-linux-gcc/Makefile
+@@ -14,7 +14,7 @@ COMPILE_C_HARD = $(CC) -c -o $@ $(INCLUD
+ 
+ COMPILE_SLOWFLOAT_C = $(CC) -c -o $@ $(INCLUDES) -I- -O
+ 
+-LINK = $(CC) -lm -o $@
++LINK = $(CC) -lm -o $@ $(LDFLAGS)
+ 
+ SOFTFLOAT_H = $(SOFTFLOAT_DIR)/softfloat.h
+ SOFTFLOAT_OBJ = $(SOFTFLOAT_DIR)/softfloat$(OBJ)
