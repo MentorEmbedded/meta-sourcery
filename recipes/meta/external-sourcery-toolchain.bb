@@ -93,7 +93,7 @@ do_install() {
 	${@base_conditional('PREFERRED_PROVIDER_popt', PN, '', 'rm -rf ${D}${libdir}/libpopt.* ${D}${includedir}/popt.h', d)}
 	${@base_conditional('PREFERRED_PROVIDER_liburcu', PN, '', 'rm -rf ${D}${libdir}/liburcu*.* ${D}${includedir}/urcu*', d)}
 	${@base_conditional('PREFERRED_PROVIDER_lttng-ust', PN, '', 'rm -rf ${D}${libdir}/liblttng-ust*.* ${D}${libdir}/libmet* ${D}${libdir}/mettools ${D}${includedir}/lttng/bug.h ${D}${includedir}/lttng/align.h ${D}${includedir}/lttng/ust*.h ${D}${includedir}/lttng/tracepoint*.h ${D}${includedir}/lttng/ringbuffer*.h', d)}
-	${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, '', 'rm -rf ${D}${bindir}/lttng* ${D}${libdir}/liblttng-ctl.so.* ${D}${libdir}/lttng ${D}${libdir}/liblttng-ctl.so ${D}${libdir}/liblttng-ctl.a ${D}${includedir}/lttng/lttng.h', d)}
+	${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, '', 'rm -rf ${D}${bindir}/lttng* ${D}${libdir}/liblttng-ctl.so.* ${D}${libdir}/lttng ${D}${libdir}/liblttng-ctl.so ${D}${libdir}/liblttng-ctl.a ${D}${includedir}/lttng/lttng.h ${D}${libdir}/pkgconfig ${D}${includedir}/lttng/lttng-error.h', d)}
 	chown -R 0:0 ${D}
 
 	if [ "${PACKAGE_DEBUG_SPLIT_STYLE}" == "debug-file-directory"  ]; then
