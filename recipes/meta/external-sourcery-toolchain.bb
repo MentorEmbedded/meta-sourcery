@@ -96,6 +96,9 @@ do_install() {
 	${@base_conditional('PREFERRED_PROVIDER_lttng-tools', PN, '', 'rm -rf ${D}${bindir}/lttng* ${D}${libdir}/liblttng-ctl.so.* ${D}${libdir}/lttng ${D}${libdir}/liblttng-ctl.so ${D}${libdir}/liblttng-ctl.a ${D}${includedir}/lttng/lttng.h ${D}${libdir}/pkgconfig ${D}${includedir}/lttng/lttng-error.h', d)}
 	chown -R 0:0 ${D}
 
+	# Remove files that are being provided by package util-linux
+	rm -rf ${D}${libdir}/libmount* ${D}${libdir}/libblkid* ${D}${includedir}/libmount/libmount.h ${D}${includedir}/blkid/blkid.h ${D}${datadir}/bash-completion 	
+
 	if [ "${PACKAGE_DEBUG_SPLIT_STYLE}" == "debug-file-directory"  ]; then
 
 		install -d ${D}${libdir}/debug
