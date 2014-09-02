@@ -1,6 +1,6 @@
-require recipes-core/eglibc/eglibc.inc
+require recipes-core/glibc/glibc.inc
 
-PROVIDES += "eglibc"
+PROVIDES += "glibc"
 
 TOOLCHAIN_OPTIONS = ""
 
@@ -62,7 +62,7 @@ do_configure () {
     CPPFLAGS="" oe_runconf
 }
 
-require recipes/eglibc/eglibc-package-adjusted.inc
+require recipes/glibc/glibc-package-adjusted.inc
 
 CSL_VER_MAIN ?= ""
 CSL_VER_LIBC ?= ""

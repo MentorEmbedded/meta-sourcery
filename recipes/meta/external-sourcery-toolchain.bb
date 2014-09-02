@@ -1,6 +1,6 @@
 ORIG_PACKAGES := "${PACKAGES}"
 
-require recipes/eglibc/eglibc-package-adjusted.inc
+require recipes/glibc/glibc-package-adjusted.inc
 
 INHIBIT_DEFAULT_DEPS = "1"
 
@@ -108,7 +108,7 @@ do_install() {
 	fi
 }
 
-# These files are picked up out of the sysroot by eglibc-locale, so we don't
+# These files are picked up out of the sysroot by glibc-locale, so we don't
 # need to keep them around ourselves.
 do_install_locale_append() {
 	rm -fr ${D}${exec_prefix}/lib/locale
