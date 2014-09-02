@@ -210,7 +210,7 @@ INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 # We support multiple toolchain versions, so an unpackaged file isn't
 # necessarily a problem.
-ERROR_QA_remove = "installed-vs-shipped"
+INSANE_SKIP_${PN} = "installed-vs-shipped"
 
 # This test should be fixed to ignore .a files in .debug dirs
 INSANE_SKIP_${PN}-dbg = "staticdev"
