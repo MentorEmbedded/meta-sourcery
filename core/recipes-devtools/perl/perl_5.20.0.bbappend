@@ -1,1 +1,0 @@
-CCLD += "${LDFLAGS}"
