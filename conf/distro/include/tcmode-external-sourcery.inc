@@ -87,9 +87,6 @@ EXTERNAL_TOOLCHAIN_SYSROOT = "${@sourcery_get_sysroot(d)}"
 
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
-TUNE_CCARGS_append_x86 = " ${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
-TUNE_CCARGS_append_x86-64 = " ${@'-msgxx-glibc' if CSL_IS_PRO == '1' else ''}"
-
 LDEMULATION = ""
 LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in TUNE_FEATURES.split() else 'lt'}"
 LDEMULATION_BITS = "${@'64' if 'n64' in TUNE_FEATURES.split() else '32'}"
@@ -142,6 +139,20 @@ python toolchain_metadata_setup () {
         error_qa.remove('ldflags')
         d.setVar('ERROR_QA', ' '.join(error_qa))
         d.appendVar('WARN_QA', ' ldflags')
+
+    #
+    # Determine if '-msgxx-glibc' is a valid toolchain option.
+    # If so then we need to use it to ensure that the libraries included with
+    # the toolchain are used rather than the build host native libraries.
+    #
+    try:
+        sysroot_cmd_output = bb.process.run(bb.data.expand("${TARGET_PREFIX}gcc -msgxx-glibc -print-sysroot", l),
+                                            env={"PATH": l.getVar('PATH', True)})[0].rstrip()
+    except bb.process.CmdError as exc:
+        bb.fatal(str(exc))
+    else:
+        if "unrecognized command line option '-msgxx-glibc'" not in sysroot_cmd_output:
+            d.appendVar('TUNE_CCARGS', ' -msgxx-glibc')
 }
 toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler toolchain_metadata_setup
