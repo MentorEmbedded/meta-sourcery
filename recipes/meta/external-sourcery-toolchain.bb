@@ -145,6 +145,7 @@ external_toolchain_sysroot_adjust() {
 }
 
 TC_PACKAGES =+ "libgcc libgcc-dev"
+TC_PACKAGES =+ "libgcov libgcov-dev"
 TC_PACKAGES =+ "libgomp libgomp-dev libgomp-staticdev"
 TC_PACKAGES =+ "libquadmath libquadmath-dev libquadmath-staticdev"
 TC_PACKAGES =+ "libstdc++ libstdc++-dev libstdc++-staticdev"
@@ -165,6 +166,9 @@ PACKAGES =+ "${TC_PACKAGES}"
 FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
 FILES_${PN} += "${prefix}/libexec/*"
 FILES_${PN}-dbg += "${prefix}/libexec/*/.debug"
+
+FILES_libgcov = "${libdir}/libgcov.so.*"
+FILES_libgcov-dev = "${libdir}/libgcov.so"
 
 SUMMARY_libasan = "The Address Sanitizer runtime library"
 SUMMARY_libasan-dev = "${SUMMARY_libasan} - development files"
