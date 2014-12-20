@@ -9,81 +9,87 @@ EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 # errors or warnings.
 NO32LIBS ?= "0"
 
+# We don't need or want to build a cross-compiler to ship in the sdk/ade, as
+# we expect folks to use the Sourcery G++ toolchain on the SDKMACHINE as well.
+TOOLCHAIN_HOST_TASK_remove = "packagegroup-cross-canadian-${MACHINE}"
+
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
 # sysroot and determine this accurately.
 GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
 
-# Don't ship any toolchain binaries in the sdk for the time being
-# FIXME: find a way to do this just for the recipes which include those
-# binaries. Potentially we could replace the packagegroup with an alternative
-# version which includes nothing, or provide a bbclass which filters it out at
-# RecipeParsed time.
-#TOOLCHAIN_HOST_TASK ?= "nativesdk-packagegroup-sdk-host meta-environment-${TRANSLATED_TARGET_ARCH}"
-
-# Add the external toolchain to the sdk setup script PATH
-INHERIT += "toolchain-scripts-external"
-
+# The binary locale files are common to the multilibs
 localedir = "${exec_prefix}/lib/locale"
 
-CSL_TARGET_SYS_powerpc ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
-CSL_TARGET_SYS_powerpc64 ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
-CSL_TARGET_SYS_arm ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
-CSL_TARGET_SYS_mips ?= "mips-linux-gnu mips-mentor-linux-gnu"
-CSL_TARGET_SYS_mipsel ?= "mips-linux-gnu mips-mentor-linux-gnu"
-CSL_TARGET_SYS_mips64 ?= "mips64-nlm-linux-gnu mips-linux-gnu mips-mentor-linux-gnu"
-CSL_TARGET_SYS_x86-64 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu x86_64-linux-gnu x86_64-amd-linux-gnu"
-CSL_TARGET_SYS_i686 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
-CSL_TARGET_SYS_i586 ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
-CSL_TARGET_SYS = "${TARGET_SYS}"
-
-def csl_target_sys(d):
-    toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
-
-    for triplet in d.getVar('CSL_TARGET_SYS', True).split():
-        gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
-        if os.path.exists(gcc):
-            return triplet + '-'
-    return '${TARGET_SYS}-'
-
-TARGET_PREFIX = "${@csl_target_sys(d)}"
-
-PREFERRED_PROVIDER_linux-libc-headers = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_linux-libc-headers-dev = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_libgcc = "external-sourcery-toolchain"
-PREFERRED_PROVIDER_glibc ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/libc ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/libintl ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_virtual/libiconv ?= "external-sourcery-toolchain"
-PREFERRED_PROVIDER_gdbserver = "external-sourcery-toolchain"
-
 # No need to re-compile the locale files
-GLIBC_INTERNAL_USE_BINARY_LOCALE = "precompiled"
+GLIBC_INTERNAL_USE_BINARY_LOCALE ?= "precompiled"
 ENABLE_BINARY_LOCALE_GENERATION = ""
 
+# Prefer our recipes which extract files from the external toolchain
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc ?= "gcc-external-cross-${TARGET_ARCH}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial ?= "gcc-external-cross-${TARGET_ARCH}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate ?= "gcc-external-cross-${TARGET_ARCH}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ ?= "gcc-external-cross-${TARGET_ARCH}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils ?= "binutils-external-cross-${TARGET_ARCH}"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs ?= "gcc-runtime-external"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "glibc-external"
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial ?= "glibc-external"
+PREFERRED_PROVIDER_glibc ?= "glibc-external"
+PREFERRED_PROVIDER_virtual/libc ?= "glibc-external"
+PREFERRED_PROVIDER_virtual/libintl ?= "glibc-external"
+PREFERRED_PROVIDER_virtual/libiconv ?= "glibc-external"
+
+PREFERRED_PROVIDER_gdbserver ??= "gdbserver-external"
+PREFERRED_PROVIDER_oprofile ??= "oprofile"
+
+# These are defined in default-providers.inc, which is parsed before the
+# tcmode, so we can't use ?= for them.
+PREFERRED_PROVIDER_libgcc = "libgcc-external"
+PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
+
+# Ensure that we don't pull in any internal toolchain recipes
+INHERIT += "blacklist"
+PNBLACKLIST[uclibc] = "not building with an external toolchain"
+PNBLACKLIST[uclibc-initial] = "not building with an external toolchain"
+PNBLACKLIST[glibc] = "not building with an external toolchain"
+PNBLACKLIST[glibc-initial] = "not building with an external toolchain"
+PNBLACKLIST[glibc-intermediate] = "not building with an external toolchain"
+PNBLACKLIST[binutils-cross] = "not building with an external toolchain"
+PNBLACKLIST[gcc-cross] = "not building with an external toolchain"
+PNBLACKLIST[gcc-cross-initial] = "not building with an external toolchain"
+PNBLACKLIST[gcc-cross-intermediate] = "not building with an external toolchain"
+PNBLACKLIST[gcc-runtime] = "not building with an external toolchain"
+PNBLACKLIST[libgcc] = "not building with an external toolchain"
+PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
+PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain"
+PNBLACKLIST[external-sourcery-toolchain] = "using meta-sourcery, not poky's external toolchain"
+
+# Determine the prefixes to check for based on the target architecture (before
+# any classes alter TARGET_ARCH)
+EXTERNAL_TARGET_SYSTEMS[powerpc] ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[powerpc64] ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
+EXTERNAL_TARGET_SYSTEMS[mips] ?= "mips-linux-gnu mips-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[mipsel] ?= "mips-linux-gnu mips-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[mips64] ?= "mips64-nlm-linux-gnu mips-linux-gnu mips-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[x86_64] ?= "i686-pc-linux-gnu i686-mentor-linux-gnu x86_64-linux-gnu x86_64-amd-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[i686] ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[i586] ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS = "${TARGET_SYS}"
+
+def external_target_sys(d):
+    toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
+
+    for triplet in d.getVar('EXTERNAL_TARGET_SYSTEMS', True).split():
+        gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
+        if os.path.exists(gcc):
+            return triplet
+    return '${TARGET_SYS}'
+
+EXTERNAL_TARGET_SYS ?= "${@external_target_sys(d)}"
+TARGET_PREFIX = "${EXTERNAL_TARGET_SYS}-"
+
 TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
-
-def sourcery_get_sysroot(d):
-    import subprocess
-    sysroot_cmd = "${TARGET_PREFIX}gcc ${TARGET_CC_ARCH} -print-sysroot"
-    try:
-        toolchain_sysroot = bb.process.run(bb.data.expand(sysroot_cmd, d),
-                                           stderr=subprocess.PIPE,
-                                           env={"PATH": d.getVar('PATH', True)})[0].rstrip()
-    except bb.process.CmdError as exc:
-        bb.fatal(str(exc))
-    else:
-        return toolchain_sysroot
-
-EXTERNAL_TOOLCHAIN_SYSROOT = "${@sourcery_get_sysroot(d)}"
 
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
@@ -97,14 +103,10 @@ TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
 export MGLS_LICENSE_FILE
 export LM_LICENSE_FILE
 
-# Unfortunately, the CSL ia32 toolchain has non-prefixed binaries in its
-# bindir (e.g. gcc, ld). To avoid this messing up our build, we avoid adding
-# this bindir to our PATH, and instead add symlinks to the prefixed binaries
-# to our staging toolchain bindir.
-
-ERROR_QA[type] ?= "list"
 python toolchain_metadata_setup () {
     import subprocess
+    import tempfile
+
     d = e.data
 
     # Ensure that changes to toolchain licensing don't affect checksums
@@ -112,7 +114,10 @@ python toolchain_metadata_setup () {
 
     l = d.createCopy()
     l.finalize()
-    oe_import(l)
+
+    systems = l.getVarFlag('EXTERNAL_TARGET_SYSTEMS', l.getVar('TARGET_ARCH', True), True)
+    if systems:
+        d.setVar('EXTERNAL_TARGET_SYSTEMS', systems)
 
     # Remove already-added toolchain install paths from the PATH, as they can
     # break the build (in particular, the ia32 toolchain, as it provdes
@@ -122,94 +127,64 @@ python toolchain_metadata_setup () {
     path = filter(lambda p: not p.startswith(install_prefix_default), path)
     d.setVar('PATH', ':'.join(path))
 
-    external_toolchain = l.getVar('EXTERNAL_TOOLCHAIN', True)
-    if not external_toolchain or external_toolchain == 'UNDEFINED':
-        bb.fatal("Error: EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
-
-    if not os.path.exists(external_toolchain):
-        bb.fatal("Error: EXTERNAL_TOOLCHAIN path '%s' does not exist" % external_toolchain)
-
-    populate_toolchain_links(l)
-
     # The external toolchain may not have been built with the yocto preferred
     # gnu hash setting, so ensure that the corresponding sanity check is a
     # warning, not an error.
-    error_qa = oe.data.typed_value('ERROR_QA', l)
+    error_qa = (l.getVar('ERROR_QA', True) or '').split()
     if 'ldflags' in error_qa:
         error_qa.remove('ldflags')
         d.setVar('ERROR_QA', ' '.join(error_qa))
         d.appendVar('WARN_QA', ' ldflags')
 
-    #
     # Determine if '-msgxx-glibc' is a valid toolchain option.
     # If so then we need to use it to ensure that the libraries included with
     # the toolchain are used rather than the build host native libraries.
-    #
-    try:
-        sysroot_cmd_output = bb.process.run(bb.data.expand("${TARGET_PREFIX}gcc -msgxx-glibc -print-sysroot", l),
-                                            env={"PATH": l.getVar('PATH', True)})[0].rstrip()
-    except bb.process.CmdError as exc:
-        bb.fatal(str(exc))
-    else:
-        if "unrecognized command line option '-msgxx-glibc'" not in sysroot_cmd_output:
+    with tempfile.NamedTemporaryFile(suffix='.c') as f:
+        try:
+            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], cwd=d.getVar('TOPDIR', True), stderr=subprocess.STDOUT)
+        except (OSError, subprocess.CalledProcessError):
+            return
+        else:
             d.appendVar('TUNE_CCARGS', ' -msgxx-glibc')
 }
 toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler toolchain_metadata_setup
 
-def populate_toolchain_links(d):
-    import errno
-    import os
-    from glob import glob
+python toolchain_sanity_check () {
+    external_toolchain = e.data.getVar('EXTERNAL_TOOLCHAIN', True)
+    if not external_toolchain or external_toolchain == 'UNDEFINED':
+        bb.fatal("Error: EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
 
-    pattern = d.expand('${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}*')
-    files = glob(pattern)
-    if not files:
-        bb.fatal("Unable to populate toolchain binary symlinks in %s" % pattern)
+    if not os.path.exists(external_toolchain):
+        bb.fatal("Error: EXTERNAL_TOOLCHAIN path '%s' does not exist" % external_toolchain)
+}
+toolchain_sanity_check[eventmask] = "bb.event.BuildStarted"
+addhandler toolchain_sanity_check
 
-    bindir = d.getVar('STAGING_BINDIR_TOOLCHAIN', True)
-    bb.utils.mkdirhier(bindir)
-    wrapped = ['gcc', 'g++', 'cpp']
-    for f in files:
-        base = os.path.basename(f)
-        newpath = os.path.join(bindir, base)
-        if not os.path.exists(newpath):
-            if any(base.endswith(w) for w in wrapped):
-                with open(newpath, 'w') as new:
-                    new.write('#!/bin/sh\n')
-                    new.write('export PSEUDO_UNLOAD=1\n')
-                    new.write('exec {0} "$@"\n'.format(f))
-                os.chmod(newpath, 0755)
-            else:
-                try:
-                    os.symlink(f, newpath)
-                except OSError as exc:
-                    if exc.errno == errno.EEXIST:
-                        break
-                    bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (newpath, exc))
+require conf/distro/include/external-run.inc
 
-    # Ensure that we have a ld.bfd available, now that KERNEL_LD uses it
-    ld = d.expand('${TARGET_PREFIX}ld')
-    ld_bfd = os.path.join(bindir, ld + '.bfd')
-    if not os.path.exists(ld_bfd):
-        try:
-            os.symlink(ld, ld_bfd)
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                bb.fatal("Unable to populate toolchain binary symlink for %s: %s" % (ld_bfd, exc))
+GCC_VERSION = "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
+GCC_VERSION_allarch = ""
+GCC_VERSION[vardepvalue] = "${GCC_VERSION}"
 
-require conf/distro/include/csl-versions.inc
-
-def get_gcc_version_prefix(d):
-    ver = d.getVar('CSL_VER_GCC', True)
-    if ver:
-        components = ver.split('.')
-        if len(components) > 1:
-            return '.'.join(components[:2])
+def sourcery_version(d):
+    version = external_run(d, 'gcc', '-v').splitlines()[-1]
+    if version != 'UNKNOWN':
+        main_version = version.split()[-1].rstrip(')')
+        if main_version == 'Preview':
+            main_version = version.split()[-3]
+        return main_version
     else:
-        return '4.7%'
+        return version
 
-# Prefer a matching gcc version
-GCCVERSION ?= "${@get_gcc_version_prefix(d)}%"
+SOURCERY_VERSION = "${@sourcery_version(d)}"
+SOURCERY_VERSION_allarch = ""
 
-BUILDCFG_VARS += "CSL_VER_MAIN EXTERNAL_TOOLCHAIN"
+# Add sourcery toolchain version to external recipe versions
+EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
+EXTERNAL_PV_SUFFIX_allarch = ""
+
+BUILDCFG_VARS += "SOURCERY_VERSION GCC_VERSION EXTERNAL_TOOLCHAIN"
+
+# Adjust tunings to ensure we're using Sourcery G++ multilibs
+require conf/distro/include/sourcery-tuning.inc

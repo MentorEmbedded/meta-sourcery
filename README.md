@@ -23,7 +23,8 @@ Optional Functionality
   from source, if they have downloaded the corresponding source archive from Mentor
   Graphics. To so, set `TCMODE = "external-sourcery-rebuild-libc"`, rather than relying
   on the default value of `external-sourcery`. After setting TCMODE appropriately, you
-  must also set `CSL_SRC_FILE = "/path/to/your/sourcery-g++-source-tarball"`.
+  must also set `SOURCERY_SRC_FILE = "/path/to/your/sourcery-g++-source-tarball"` or
+  `SOURCERY_SRC_URI = "http://some.domain/some-path"`.
 
 Description of Behavior
 -----------------------
@@ -33,20 +34,9 @@ necessary.  The tcmode performs a number of operations:
 
 - Sets `TARGET_PREFIX` appropriately, after determining what prefix is in use by the toolchain
 - Sanity checks `EXTERNAL_TOOLCHAIN`: does the path exist? does the expected sysroot exist?
-- Sanity checks execution of the toolchain binaries
-- Sets preferences so that the `external-sourcery-toolchain` recipe is used in preference
-  to rebuilding various things from source with their own recipes
-- Extracts version information from the toolchain (e.g. by running `${TARGET_PREFIX}gcc -v`),
-  for use in the `external-sourcery-toolchain` recipe and its binary packages
-- Symlinks the toolchain binaries into the toolchain portion of the sysroot. This is done
-  in preference to adding the toolchain path to the `PATH`, to avoid the aforementioned
-  ia32 issue, and to let us work around certain issues (For example, we create an `ld.bfd`
-  link which the kernel build expects, but isn't shipped with the toolchain)
-- Adds the external toolchain `PATH` to the setup script emitted when building SDKs (e.g.
-  when bitbaking meta-toolchain)
-- Sets `GCCVERSION` to the gcc version of the toolchain, to prefer a matching gcc version for
-  the target package, if possible. Certain versions of gcc have trouble being built by other
-  versions of gcc, so this can avoid such issues.
+- Sets preferences so that external recipes are used in preference to building
+  them from source, including cross recipes which link/wrap the toolchain
+  cross binaries
 
 Contributing
 ------------
@@ -57,16 +47,7 @@ To contribute to this layer, please fork and submit pull requests to the above
 repository with github, or open issues for any bugs you find, or feature
 requests you have.
 
-Content review
---------------
+To Do List
+----------
 
-- Fix `GNU_HASH` warnings / obey `LDFLAGS`
-
-    - imx-lib
-    - blktrace
-    - hostap
-    - gdbm
-    - setserial
-    - irda-utils
-    - python
-    - perl
+See [TODO.md](TODO.md)
