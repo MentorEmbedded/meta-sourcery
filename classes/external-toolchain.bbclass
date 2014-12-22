@@ -75,11 +75,11 @@ python () {
     sysroots, mirrors = get_file_search_metadata(d)
     pattern = d.getVar('EXTERNAL_PROVIDE_PATTERN', True)
     if pattern is None:
-        files = gather_pkg_files(d)
+        files = list(gather_pkg_files(d))
         expanded = expand_paths(files, mirrors)
         paths = search_sysroots(expanded, sysroots)
         if not any(f for p, f in paths):
-            raise bb.parse.SkipPackage('No files found in external toolchain sysroot')
+            raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(', '.join(files)))
     elif not pattern:
         return
     else:
