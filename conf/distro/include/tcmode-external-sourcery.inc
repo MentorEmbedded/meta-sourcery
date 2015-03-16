@@ -9,10 +9,6 @@ EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 # errors or warnings.
 NO32LIBS ?= "0"
 
-# We don't need or want to build a cross-compiler to ship in the sdk/ade, as
-# we expect folks to use the Sourcery G++ toolchain on the SDKMACHINE as well.
-TOOLCHAIN_HOST_TASK_remove = "packagegroup-cross-canadian-${MACHINE}"
-
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
 # sysroot and determine this accurately.
