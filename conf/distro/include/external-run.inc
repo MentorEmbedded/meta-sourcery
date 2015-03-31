@@ -1,7 +1,7 @@
 def external_run(d, cmd, *args):
     import subprocess
 
-    topdir = d.getVar('TOPDIR', True)
+    topdir = d.getVar('TMPDIR', True)
     toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
     if toolchain_path:
         target_prefix = d.getVar('EXTERNAL_TARGET_SYS', True) + '-'
