@@ -175,6 +175,7 @@ def sourcery_version(d):
 
 SOURCERY_VERSION = "${@sourcery_version(d)}"
 SOURCERY_VERSION_allarch = ""
+SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
 
 # Add sourcery toolchain version to external recipe versions
 EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
