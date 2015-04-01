@@ -60,6 +60,14 @@ EXTERNAL_AUTO_PROVIDE ?= "0"
 EXTERNAL_AUTO_PROVIDE[type] = "boolean"
 EXTERNAL_AUTO_PROVIDE_class-target ?= "1"
 
+# We don't care if this path references other variables
+EXTERNAL_TOOLCHAIN[vardepvalue] = "${EXTERNAL_TOOLCHAIN}"
+
+# We don't want to rebuild if the path to the toolchain changes, only if the
+# toolchain changes
+external_toolchain_do_install[vardepsexclude] += "EXTERNAL_TOOLCHAIN"
+EXTERNAL_INSTALL_SOURCE_PATHS[vardepsexclude] += "EXTERNAL_TOOLCHAIN"
+
 python () {
     # Skipping only matters up front
     if d.getVar('BB_WORKERCONTEXT', True) == '1':
