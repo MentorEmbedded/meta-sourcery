@@ -82,7 +82,14 @@ def external_target_sys(d):
             return triplet
     return '${TARGET_SYS}'
 
+# We need our -cross recipes to rebuild when the external toolchain changes
+BB_HASHBASE_WHITELIST_remove = "EXTERNAL_TOOLCHAIN"
+
+# All we care about for the signatures is the result, not how we got there, so
+# we don't want EXTERNAL_TARGET_SYSTEMS included.
 EXTERNAL_TARGET_SYS ?= "${@external_target_sys(d)}"
+EXTERNAL_TARGET_SYS[vardepvalue] = "${EXTERNAL_TARGET_SYS}"
+EXTERNAL_TARGET_SYS[vardepsexclude] += "EXTERNAL_TARGET_SYSTEMS EXTERNAL_TOOLCHAIN"
 TARGET_PREFIX = "${EXTERNAL_TARGET_SYS}-"
 
 TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
@@ -175,6 +182,7 @@ def sourcery_version(d):
 
 SOURCERY_VERSION = "${@sourcery_version(d)}"
 SOURCERY_VERSION_allarch = ""
+SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
 
 # Add sourcery toolchain version to external recipe versions
 EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"

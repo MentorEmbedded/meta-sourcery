@@ -20,3 +20,5 @@ def external_run(d, cmd, *args):
             return output
 
     return 'UNKNOWN'
+
+external_run[vardepsexclude] += "EXTERNAL_TOOLCHAIN TMPDIR"
