@@ -18,7 +18,9 @@ FILES_${PN}-dev = "${base_libdir}/libgcc_s.so \
                    ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtfastmath.o \
                    ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtprec*.o \
                    ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcc.a \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcc_eh.a"
+                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcc_eh.a \
+                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/include/unwind.h \
+                   "
 INSANE_SKIP_${PN}-dev += "staticdev"
 FILES_${PN}-dbg += "${base_libdir}/.debug/libgcc_s.so.*.debug"
 FILES_libgcov-dev = "${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcov.a"
