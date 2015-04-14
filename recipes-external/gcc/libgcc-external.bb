@@ -8,20 +8,25 @@ inherit external-toolchain
 
 PACKAGES =+ "libgcov-dev"
 
+external_libroot = "${@os.path.realpath('${EXTERNAL_TOOLCHAIN_LIBROOT}').replace(os.path.realpath('${EXTERNAL_TOOLCHAIN}') + '/', '/')}"
+FILES_MIRRORS =. "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/|${external_libroot}/\n"
+
 FILES_${PN} = "${base_libdir}/libgcc_s.so.*"
 FILES_${PN}-dev = "${base_libdir}/libgcc_s.so \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtbegin.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtbeginS.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtbeginT.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtend.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtendS.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtfastmath.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/crtprec*.o \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcc.a \
-                   ${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcc_eh.a"
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtbegin.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtbeginS.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtbeginT.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtend.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtendS.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtfastmath.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/crtprec*.o \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcc.a \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcc_eh.a \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/unwind.h \
+                   "
 INSANE_SKIP_${PN}-dev += "staticdev"
 FILES_${PN}-dbg += "${base_libdir}/.debug/libgcc_s.so.*.debug"
-FILES_libgcov-dev = "${libdir}/gcc/${EXTERNAL_TARGET_SYS}/${GCC_VERSION}/libgcov.a"
+FILES_libgcov-dev = "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcov.a"
 INSANE_SKIP_libgcov-dev += "staticdev"
 
 

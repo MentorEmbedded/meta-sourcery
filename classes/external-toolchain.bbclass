@@ -23,6 +23,7 @@ LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = "${COMMON_LIC_CHKSUM}"
 
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
+EXTERNAL_TOOLCHAIN_LIBROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-file-name=crtbegin.o'])).rstrip().replace('/crtbegin.o', '')}"
 
 EXTERNAL_INSTALL_SOURCE_PATHS = "\
     ${EXTERNAL_TOOLCHAIN_SYSROOT} \
@@ -163,7 +164,11 @@ def expand_paths(pathnames, mirrors):
         expanded_paths = [pathname]
 
         for search, replace in mirrors:
-            new_pathname = re.sub(search, replace, pathname, count=1)
+            try:
+                new_pathname = re.sub(search, replace, pathname, count=1)
+            except re.error as exc:
+                bb.warn("Invalid pattern for `%s`" % search)
+                continue
             if new_pathname != pathname:
                 expanded_paths.append(new_pathname)
 

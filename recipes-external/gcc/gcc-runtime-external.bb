@@ -54,9 +54,15 @@ PACKAGES =+ "\
 SUMMARY_libitm = "The Transactional Memory runtime library"
 SUMMARY_libitm-dev = "${SUMMARY_libitm} - development files"
 
+external_libroot = "${@os.path.realpath('${EXTERNAL_TOOLCHAIN_LIBROOT}').replace(os.path.realpath('${EXTERNAL_TOOLCHAIN}') + '/', '/')}"
+FILES_MIRRORS =. "\
+    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/|${external_libroot}/\n \
+    ${includedir}/c\+\+/${GCC_VERSION}/${TARGET_SYS}/|${includedir}/c++/${GCC_VERSION}/${EXTERNAL_TARGET_SYS}/\n \
+"
+
 FILES_libstdc++ = "${libdir}/libstdc++${SOLIBS}"
 FILES_libstdc++-dev = "${libdir}/libstdc++${SOLIBSDEV} \
-                       ${includedir}/c++/${GCC_VERSION}"
+                       ${includedir}/c++/${GCC_VERSION}/${TARGET_SYS}"
 FILES_libstdc++-staticdev = "${libdir}/libstdc++.a \
                              ${libdir}/libsupc++.a"
 FILES_libatomic = "${libdir}/libatomic${SOLIBS}"
@@ -84,14 +90,16 @@ FILES_libmudflap = "${libdir}/libmudflap${SOLIBS}"
 FILES_libmudflap-dev = "${libdir}/libmudflap${SOLIBSDEV}"
 FILES_libmudflap-staticdev = "${libdir}/libmudflap.a"
 FILES_libquadmath = "${libdir}/libquadmath${SOLIBS}"
-FILES_libquadmath-dev = "${libdir}/libquadmath${SOLIBSDEV}"
+FILES_libquadmath-dev = "${libdir}/libquadmath${SOLIBSDEV} \
+                         ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/quadmath*"
 FILES_libquadmath-staticdev = "${libdir}/libquadmath.a"
 FILES_libssp = "${libdir}/libssp${SOLIBS}"
 FILES_libssp-dev = "${libdir}/libssp${SOLIBSDEV} \
-                    ${libdir}/gcc/*/*/include/ssp"
+                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/ssp"
 FILES_libssp-staticdev = "${libdir}/libssp.a"
 FILES_libgomp = "${libdir}/libgomp${SOLIBS}"
-FILES_libgomp-dev = "${libdir}/libgomp${SOLIBSDEV}"
+FILES_libgomp-dev = "${libdir}/libgomp${SOLIBSDEV} \
+                     ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/omp.h"
 FILES_libgomp-staticdev = "${libdir}/libgomp.a"
 FILES_libitm = "${libdir}/libitm${SOLIBS}"
 FILES_libitm-dev = "${libdir}/libitm${SOLIBSDEV}"
