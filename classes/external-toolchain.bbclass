@@ -163,7 +163,11 @@ def expand_paths(pathnames, mirrors):
         expanded_paths = [pathname]
 
         for search, replace in mirrors:
-            new_pathname = re.sub(search, replace, pathname, count=1)
+            try:
+                new_pathname = re.sub(search, replace, pathname, count=1)
+            except re.error as exc:
+                bb.warn("Invalid pattern for `%s`" % search)
+                continue
             if new_pathname != pathname:
                 expanded_paths.append(new_pathname)
 
