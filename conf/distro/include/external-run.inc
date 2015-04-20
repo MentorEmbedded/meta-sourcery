@@ -12,10 +12,10 @@ def external_run(d, cmd, *args):
             output = oe.path.check_output(args, cwd=topdir, stderr=subprocess.STDOUT)
         except oe.path.CalledProcessError as exc:
             import pipes
-            bb.warn("{0} failed: {1}".format(' '.join(pipes.quote(a) for a in args), exc.output))
+            bb.debug(1, "{0} failed: {1}".format(' '.join(pipes.quote(a) for a in args), exc.output))
         except OSError as exc:
             import pipes
-            bb.warn("{0} failed: {1}".format(' '.join(pipes.quote(a) for a in args), str(exc)))
+            bb.debug(1, "{0} failed: {1}".format(' '.join(pipes.quote(a) for a in args), str(exc)))
         else:
             return output
 
