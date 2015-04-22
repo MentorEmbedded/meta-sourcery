@@ -105,10 +105,12 @@ python do_install () {
 }
 
 python external_toolchain_do_install () {
+    import subprocess
     installdest = d.getVar('D', True)
     sysroots, mirrors = get_file_search_metadata(d)
     files = gather_pkg_files(d)
     copy_from_sysroots(files, sysroots, mirrors, installdest)
+    subprocess.check_call(['chown', '-R', 'root:root', installdest])
 }
 external_toolchain_do_install[vardeps] += "${@' '.join('FILES_%s' % pkg for pkg in '${PACKAGES}'.split())}"
 
