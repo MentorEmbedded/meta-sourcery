@@ -82,7 +82,8 @@ def external_target_sys(d):
             return triplet
     return '${TARGET_SYS}'
 
-# We need our -cross recipes to rebuild when the external toolchain changes
+# We need our -cross recipes to rebuild when the external toolchain changes,
+# to recreate the links / wrapper scripts
 BB_HASHBASE_WHITELIST_remove = "EXTERNAL_TOOLCHAIN"
 
 # All we care about for the signatures is the result, not how we got there, so
@@ -97,10 +98,10 @@ TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
 LDEMULATION = ""
-LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in TUNE_FEATURES.split() else 'lt'}"
-LDEMULATION_BITS = "${@'64' if 'n64' in TUNE_FEATURES.split() else '32'}"
+LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in '${TUNE_FEATURES}'.split() else 'lt'}"
+LDEMULATION_BITS = "${@'64' if 'n64' in '${TUNE_FEATURES}'.split() else '32'}"
 LDEMULATION_mips64 = "elf${LDEMULATION_BITS}${LDEMULATION_ENDIAN}smip${@bb.utils.contains('TUNE_FEATURES', 'n32', 'n32', '', d)}"
-TUNE_LDARGS += "${@'-m ${LDEMULATION}' if LDEMULATION else ''}"
+TUNE_LDARGS += "${@'-m ${LDEMULATION}' if '${LDEMULATION}' else ''}"
 
 # Ensure that the licensing variables are available to the toolchain.
 export MGLS_LICENSE_FILE
@@ -146,7 +147,7 @@ python toolchain_metadata_setup () {
         try:
             subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], cwd=d.getVar('TOPDIR', True), stderr=subprocess.STDOUT)
         except (OSError, subprocess.CalledProcessError):
-            return
+            pass
         else:
             d.appendVar('TUNE_CCARGS', ' -msgxx-glibc')
 }
@@ -154,14 +155,30 @@ toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler toolchain_metadata_setup
 
 python toolchain_sanity_check () {
-    external_toolchain = e.data.getVar('EXTERNAL_TOOLCHAIN', True)
+    d = e.data
+    external_toolchain = d.getVar('EXTERNAL_TOOLCHAIN', True)
     if not external_toolchain or external_toolchain == 'UNDEFINED':
         bb.fatal("Error: EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
 
     if not os.path.exists(external_toolchain):
         bb.fatal("Error: EXTERNAL_TOOLCHAIN path '%s' does not exist" % external_toolchain)
+
+    gccpath = os.path.join(external_toolchain, 'bin', e.data.expand('${EXTERNAL_TARGET_SYS}-gcc'))
+    if not os.path.exists(gccpath):
+        if (os.path.exists(os.path.dirname(gccpath)) and
+            d.getVar('EXTERNAL_TARGET_SYS', True) == d.getVar('TARGET_SYS', True)):
+            bb.warn("EXTERNAL_TARGET_SYS == TARGET_SYS. This indicates that the prefixes specified by EXTERNAL_TARGET_SYSTEMS were not found.")
+        bb.fatal("Error: EXTERNAL_TOOLCHAIN gcc path '%s' does not exist" % gccpath)
+
+    if d.getVar('GCC_VERSION', True) == 'UNKNOWN':
+        bb.warn("EXTERNAL_TOOLCHAIN gcc version extraction failed, see debug messages for details")
 }
-toolchain_sanity_check[eventmask] = "bb.event.BuildStarted"
+
+# This runs at TreeDataPreparationStarted time, as we want bitbake -e to work,
+# so it has to run after ConfigParsed, and we want to see these errors rather
+# than the highly verbose unbuildable -external recipe errors which occur when
+# generating the runqueue, so we need to run before BuildStarted.
+toolchain_sanity_check[eventmask] = "bb.event.TreeDataPreparationStarted"
 addhandler toolchain_sanity_check
 
 require conf/distro/include/external-run.inc
@@ -188,7 +205,7 @@ SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
 EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
 EXTERNAL_PV_SUFFIX_allarch = ""
 
-BUILDCFG_VARS += "SOURCERY_VERSION GCC_VERSION EXTERNAL_TOOLCHAIN"
+BUILDCFG_VARS += "EXTERNAL_TOOLCHAIN SOURCERY_VERSION GCC_VERSION"
 
 # Adjust tunings to ensure we're using Sourcery G++ multilibs
 require conf/distro/include/sourcery-tuning.inc
