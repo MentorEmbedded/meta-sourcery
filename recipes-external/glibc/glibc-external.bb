@@ -131,3 +131,7 @@ FILES_${PN}-dev += "\
     ${includedir}/uchar.h \
 "
 FILES_${PN}-dev[file-checksums] += "${libc_headers_file}"
+
+# Currently, ldd and tzcode from Sourcery G++ still have #!/bin/bash
+RDEPENDS_ldd += "bash"
+RDEPENDS_tzcode += "bash"
