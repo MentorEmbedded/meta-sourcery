@@ -21,6 +21,9 @@ S = "${WORKDIR}"
 # Prebuilt binaries, no need for any default dependencies
 INHIBIT_DEFAULT_DEPS = "1"
 
+# Missing build deps don't matter when we don't build anything
+INSANE_SKIP_${PN} += "build-deps"
+
 EXTERNAL_PN ?= "${@PN.replace('-external', '')}"
 PROVIDES += "${EXTERNAL_PN}"
 LICENSE = "CLOSED"
