@@ -15,15 +15,20 @@ python () {
 
     #; Set LIC_FILES_CHKSUM to a common license if it's unset and LICENSE is set
     licensestr = d.getVar('LICENSE', True)
+    for pkg in d.getVar('PACKAGES', True).split():
+        pkg_lic = d.getVar('LICENSE_%s' % pkg, True)
+        if pkg_lic:
+            licensestr += ' ' + pkg_lic
+
     licenses = oe.license.flattened_licenses(licensestr, lambda a, b: a + b)
-    checksums = []
+    checksums = set()
     for license in licenses:
         if license != 'CLOSED' and d.getVar('LIC_FILES_CHKSUM', False) == '${COMMON_LIC_CHKSUM}':
             license = mapped_license(license, d)
 
             ext_chksum_var = 'COMMON_LIC_CHKSUM_{0}'.format(license)
             if d.getVar(ext_chksum_var, True):
-                checksums.append('${%s}' % ext_chksum_var)
+                checksums.add('${%s}' % ext_chksum_var)
             else:
                 lic_file_name = '${COREBASE}/meta/files/common-licenses/%s' % license
                 lic_file = d.expand(lic_file_name)
