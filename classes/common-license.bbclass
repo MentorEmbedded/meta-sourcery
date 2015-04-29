@@ -6,6 +6,7 @@ COMMON_LIC_CHKSUM = ""
 COMMON_LIC_CHKSUM_CLOSED = ""
 COMMON_LIC_CHKSUM_GPL-2.0 = "file://${COREBASE}/meta/files/common-licenses/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6"
 COMMON_LIC_CHKSUM_GPL-3.0 = "file://${COREBASE}/meta/files/common-licenses/GPL-3.0;md5=c79ff39f19dfec6d293b95dea7b07891"
+COMMON_LIC_CHKSUM_GPL-3.0-with-GCC-exception = "file://${COREBASE}/meta/files/common-licenses/GPL-3.0-with-GCC-exception;md5=aef5f35c9272f508be848cd99e0151df"
 COMMON_LIC_CHKSUM_LGPL-2.1 = "file://${COREBASE}/meta/files/common-licenses/LGPL-2.1;md5=1a6d268fd218675ffea8be556788b780"
 
 
