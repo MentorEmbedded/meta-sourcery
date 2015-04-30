@@ -14,8 +14,15 @@
 # LIC_FILES_CHKSUM, so use the license from common-licenses
 inherit common-license
 
+# We don't extract anything which will create S, and we don't want to see the
+# warning about it
+S = "${WORKDIR}"
+
 # Prebuilt binaries, no need for any default dependencies
 INHIBIT_DEFAULT_DEPS = "1"
+
+# Missing build deps don't matter when we don't build anything
+INSANE_SKIP_${PN} += "build-deps"
 
 EXTERNAL_PN ?= "${@PN.replace('-external', '')}"
 PROVIDES += "${EXTERNAL_PN}"
