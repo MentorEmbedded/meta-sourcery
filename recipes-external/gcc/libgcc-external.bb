@@ -6,6 +6,7 @@ PV = "${GCC_VERSION}"
 
 inherit external-toolchain
 
+LICENSE = "GPL-3.0-with-GCC-exception"
 PACKAGES =+ "libgcov-dev"
 
 external_libroot = "${@os.path.realpath('${EXTERNAL_TOOLCHAIN_LIBROOT}').replace(os.path.realpath('${EXTERNAL_TOOLCHAIN}') + '/', '/')}"
@@ -28,7 +29,6 @@ INSANE_SKIP_${PN}-dev += "staticdev"
 FILES_${PN}-dbg += "${base_libdir}/.debug/libgcc_s.so.*.debug"
 FILES_libgcov-dev = "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcov.a"
 INSANE_SKIP_libgcov-dev += "staticdev"
-
 
 do_package[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
 do_package_write_ipk[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
