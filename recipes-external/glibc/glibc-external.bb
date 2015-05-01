@@ -24,6 +24,26 @@ PROVIDES += "glibc \
              virtual/libintl \
              virtual/libiconv"
 
+def get_external_libc_license(d):
+    sysroot = d.getVar('EXTERNAL_TOOLCHAIN_SYSROOT', True)
+    incpath = os.path.join(sysroot, d.getVar('includedir', True)[1:])
+    errnopath = os.path.join(incpath, 'errno.h')
+
+    with open(errnopath, 'rU') as f:
+        text = f.read()
+
+    lictext = """   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version."""
+
+    if lictext in text:
+        return 'LGPL-2.1+'
+
+    return 'UNKNOWN'
+
+LICENSE := "${@get_external_libc_license(d)}"
+
 require recipes-external/glibc/glibc-sysroot-setup.inc
 require recipes-external/glibc/glibc-package-adjusted.inc
 
