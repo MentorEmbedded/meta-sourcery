@@ -201,6 +201,12 @@ def search_sysroots(path_entries, sysroots):
         else:
             yield path, None
 
+def find_sysroot_files(paths, d):
+    sysroots, mirrors = get_file_search_metadata(d)
+    expanded = expand_paths(paths, mirrors)
+    search_results = search_sysroots(expanded, sysroots)
+    return [v for k, v in search_results]
+
 # Change do_install's CWD to EXTERNAL_TOOLCHAIN for convenience
 do_install[dirs] = "${D} ${EXTERNAL_TOOLCHAIN}"
 
