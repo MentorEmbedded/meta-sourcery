@@ -10,9 +10,11 @@ EXTRA_OECONF = ""
 BBCLASSEXTEND = ""
 
 python () {
+    gccs = d.expand('gcc-source-${PV}')
+
     lic_deps = d.getVarFlag('do_populate_lic', 'depends', True).split()
-    d.setVarFlag('do_populate_lic', 'depends', ' '.join(filter(lambda d: d != 'gcc-source:do_unpack', lic_deps)))
+    d.setVarFlag('do_populate_lic', 'depends', ' '.join(filter(lambda d: d != '{}:do_unpack'.format(gccs), lic_deps)))
 
     cfg_deps = d.getVarFlag('do_configure', 'depends', True).split()
-    d.setVarFlag('do_configure', 'depends', ' '.join(filter(lambda d: d != 'gcc-source:do_preconfigure', cfg_deps)))
+    d.setVarFlag('do_configure', 'depends', ' '.join(filter(lambda d: d != '{}:do_preconfigure'.format(gccs), cfg_deps)))
 }
