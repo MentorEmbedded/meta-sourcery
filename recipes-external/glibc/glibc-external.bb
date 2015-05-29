@@ -68,6 +68,10 @@ glibc_external_do_install_extra () {
                 "This may mean that your external toolchain uses a different" \
                 "multi-lib setup than your machine configuration"
     fi
+
+   sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libc.so
+   sed -i -e "s# ${base_libdir}# ../..${base_libdir}#g" -e "s# ${libdir}# .#g" ${D}${libdir}/libpthread.so
+	
 }
 
 EXTERNAL_EXTRA_FILES += "\
