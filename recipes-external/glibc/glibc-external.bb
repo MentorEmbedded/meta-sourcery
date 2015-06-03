@@ -68,6 +68,7 @@ glibc_external_do_install_extra () {
                 "This may mean that your external toolchain uses a different" \
                 "multi-lib setup than your machine configuration"
     fi
+    create_multilib_link ${D}
 }
 
 EXTERNAL_EXTRA_FILES += "\
@@ -98,6 +99,10 @@ python () {
 }
 
 # Default pattern is too greedy
+
+PACKAGES += "glibc-multilib-link"
+FILES_glibc-multilib-link += "${@sysroot_multilib_suffix(d)}"
+
 FILES_${PN}-utils = "\
     ${bindir}/gencat \
     ${bindir}/getconf \

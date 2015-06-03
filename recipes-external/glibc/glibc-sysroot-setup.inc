@@ -10,7 +10,7 @@ create_multilib_link () {
 	dest="$1"
 	multilib_suffix="${@sysroot_multilib_suffix(d)}"
 	if [ "$multilib_suffix" != "." ]; then
-		rm -f $dest/$multilib_suffix
+		rm -rf $dest/$multilib_suffix
 		ln -s . $dest/$multilib_suffix
 	fi
 }
