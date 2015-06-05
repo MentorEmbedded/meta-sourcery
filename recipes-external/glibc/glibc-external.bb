@@ -68,6 +68,7 @@ glibc_external_do_install_extra () {
                 "This may mean that your external toolchain uses a different" \
                 "multi-lib setup than your machine configuration"
     fi
+    create_multilib_link ${D}
 }
 
 EXTERNAL_EXTRA_FILES += "\
@@ -143,6 +144,7 @@ FILES_${PN}-dev += "\
     ${libdir}/libthread_db${SOLIBSDEV} \
     ${libdir}/libpthread${SOLIBSDEV} \
 "
+FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
 libc_headers_file = "${@bb.utils.which('${FILESPATH}', 'libc.headers')}"
 FILES_${PN}-dev += "\
     ${@' '.join('${includedir}/' + f.rstrip() for f in base_read_file('${libc_headers_file}').splitlines())} \
