@@ -100,8 +100,6 @@ python () {
 
 # Default pattern is too greedy
 
-PACKAGES += "glibc-multilib-link"
-FILES_glibc-multilib-link += "${@sysroot_multilib_suffix(d)}"
 
 FILES_${PN}-utils = "\
     ${bindir}/gencat \
@@ -148,6 +146,9 @@ FILES_${PN}-dev += "\
     ${libdir}/libthread_db${SOLIBSDEV} \
     ${libdir}/libpthread${SOLIBSDEV} \
 "
+
+FILES_${PN}-dev += "${@sysroot_multilib_suffix(d)}"
+
 libc_headers_file = "${@bb.utils.which('${FILESPATH}', 'libc.headers')}"
 FILES_${PN}-dev += "\
     ${@' '.join('${includedir}/' + f.rstrip() for f in base_read_file('${libc_headers_file}').splitlines())} \
