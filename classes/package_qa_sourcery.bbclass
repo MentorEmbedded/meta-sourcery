@@ -1,9 +1,17 @@
 inherit package
 
 SOURCERY_QA = "host-user-contaminated"
-
 # We need to test in fakeroot context to check file ownership
-do_package_qa[fakeroot] = "1"
+FAKEROOT_QA = "host-user-contaminated"
+
+python () {
+    all_qa = d.getVar('ALL_QA', True).split()
+    fakeroot_qa = d.getVar('FAKEROOT_QA', True).split()
+    if any(f for f in fakeroot_qa if f in all_qa):
+        if not oe.utils.inherits(d, 'native', 'cross'):
+            d.setVarFlag('do_package_qa', 'fakeroot', '1')
+            d.appendVarFlag('do_package_qa', 'depends', ' virtual/fakeroot-native:do_populate_sysroot')
+}
 
 HOST_USER_UID := "${@os.getuid()}"
 HOST_USER_UID[type] = "integer"
