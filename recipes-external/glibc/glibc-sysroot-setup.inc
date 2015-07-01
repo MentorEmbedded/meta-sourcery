@@ -3,13 +3,17 @@ def sysroot_multilib_suffix(d):
     target_cc_arch = d.getVar('TARGET_CC_ARCH', True)
     options = d.getVar('TOOLCHAIN_OPTIONS', True) or d.expand('--sysroot=${STAGING_DIR_TARGET}')
     sysroot = external_run(d, 'gcc', *(target_cc_arch.split() + options.split() + ['-print-sysroot'])).rstrip()
+
     staging = d.getVar('STAGING_DIR_HOST', True)
-    return os.path.relpath(sysroot, staging)
+    if sysroot == staging:
+        return ''
+    else:
+        return os.path.relpath(sysroot, staging)
 
 create_multilib_link () {
 	dest="$1"
 	multilib_suffix="${@sysroot_multilib_suffix(d)}"
-	if [ "$multilib_suffix" != "." ]; then
+	if [ -n "$multilib_suffix" ]; then
 		rm -rf $dest/$multilib_suffix
 		ln -s . $dest/$multilib_suffix
 	fi
