@@ -8,8 +8,9 @@ def get_external_libc_version(d):
     found_paths = find_sysroot_files([sopattern], d)
     if found_paths:
         so_paths = found_paths[0]
-        soname = os.path.basename(so_paths[0])
-        return soname[5:-3]
+        if so_paths:
+            soname = os.path.basename(so_paths[0])
+            return soname[5:-3]
 
     return 'UNKNOWN'
 
@@ -29,16 +30,17 @@ def get_external_libc_license(d):
     found = find_sysroot_files([errnosearch], d)
     if found:
         errno_paths = found[0]
-        with open(errno_paths[0], 'rU') as f:
-            text = f.read()
+        if errno_paths:
+            with open(errno_paths[0], 'rU') as f:
+                text = f.read()
 
-        lictext = """   The GNU C Library is free software; you can redistribute it and/or
+            lictext = """   The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
    License as published by the Free Software Foundation; either
    version 2.1 of the License, or (at your option) any later version."""
 
-        if lictext in text:
-            return 'LGPL-2.1+'
+            if lictext in text:
+                return 'LGPL-2.1+'
 
     return 'UNKNOWN'
 
