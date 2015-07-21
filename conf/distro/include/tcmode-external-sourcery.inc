@@ -53,6 +53,7 @@ PNBLACKLIST[glibc-initial] = "not building with an external toolchain"
 PNBLACKLIST[glibc-intermediate] = "not building with an external toolchain"
 PNBLACKLIST[gcc-runtime] = "not building with an external toolchain"
 PNBLACKLIST[gcc-sanitizers] = "not building with an external toolchain"
+PNBLACKLIST[gcc-source] = "not building with an external toolchain"
 PNBLACKLIST[libgcc-initial] = "not building with an external toolchain"
 PNBLACKLIST[libgcc] = "not building with an external toolchain"
 PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
@@ -63,6 +64,8 @@ PNBLACKLIST_DYNAMIC += "\
     ${MLPREFIX}gcc-cross-${TARGET_ARCH} \
     ${MLPREFIX}gcc-cross-initial-${TARGET_ARCH} \
     ${MLPREFIX}binutils-cross-${TARGET_ARCH} \
+    \
+    gcc-source-${@'${GCCVERSION}'.replace('%', '')} \
 "
 
 # Determine the prefixes to check for based on the target architecture (before
@@ -188,6 +191,7 @@ addhandler toolchain_sanity_check
 
 require conf/distro/include/external-run.inc
 
+GCCVERSION ?= "${@'.'.join('${GCC_VERSION}'.split('.')[:2])}%"
 GCC_VERSION = "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
 GCC_VERSION_allarch = ""
 GCC_VERSION[vardepvalue] = "${GCC_VERSION}"
