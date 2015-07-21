@@ -45,7 +45,7 @@ PREFERRED_PROVIDER_libgcc = "libgcc-external"
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 
 # Ensure that we don't pull in any internal toolchain recipes
-INHERIT += "blacklist"
+INHERIT += "blacklist blacklist_dynamic"
 PNBLACKLIST[uclibc] = "not building with an external toolchain"
 PNBLACKLIST[uclibc-initial] = "not building with an external toolchain"
 PNBLACKLIST[glibc] = "not building with an external toolchain"
@@ -53,17 +53,20 @@ PNBLACKLIST[glibc-initial] = "not building with an external toolchain"
 PNBLACKLIST[glibc-intermediate] = "not building with an external toolchain"
 PNBLACKLIST[gcc-runtime] = "not building with an external toolchain"
 PNBLACKLIST[gcc-sanitizers] = "not building with an external toolchain"
+PNBLACKLIST[gcc-source] = "not building with an external toolchain"
 PNBLACKLIST[libgcc-initial] = "not building with an external toolchain"
 PNBLACKLIST[libgcc] = "not building with an external toolchain"
 PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
 PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain"
 PNBLACKLIST[external-sourcery-toolchain] = "using meta-sourcery, not poky's external toolchain"
-EXTERNAL_PNBLACKLIST_MULTILIB += "\
-    gcc-cross-${TARGET_ARCH} \
-    gcc-cross-initial-${TARGET_ARCH} \
-    binutils-cross-${TARGET_ARCH} \
+
+PNBLACKLIST_DYNAMIC += "\
+    ${MLPREFIX}gcc-cross-${TARGET_ARCH} \
+    ${MLPREFIX}gcc-cross-initial-${TARGET_ARCH} \
+    ${MLPREFIX}binutils-cross-${TARGET_ARCH} \
+    \
+    gcc-source-${@'${GCCVERSION}'.replace('%', '')} \
 "
-EXTERNAL_PNBLACKLIST_MULTILIB[doc] = "List of recipes to blacklist whose names vary in more than just prefix between multilib variants."
 
 # Determine the prefixes to check for based on the target architecture (before
 # any classes alter TARGET_ARCH)
@@ -155,29 +158,6 @@ python toolchain_metadata_setup () {
             pass
         else:
             d.appendVar('TUNE_CCARGS', ' -msgxx-glibc')
-
-    blacklisted = d.getVar('EXTERNAL_PNBLACKLIST_MULTILIB', False)
-    for var in d.expand(blacklisted).split():
-        d.setVarFlag('PNBLACKLIST', var, 'not building with an external toolchain')
-
-    multilibs = d.getVar('MULTILIBS', True)
-    if not multilibs:
-        return
-
-    # this block has been copied from base.bbclass so keep it in sync
-    prefixes = []
-    for ext in multilibs.split():
-        eext = ext.split(':')
-        if len(eext) > 1 and eext[0] == 'multilib':
-            prefixes.append(eext[1])
-
-    for prefix in prefixes:
-        localdata = bb.data.createCopy(d)
-        override = ':virtclass-multilib-' + prefix
-        localdata.setVar('OVERRIDES', localdata.getVar('OVERRIDES', False) + override)
-        bb.data.update_data(localdata)
-        for var in localdata.expand(blacklisted).split():
-            e.data.setVarFlag('PNBLACKLIST', prefix + '-' + var, 'not building with an external toolchain')
 }
 toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler toolchain_metadata_setup
@@ -211,6 +191,7 @@ addhandler toolchain_sanity_check
 
 require conf/distro/include/external-run.inc
 
+GCCVERSION ?= "${@'.'.join('${GCC_VERSION}'.split('.')[:2])}%"
 GCC_VERSION = "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
 GCC_VERSION_allarch = ""
 GCC_VERSION[vardepvalue] = "${GCC_VERSION}"
