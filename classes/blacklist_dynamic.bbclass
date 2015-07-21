@@ -1,7 +1,9 @@
 # Blacklist recipe names which include variable references, handling
 # multilibs.
 #
-# Ex. PNBLACKLIST_DYNAMIC += "${MLPREFIX}gcc-cross-${TARGET_ARCH}"
+# Ex.
+#     PNBLACKLIST_DYNAMIC += "${MLPREFIX}gcc-cross-${TARGET_ARCH}"
+#     PNBLACKLIST_DYNAMIC += "gcc-source-${@'${GCCVERSION}'.replace('%', '')}"
 
 PNBLACKLIST_DYNAMIC ?= ""
 
