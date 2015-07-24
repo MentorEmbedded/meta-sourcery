@@ -92,6 +92,7 @@ python () {
     pattern = d.getVar('EXTERNAL_PROVIDE_PATTERN', True)
     if pattern is None:
         files = list(gather_pkg_files(d))
+        files = filter(lambda f: '.debug' not in f, files)
         expanded = expand_paths(files, mirrors)
         paths = search_sysroots(expanded, sysroots)
         if not any(f for p, f in paths):
