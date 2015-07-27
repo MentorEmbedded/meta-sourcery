@@ -71,13 +71,16 @@ glibc_external_do_install_extra () {
                 "multi-lib setup than your machine configuration"
     fi
     create_multilib_link ${D}
+    if [ "${GLIBC_INTERNAL_USE_BINARY_LOCALE}" != "precompiled" ]; then
+        rm -rf ${D}${localedir}
+    fi
 }
 
 EXTERNAL_EXTRA_FILES += "\
     ${bindir}/mtrace ${bindir}/xtrace ${bindir}/sotruss \
     ${datadir}/i18n \
     ${libdir}/gconv \
-    ${localedir} \
+    ${@'${localedir}' if d.getVar('GLIBC_INTERNAL_USE_BINARY_LOCALE', True) == 'precompiled' else ''} \
 "
 
 # These files are picked up out of the sysroot by glibc-locale, so we don't
