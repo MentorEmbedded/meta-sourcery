@@ -27,7 +27,7 @@ PROVIDES += "glibc \
 
 def get_external_libc_license(d):
     errnosearch = os.path.join(d.getVar('includedir', True), 'errno.h')
-    found = find_sysroot_files([errnosearch], d)
+    found = oe.external.find_sysroot_files([errnosearch], d)
     if found:
         errno_paths = found[0]
         if errno_paths:

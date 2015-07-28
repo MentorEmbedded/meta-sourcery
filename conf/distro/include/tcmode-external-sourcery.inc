@@ -44,6 +44,9 @@ PREFERRED_PROVIDER_oprofile ??= "oprofile"
 PREFERRED_PROVIDER_libgcc = "libgcc-external"
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 
+# Pull in our utility functions for use elsewhere
+INHERIT += "external-common"
+
 # Ensure that we don't pull in any internal toolchain recipes
 INHERIT += "blacklist blacklist_dynamic"
 PNBLACKLIST[uclibc] = "not building with an external toolchain"
@@ -189,15 +192,13 @@ python toolchain_sanity_check () {
 toolchain_sanity_check[eventmask] = "bb.event.TreeDataPreparationStarted"
 addhandler toolchain_sanity_check
 
-require conf/distro/include/external-run.inc
-
 GCCVERSION ?= "${@'.'.join('${GCC_VERSION}'.split('.')[:2])}%"
 GCC_VERSION = "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
 GCC_VERSION_allarch = ""
 GCC_VERSION[vardepvalue] = "${GCC_VERSION}"
 
 def sourcery_version(d):
-    version = external_run(d, 'gcc', '-v').splitlines()[-1]
+    version = oe.external.run(d, 'gcc', '-v').splitlines()[-1]
     if version != 'UNKNOWN':
         main_version = version.split()[-1].rstrip(')')
         if main_version == 'Preview':

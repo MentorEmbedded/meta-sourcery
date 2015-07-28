@@ -1,4 +1,4 @@
-GCC_VERSION := "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
+GCC_VERSION := "${@oe.external.run(d, 'gcc', '-dumpversion').rstrip()}"
 PV = "${GCC_VERSION}"
 BINV = "${GCC_VERSION}"
 

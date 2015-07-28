@@ -29,30 +29,6 @@ PROVIDES += "${EXTERNAL_PN}"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = "${COMMON_LIC_CHKSUM}"
 
-EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
-EXTERNAL_TOOLCHAIN_LIBROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-file-name=crtbegin.o'])).rstrip().replace('/crtbegin.o', '')}"
-
-EXTERNAL_INSTALL_SOURCE_PATHS = "\
-    ${EXTERNAL_TOOLCHAIN_SYSROOT} \
-    ${EXTERNAL_TOOLCHAIN}/${EXTERNAL_TARGET_SYS} \
-    ${EXTERNAL_TOOLCHAIN_SYSROOT}/.. \
-    ${EXTERNAL_TOOLCHAIN} \
-    ${D} \
-"
-
-# Potential locations within the external toolchain sysroot
-FILES_MIRRORS = "\
-    ${bindir}/|/usr/${baselib}/bin/\n \
-    ${base_libdir}/|/usr/${baselib}/\n \
-    ${libexecdir}/|/usr/libexec/\n \
-    ${libexecdir}/|/usr/${baselib}/${PN}\n \
-    ${mandir}/|/usr/share/man/\n \
-    ${mandir}/|/usr/man/\n \
-    ${mandir}/|/man/\n \
-    ${mandir}/|/share/doc/*-${EXTERNAL_TARGET_SYS}/man/\n \
-    ${prefix}/|${base_prefix}/\n \
-"
-
 do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 
@@ -88,20 +64,20 @@ python () {
     if not oe.data.typed_value('EXTERNAL_AUTO_PROVIDE', d):
         return
 
-    sysroots, mirrors = get_file_search_metadata(d)
+    sysroots, mirrors = oe.external.get_file_search_metadata(d)
     pattern = d.getVar('EXTERNAL_PROVIDE_PATTERN', True)
     if pattern is None:
-        files = list(gather_pkg_files(d))
+        files = list(oe.external.gather_pkg_files(d))
         files = filter(lambda f: '.debug' not in f, files)
-        expanded = expand_paths(files, mirrors)
-        paths = search_sysroots(expanded, sysroots)
+        expanded = oe.external.expand_paths(files, mirrors)
+        paths = oe.external.search_sysroots(expanded, sysroots)
         if not any(f for p, f in paths):
             raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(', '.join(files)))
     elif not pattern:
         return
     else:
-        expanded = oe.external_toolchain.expand_paths([pattern], mirrors)
-        paths = oe.external_toolchain.search_sysroots(expanded, sysroots)
+        expanded = oe.external.expand_paths([pattern], mirrors)
+        paths = oe.external.search_sysroots(expanded, sysroots)
         if not any(f for p, f in paths):
             raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(pattern))
 }
@@ -115,98 +91,12 @@ python do_install () {
 python external_toolchain_do_install () {
     import subprocess
     installdest = d.getVar('D', True)
-    sysroots, mirrors = get_file_search_metadata(d)
-    files = gather_pkg_files(d)
-    copy_from_sysroots(files, sysroots, mirrors, installdest)
+    sysroots, mirrors = oe.external.get_file_search_metadata(d)
+    files = oe.external.gather_pkg_files(d)
+    oe.external.copy_from_sysroots(files, sysroots, mirrors, installdest)
     subprocess.check_call(['chown', '-R', 'root:root', installdest])
 }
 external_toolchain_do_install[vardeps] += "${@' '.join('FILES_%s' % pkg for pkg in '${PACKAGES}'.split())}"
-
-def get_file_search_metadata(d):
-    '''Given the metadata, return the mirrors and sysroots to operate against.'''
-    from collections import defaultdict
-
-    mirrors = []
-    for entry in d.getVar('FILES_MIRRORS', True).replace('\\n', '\n').split('\n'):
-        entry = entry.strip()
-        if not entry:
-            continue
-        pattern, subst = entry.strip().split('|', 1)
-        mirrors.append(('^' + pattern, subst))
-
-    source_paths = [os.path.realpath(p)
-                    for p in d.getVar('EXTERNAL_INSTALL_SOURCE_PATHS', True).split()]
-
-    return source_paths, mirrors
-
-def gather_pkg_files(d):
-    '''Given the metadata, return all the files we want to copy to ${D} for
-    this recipe.'''
-    import itertools
-    files = []
-    for pkg in d.getVar('PACKAGES', True).split():
-        files = itertools.chain(files, (d.getVar('FILES_{}'.format(pkg), True) or '').split())
-    files = itertools.chain(files, d.getVar('EXTERNAL_EXTRA_FILES', True).split())
-    return files
-
-def copy_from_sysroots(pathnames, sysroots, mirrors, installdest):
-    '''Copy the specified files from the specified sysroots, also checking the
-    specified mirror patterns as alternate paths, to the specified destination.'''
-    import subprocess
-
-    expanded_pathnames = expand_paths(pathnames, mirrors)
-    searched_paths = search_sysroots(expanded_pathnames, sysroots)
-    for path, files in searched_paths:
-        if not files:
-            bb.debug(1, 'Failed to find `{}`'.format(path))
-        else:
-            destdir = oe.path.join(installdest, os.path.dirname(path))
-            bb.utils.mkdirhier(destdir)
-            subprocess.check_call(['cp', '-pPR'] + list(files) + [destdir + '/'])
-            bb.note('Copied `{}`  to `{}/`'.format(', '.join(files), destdir))
-
-def expand_paths(pathnames, mirrors):
-    '''Apply search/replace to paths to get alternate search paths.
-
-    Returns a generator with tuples of (pathname, expanded_paths).'''
-    import re
-    for pathname in pathnames:
-        expanded_paths = [pathname]
-
-        for search, replace in mirrors:
-            try:
-                new_pathname = re.sub(search, replace, pathname, count=1)
-            except re.error as exc:
-                bb.warn("Invalid pattern for `%s`" % search)
-                continue
-            if new_pathname != pathname:
-                expanded_paths.append(new_pathname)
-
-        yield pathname, expanded_paths
-
-def search_sysroots(path_entries, sysroots):
-    '''Search the supplied sysroots for the supplied paths, checking supplied
-    alternate paths. Expects entries in the format (pathname, all_paths).
-
-    Returns a generator with tuples of (pathname, found_paths).'''
-    import glob
-    import itertools
-    for path, pathnames in path_entries:
-        for sysroot, pathname in ((s, p) for s in sysroots
-                                         for p in itertools.chain([path], pathnames)):
-            check_path = sysroot + os.sep + pathname
-            found_paths = glob.glob(check_path)
-            if found_paths:
-                yield path, found_paths
-                break
-        else:
-            yield path, None
-
-def find_sysroot_files(paths, d):
-    sysroots, mirrors = get_file_search_metadata(d)
-    expanded = expand_paths(paths, mirrors)
-    search_results = search_sysroots(expanded, sysroots)
-    return [v for k, v in search_results]
 
 # Change do_install's CWD to EXTERNAL_TOOLCHAIN for convenience
 do_install[dirs] = "${D} ${EXTERNAL_TOOLCHAIN}"
