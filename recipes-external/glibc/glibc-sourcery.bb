@@ -1,4 +1,5 @@
 require recipes-core/glibc/glibc.inc
+require recipes-external/glibc/glibc-external-version.inc
 
 
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@oe.external.run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
@@ -11,17 +12,6 @@ EXTERNAL_PV_SUFFIX ?= ""
 PV_prepend = "${@'${EXTERNAL_PV_PREFIX}' if '${EXTERNAL_PV_PREFIX}' else ''}"
 PV_append = "${@'${EXTERNAL_PV_SUFFIX}' if '${EXTERNAL_PV_SUFFIX}' else ''}"
 
-def get_external_libc_version(d):
-    sysroot = d.getVar('EXTERNAL_TOOLCHAIN_SYSROOT', True)
-    libpath = oe.path.join(sysroot, d.getVar('base_libdir', True))
-    if os.path.exists(libpath):
-        for filename in os.listdir(libpath):
-            if filename.startswith('libc-'):
-                return filename[5:-3]
-
-    return 'UNKNOWN'
-
-PV := "${@get_external_libc_version(d)}"
 SRC_PV = "${@'-'.join('${PV}'.split('-')[:-1])}"
 
 INHIBIT_DEFAULT_DEPS = "1"
