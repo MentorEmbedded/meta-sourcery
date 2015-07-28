@@ -74,6 +74,7 @@ glibc_external_do_install_extra () {
 }
 
 EXTERNAL_EXTRA_FILES += "\
+    ${bindir}/mtrace ${bindir}/xtrace ${bindir}/sotruss \
     ${datadir}/i18n \
     ${libdir}/gconv \
     ${localedir} \
