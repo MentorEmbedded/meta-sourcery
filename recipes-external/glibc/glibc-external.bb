@@ -208,3 +208,9 @@ FILES_${PN}-dev[file-checksums] += "${libc_headers_file}"
 # Currently, ldd and tzcode from Sourcery G++ still have #!/bin/bash
 RDEPENDS_ldd += "bash"
 RDEPENDS_tzcode += "bash"
+
+# glibc's utils need libgcc
+do_package[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_ipk[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_deb[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_rpm[depends] += "${MLPREFIX}libgcc:do_packagedata"

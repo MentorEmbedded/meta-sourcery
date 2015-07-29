@@ -9,6 +9,12 @@ inherit external-toolchain
 LICENSE = "GPL-3.0-with-GCC-exception"
 PACKAGES =+ "libgcov-dev"
 
+# libgcc needs libc, but glibc's utilities need libgcc, so short-circuit the
+# interdependency here by manually specifying it rather than depending on the
+# libc packagedata.
+RDEPENDS_${PN} += "${TCLIBC}"
+INSANE_SKIP_${PN} += "build-deps"
+
 external_libroot = "${@os.path.realpath('${EXTERNAL_TOOLCHAIN_LIBROOT}').replace(os.path.realpath('${EXTERNAL_TOOLCHAIN}') + '/', '/')}"
 FILES_MIRRORS =. "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/|${external_libroot}/\n"
 
@@ -29,8 +35,3 @@ INSANE_SKIP_${PN}-dev += "staticdev"
 FILES_${PN}-dbg += "${base_libdir}/.debug/libgcc_s.so.*.debug"
 FILES_libgcov-dev = "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcov.a"
 INSANE_SKIP_libgcov-dev += "staticdev"
-
-do_package[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
-do_package_write_ipk[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
-do_package_write_deb[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
-do_package_write_rpm[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
