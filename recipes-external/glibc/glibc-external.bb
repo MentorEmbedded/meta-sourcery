@@ -119,6 +119,14 @@ glibc_external_do_install_extra () {
     if [ "${GLIBC_INTERNAL_USE_BINARY_LOCALE}" != "precompiled" ]; then
         rm -rf ${D}${localedir}
     fi
+
+    # Work around localedef failures for non-precompiled
+    for locale in bo_CN bo_IN; do
+        sed -i -e '/^name_fmt\s/s/""/"???"/' "${D}${datadir}/i18n/locales/$locale"
+        if grep -q '^name_fmt.*""' "${D}${datadir}/i18n/locales/$locale"; then
+            bbfatal "sed did not fix $locale"
+        fi
+    done
 }
 
 EXTERNAL_EXTRA_FILES += "\
