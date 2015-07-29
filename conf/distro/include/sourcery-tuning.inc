@@ -1,3 +1,8 @@
+# Sourcery G++'s binutils isn't patched with armv5e support
+ARMPKGSFX_THUMB_armv5 = "${@bb.utils.contains("TUNE_FEATURES", "thumb", "${ARM_THUMB_SUFFIX}", "", d)}"
+
+# Use the additional tuning flags which Sourcery G++ provides in certain
+# cases, to ensure that the correct multilibs are used. E.g. '-te500v2'.
 SOURCERY_GXX_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
 # Workaround for ICE of gcc-4.8.x when passing -mfloat-gprs=double
