@@ -2,7 +2,7 @@ def sysroot_multilib_suffix(d):
     PATH = d.getVar('PATH', True)
     target_cc_arch = d.getVar('TARGET_CC_ARCH', True)
     options = d.getVar('TOOLCHAIN_OPTIONS', True) or d.expand('--sysroot=${STAGING_DIR_TARGET}')
-    sysroot = external_run(d, 'gcc', *(target_cc_arch.split() + options.split() + ['-print-sysroot'])).rstrip()
+    sysroot = oe.external.run(d, 'gcc', *(target_cc_arch.split() + options.split() + ['-print-sysroot'])).rstrip()
 
     staging = d.getVar('STAGING_DIR_HOST', True)
     if sysroot == staging:

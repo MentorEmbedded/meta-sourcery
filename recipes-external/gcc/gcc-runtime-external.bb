@@ -1,4 +1,4 @@
-GCC_VERSION := "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
+GCC_VERSION := "${@oe.external.run(d, 'gcc', '-dumpversion').rstrip()}"
 PV = "${GCC_VERSION}"
 BINV = "${GCC_VERSION}"
 
@@ -20,7 +20,7 @@ python () {
 }
 
 target_libdir = "${libdir}"
-HEADERS_MULTILIB_SUFFIX ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot-headers-suffix'])).rstrip()}"
+HEADERS_MULTILIB_SUFFIX ?= "${@oe.external.run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot-headers-suffix'])).rstrip()}"
 external_libroot = "${@os.path.realpath('${EXTERNAL_TOOLCHAIN_LIBROOT}').replace(os.path.realpath('${EXTERNAL_TOOLCHAIN}') + '/', '/')}"
 FILES_MIRRORS =. "\
     ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/|${external_libroot}/\n \
