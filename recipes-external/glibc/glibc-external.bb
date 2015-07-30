@@ -47,6 +47,51 @@ FILES_MIRRORS .= "\
 python do_install () {
     bb.build.exec_func('external_toolchain_do_install', d)
     bb.build.exec_func('glibc_external_do_install_extra', d)
+    bb.build.exec_func('adjust_locale_names', d)
+}
+
+python adjust_locale_names () {
+    """Align locale charset names with glibc-locale expectations."""
+    # Read in supported locales and associated encodings
+    supported = {}
+    with open(base_path_join(d.getVar('WORKDIR', True), "SUPPORTED")) as f:
+        for line in f.readlines():
+            try:
+                locale, charset = line.rstrip().split()
+            except ValueError:
+                continue
+            supported[locale] = charset
+
+    # GLIBC_GENERATE_LOCALES var specifies which locales to be generated. empty or "all" means all locales
+    to_generate = d.getVar('GLIBC_GENERATE_LOCALES', True)
+    if not to_generate or to_generate == 'all':
+        to_generate = supported.keys()
+    else:
+        to_generate = to_generate.split()
+        for locale in to_generate:
+            if locale not in supported:
+                if '.' in locale:
+                    charset = locale.split('.')[1]
+                else:
+                    charset = 'UTF-8'
+                    bb.warn("Unsupported locale '%s', assuming encoding '%s'" % (locale, charset))
+                supported[locale] = charset
+
+    localedir = oe.path.join(d.getVar('D', True), d.getVar('localedir', True))
+    for locale in to_generate:
+        if '.' not in locale:
+            continue
+
+        locale, charset = locale.split('.', 1)
+        if '-' not in charset:
+            continue
+
+        oe_name = locale + '.' + charset.lower()
+        existing_name = locale + '.' + charset.lower().replace('-', '')
+        this_localedir = oe.path.join(localedir, existing_name)
+        if os.path.exists(this_localedir):
+            bb.debug(1, '%s -> %s' % (this_localedir, oe.path.join(localedir, oe_name)))
+            os.rename(this_localedir, oe.path.join(localedir, oe_name))
 }
 
 glibc_external_do_install_extra () {
@@ -59,13 +104,24 @@ glibc_external_do_install_extra () {
                 "multi-lib setup than your machine configuration"
     fi
     create_multilib_link ${D}
+    if [ "${GLIBC_INTERNAL_USE_BINARY_LOCALE}" != "precompiled" ]; then
+        rm -rf ${D}${localedir}
+    fi
+
+    # Work around localedef failures for non-precompiled
+    for locale in bo_CN bo_IN; do
+        sed -i -e '/^name_fmt\s/s/""/"???"/' "${D}${datadir}/i18n/locales/$locale"
+        if grep -q '^name_fmt.*""' "${D}${datadir}/i18n/locales/$locale"; then
+            bbfatal "sed did not fix $locale"
+        fi
+    done
 }
 
 EXTERNAL_EXTRA_FILES += "\
     ${bindir}/mtrace ${bindir}/xtrace ${bindir}/sotruss \
     ${datadir}/i18n \
     ${libdir}/gconv \
-    ${localedir} \
+    ${@'${localedir}' if d.getVar('GLIBC_INTERNAL_USE_BINARY_LOCALE', True) == 'precompiled' else ''} \
 "
 
 # These files are picked up out of the sysroot by glibc-locale, so we don't
@@ -148,3 +204,9 @@ FILES_${PN}-dev[file-checksums] += "${libc_headers_file}"
 # Currently, ldd and tzcode from Sourcery G++ still have #!/bin/bash
 RDEPENDS_ldd += "bash"
 RDEPENDS_tzcode += "bash"
+
+# glibc's utils need libgcc
+do_package[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_ipk[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_deb[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_rpm[depends] += "${MLPREFIX}libgcc:do_packagedata"
