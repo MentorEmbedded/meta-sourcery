@@ -1,4 +1,10 @@
-SRC_URI = "file://SUPPORTED"
+SRC_URI = "\
+    file://SUPPORTED \
+    file://nscd.init;subdir=${REL_S}/nscd \
+    file://nscd.conf;subdir=${REL_S}/nscd \
+    file://nscd.service;subdir=${REL_S}/nscd \
+"
+REL_S = "${@os.path.relpath('${S}', '${WORKDIR}')}"
 
 require recipes-core/glibc/glibc-common.inc
 inherit external-toolchain
