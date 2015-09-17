@@ -14,9 +14,6 @@ NO32LIBS ?= "0"
 # sysroot and determine this accurately.
 GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
 
-# The binary locale files are common to the multilibs
-localedir = "${exec_prefix}/lib/locale"
-
 # No need to re-compile the locale files
 GLIBC_INTERNAL_USE_BINARY_LOCALE ?= "precompiled"
 ENABLE_BINARY_LOCALE_GENERATION = ""
