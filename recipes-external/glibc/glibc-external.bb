@@ -121,6 +121,10 @@ glibc_external_do_install_extra () {
             bbfatal "sed did not fix $locale"
         fi
     done
+
+    # Avoid bash dependency
+    sed -e '1s#bash#sh#; s#$"#"#g' -i "${D}${bindir}/ldd"
+    sed -e '1s#bash#sh#' -i "${D}${bindir}/tzselect"
 }
 
 EXTERNAL_EXTRA_FILES += "\
@@ -208,10 +212,6 @@ FILES_${PN}-dev += "\
     ${includedir}/uchar.h \
 "
 FILES_${PN}-dev[file-checksums] += "${libc_headers_file}"
-
-# Currently, ldd and tzcode from Sourcery G++ still have #!/bin/bash
-RDEPENDS_ldd += "bash"
-RDEPENDS_tzcode += "bash"
 
 # glibc's utils need libgcc
 do_package[depends] += "${MLPREFIX}libgcc:do_packagedata"
