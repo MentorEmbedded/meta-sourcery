@@ -41,6 +41,9 @@ PREFERRED_PROVIDER_oprofile ??= "oprofile"
 PREFERRED_PROVIDER_libgcc = "libgcc-external"
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 
+# Support use of an external toolchain with the SDK/ADE/etc
+TOOLCHAIN_HOST_TASK_append = " nativesdk-external-script"
+
 # Pull in our utility functions for use elsewhere
 INHERIT += "external-common"
 
@@ -101,7 +104,9 @@ EXTERNAL_TARGET_SYS[vardepvalue] = "${EXTERNAL_TARGET_SYS}"
 EXTERNAL_TARGET_SYS[vardepsexclude] += "EXTERNAL_TARGET_SYSTEMS EXTERNAL_TOOLCHAIN"
 TARGET_PREFIX = "${EXTERNAL_TARGET_SYS}-"
 
-TOOLCHAIN_OPTIONS = " --sysroot=${STAGING_DIR_HOST}"
+# TOOLCHAIN_OPTIONS would seem more appropriate, but that gets added to LD as
+# well, and --no-sysroot-suffix only works for gcc, not binutils.
+HOST_CC_ARCH += "--no-sysroot-suffix"
 
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
