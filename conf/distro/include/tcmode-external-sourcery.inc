@@ -76,6 +76,7 @@ PNBLACKLIST_DYNAMIC += "\
 EXTERNAL_TARGET_SYSTEMS[powerpc] ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[powerpc64] ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
+EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-linux-gnu aarch64-mentor-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[mips] ?= "mips-linux-gnu mips-mentor-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[mipsel] ?= "mips-linux-gnu mips-mentor-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[mips64] ?= "mips64-nlm-linux-gnu mips-linux-gnu mips-mentor-linux-gnu"
