@@ -9,6 +9,9 @@ EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 # errors or warnings.
 NO32LIBS ?= "0"
 
+# Align paths with the external toolchain
+BASELIB_aarch64 = "lib64"
+
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
 # sysroot and determine this accurately.
