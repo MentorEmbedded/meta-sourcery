@@ -17,6 +17,9 @@ BASELIB_aarch64 = "lib64"
 # sysroot and determine this accurately.
 GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
 
+# Align localedir with the corresponding path in external toolchain
+localedir = "${exec_prefix}/lib/locale"
+
 # No need to re-compile the locale files
 GLIBC_INTERNAL_USE_BINARY_LOCALE ?= "precompiled"
 ENABLE_BINARY_LOCALE_GENERATION = ""
