@@ -8,7 +8,6 @@ PV = "${GCC_VERSION}"
 inherit external-toolchain
 
 LICENSE = "GPL-3.0-with-GCC-exception"
-PACKAGES =+ "libgcov-dev"
 
 # libgcc needs libc, but glibc's utilities need libgcc, so short-circuit the
 # interdependency here by manually specifying it rather than depending on the
@@ -31,8 +30,7 @@ FILES_${PN}-dev = "${base_libdir}/libgcc_s.so \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcc.a \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcc_eh.a \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/unwind.h \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcov.a \
                    "
 INSANE_SKIP_${PN}-dev += "staticdev"
 FILES_${PN}-dbg += "${base_libdir}/.debug/libgcc_s.so.*.debug"
-FILES_libgcov-dev = "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcov.a"
-INSANE_SKIP_libgcov-dev += "staticdev"
