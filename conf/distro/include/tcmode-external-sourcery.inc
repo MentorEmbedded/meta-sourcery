@@ -182,10 +182,13 @@ python toolchain_sanity_check () {
     if not os.path.exists(external_toolchain):
         bb.fatal("EXTERNAL_TOOLCHAIN is invalid: path '%s' does not exist" % external_toolchain)
 
-    gccpath = os.path.join(external_toolchain, 'bin', e.data.expand('${EXTERNAL_TARGET_SYS}-gcc'))
+    bindir = os.path.join(external_toolchain, 'bin')
+    if not os.path.exists(bindir):
+        bb.fatal("EXTERNAL_TOOLCHAIN is invalid: path '%s' does not exist" % bindir)
+
+    gccpath = os.path.join(bindir, e.data.expand('${EXTERNAL_TARGET_SYS}-gcc'))
     if not os.path.exists(gccpath):
-        if (os.path.exists(os.path.dirname(gccpath)) and
-            d.getVar('EXTERNAL_TARGET_SYS', True) == d.getVar('TARGET_SYS', True)):
+        if d.getVar('EXTERNAL_TARGET_SYS', True) == d.getVar('TARGET_SYS', True):
             bb.warn("EXTERNAL_TARGET_SYS == TARGET_SYS. This indicates that the prefixes specified by EXTERNAL_TARGET_SYSTEMS were not found.")
         bb.fatal("EXTERNAL_TOOLCHAIN gcc path '%s' does not exist" % gccpath)
 
