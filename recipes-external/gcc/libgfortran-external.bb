@@ -13,12 +13,6 @@ FILES_MIRRORS =. "${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/|${external_libroot
 
 EXTERNAL_PROVIDE_PATTERN = "${FILES_${PN}}"
 
-PACKAGES = "\
-    ${PN}-dbg \
-    libgfortran \
-    libgfortran-dev \
-    libgfortran-staticdev \
-"
 FILES_${PN} = "${libdir}/libgfortran.so.*"
 FILES_${PN}-dev = "\
     ${libdir}/libgfortran*.so \
