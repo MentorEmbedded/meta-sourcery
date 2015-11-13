@@ -13,3 +13,7 @@ TUNE_CCARGS_append = "${@bb.utils.contains('TUNE_FEATURES', 'ppce500v2', ' ' + d
 
 PPCE500MC_CCARG = "${@'-te500mc' if d.getVar('SOURCERY_GXX_IS_PRO', True) == '1' else '-mcpu=e500mc'}"
 TUNE_CCARGS_append = "${@bb.utils.contains('TUNE_FEATURES', 'ppce500mc', ' ' + d.getVar('PPCE500MC_CCARG', True), '', d)}"
+
+PPCE6500_CCARG = "${@'-te6500' if d.getVar('SOURCERY_GXX_IS_PRO', True) == '1' else '-mcpu=e6500'}"
+TUNE_CCARGS_append = " ${@bb.utils.contains("TUNE_FEATURES", "e6500", ' ' + d.getVar('PPCE6500_CCARG', True), '', d)}"
+TUNE_ASARGS += "${@bb.utils.contains("TUNE_FEATURES", "m64", "-a64 -me6500", "", d)}"
