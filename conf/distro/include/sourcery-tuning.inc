@@ -5,6 +5,15 @@ ARMPKGSFX_THUMB_armv5 = "${@bb.utils.contains("TUNE_FEATURES", "thumb", "${ARM_T
 # cases, to ensure that the correct multilibs are used. E.g. '-te500v2'.
 SOURCERY_GXX_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
 
+# Remove TUNE_CCARGS for e500v2, e500mc and e6500 targets set by poky tune files
+# These may be added again by the code below depending upon SOURCERY_GXX_IS_PRO
+TUNE_CCARGS_IMMEDIATE := "${TUNE_CCARGS}"
+TUNE_CCARGS_IMMEDIATE_remove = "${@bb.utils.contains("TUNE_FEATURES", "ppce500v2", "-mcpu=8548", "", d)}"
+TUNE_CCARGS_IMMEDIATE_remove = "${@bb.utils.contains("TUNE_FEATURES", [ "ppce500v2", "spe" ], "-mabi=spe -mspe -mfloat-gprs=double", "", d)}"
+TUNE_CCARGS_IMMEDIATE_remove = "${@bb.utils.contains("TUNE_FEATURES", "ppce500mc", "-mcpu=e500mc", "", d)}"
+TUNE_CCARGS_IMMEDIATE_remove = "${@bb.utils.contains("TUNE_FEATURES", "e6500", "-mcpu=e6500", '', d)}"
+TUNE_CCARGS = "${TUNE_CCARGS_IMMEDIATE}"
+
 # Workaround for ICE of gcc-4.8.x when passing -mfloat-gprs=double
 # Bug: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57717#c1
 # Replace double-float with single-float, revert this when above bug is fixed
