@@ -39,7 +39,7 @@ PREFERRED_PROVIDER_virtual/libc ?= "glibc-external"
 PREFERRED_PROVIDER_virtual/libintl ?= "glibc-external"
 PREFERRED_PROVIDER_virtual/libiconv ?= "glibc-external"
 
-PREFERRED_PROVIDER_gdbserver ??= "gdbserver-external"
+PREFERRED_PROVIDER_gdbserver ??= "gdb"
 PREFERRED_PROVIDER_oprofile ??= "oprofile"
 
 # These are defined in default-providers.inc, which is parsed before the
