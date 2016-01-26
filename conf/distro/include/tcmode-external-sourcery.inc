@@ -9,8 +9,11 @@ EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 # errors or warnings.
 NO32LIBS ?= "0"
 
-# Align paths with the external toolchain
-BASELIB_aarch64 = "lib64"
+# Align paths with the external toolchain, which uses the suffixed libdir path
+# for all multilibs, rather than just 'lib' for the default.
+baselib_multilib = "${@d.getVar('BASE_LIB_tune-' + (d.getVar('DEFAULTTUNE', True) or 'INVALID'), True) or d.getVar('BASELIB', True)}"
+baselib_aarch64 = "${baselib_multilib}"
+baselib_x86-64 = "${baselib_multilib}"
 
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
