@@ -43,7 +43,7 @@ def mapped_license(license, d):
     if license.endswith('+'):
         license = license[:-1]
 
-    mapped = d.getVarFlag('SPDXLICENSEMAP', license)
+    mapped = d.getVarFlag('SPDXLICENSEMAP', license, False)
     if mapped:
         license = mapped
     return license

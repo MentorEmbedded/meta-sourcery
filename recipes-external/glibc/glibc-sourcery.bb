@@ -98,9 +98,9 @@ require recipes-external/glibc/glibc-sysroot-setup.inc
 require recipes-external/glibc/glibc-package-adjusted.inc
 
 python () {
-    if not d.getVar("EXTERNAL_TOOLCHAIN"):
+    if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
 
-    if not d.getVar("SOURCERY_SRC_URI"):
+    if not d.getVar("SOURCERY_SRC_URI", True):
         raise bb.parse.SkipPackage("glibc-sourcery requires that SOURCERY_SRC_URI point to the sourcery source tarball")
 }

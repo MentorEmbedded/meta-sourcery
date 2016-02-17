@@ -58,7 +58,7 @@ python () {
         return
 
     # We're not an available provider if there's no external toolchain
-    if not d.getVar("EXTERNAL_TOOLCHAIN"):
+    if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
 
     if not oe.data.typed_value('EXTERNAL_AUTO_PROVIDE', d):
