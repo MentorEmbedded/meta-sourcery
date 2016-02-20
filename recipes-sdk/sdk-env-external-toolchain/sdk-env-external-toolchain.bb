@@ -4,11 +4,9 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = "file://external.sh"
 INHIBIT_DEFAULT_DEPS = "1"
 
-inherit nativesdk
-
 do_install () {
-    install -d "${D}${SDKPATHNATIVE}/environment-setup.d"
-    install -m 0644 -o root -g root "${WORKDIR}/external.sh" "${D}${SDKPATHNATIVE}/environment-setup.d/"
+    install -d "${D}/environment-setup.d"
+    install -m 0644 -o root -g root "${WORKDIR}/external.sh" "${D}/environment-setup.d/"
 }
 
-FILES_${PN} += "${SDKPATHNATIVE}/environment-setup.d/*"
+FILES_${PN} += "/environment-setup.d/*"

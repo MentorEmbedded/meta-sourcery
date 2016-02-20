@@ -51,7 +51,7 @@ PREFERRED_PROVIDER_libgcc = "libgcc-external"
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 
 # Support use of an external toolchain with the SDK/ADE/etc
-TOOLCHAIN_HOST_TASK_append = " nativesdk-external-script"
+TOOLCHAIN_TARGET_TASK_append = " sdk-env-external-toolchain"
 
 # Pull in our utility functions for use elsewhere
 INHERIT += "external-common"
