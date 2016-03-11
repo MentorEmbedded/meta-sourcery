@@ -162,9 +162,14 @@ python toolchain_metadata_setup () {
     # Determine if '-msgxx-glibc' is a valid toolchain option.
     # If so then we need to use it to ensure that the libraries included with
     # the toolchain are used rather than the build host native libraries.
+    testenv = os.environ.copy()
+    for var in ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']:
+        if var in d:
+           testenv[var] = d.getVar(var, True)
+
     with tempfile.NamedTemporaryFile(suffix='.c') as f:
         try:
-            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], cwd=d.getVar('TOPDIR', True), stderr=subprocess.STDOUT)
+            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], cwd=d.getVar('TOPDIR', True), stderr=subprocess.STDOUT, env=testenv)
         except (OSError, subprocess.CalledProcessError):
             pass
         else:
