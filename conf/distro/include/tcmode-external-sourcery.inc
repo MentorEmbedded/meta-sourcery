@@ -95,11 +95,17 @@ EXTERNAL_TARGET_SYSTEMS = "${TARGET_SYS}"
 def external_target_sys(d):
     toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
 
-    for triplet in d.getVar('EXTERNAL_TARGET_SYSTEMS', True).split():
+    systems = d.getVar('EXTERNAL_TARGET_SYSTEMS', True).split()
+    target = d.getVar('TARGET_SYS', True)
+    if target not in systems:
+        systems.append(target)
+
+    for triplet in systems:
         gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
         if os.path.exists(gcc):
             return triplet
-    return '${TARGET_SYS}'
+
+    return 'UNKNOWN'
 
 # We need our -cross recipes to rebuild when the external toolchain changes,
 # to recreate the links / wrapper scripts
@@ -193,11 +199,8 @@ python toolchain_sanity_check () {
     if not os.path.exists(bindir):
         bb.fatal("EXTERNAL_TOOLCHAIN is invalid: path '%s' does not exist" % bindir)
 
-    gccpath = os.path.join(bindir, e.data.expand('${EXTERNAL_TARGET_SYS}-gcc'))
-    if not os.path.exists(gccpath):
-        if d.getVar('EXTERNAL_TARGET_SYS', True) == d.getVar('TARGET_SYS', True):
-            bb.warn("EXTERNAL_TARGET_SYS == TARGET_SYS. This indicates that the prefixes specified by EXTERNAL_TARGET_SYSTEMS were not found.")
-        bb.fatal("EXTERNAL_TOOLCHAIN gcc path '%s' does not exist" % gccpath)
+    if d.getVar('EXTERNAL_TARGET_SYS', True) == 'UNKNOWN':
+        bb.fatal('Unable to locate prefixed gcc binary for %s in EXTERNAL_TOOLCHAIN/bin (%s/bin)' % (d.getVar('TARGET_SYS', True), d.getVar('EXTERNAL_TOOLCHAIN', True)))
 
     if d.getVar('GCC_VERSION', True) == 'UNKNOWN':
         bb.warn("EXTERNAL_TOOLCHAIN gcc version extraction failed, see debug messages for details")
