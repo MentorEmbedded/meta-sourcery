@@ -240,3 +240,6 @@ BUILDCFG_VARS += "EXTERNAL_TOOLCHAIN SOURCERY_VERSION GCC_VERSION"
 
 # Adjust tunings to ensure we're using Sourcery G++ multilibs
 require conf/distro/include/sourcery-tuning.inc
+
+# Use -Wl,--as-needed
+require conf/distro/include/as-needed.inc
