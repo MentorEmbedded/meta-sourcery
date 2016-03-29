@@ -173,7 +173,7 @@ python toolchain_metadata_setup () {
     testenv = os.environ.copy()
     for var in ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']:
         if var in d:
-            testenv[var] = d.getVar(var, True)
+           testenv[var] = d.getVar(var, True)
 
     with tempfile.NamedTemporaryFile(suffix='.c') as f:
         try:
