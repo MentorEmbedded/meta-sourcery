@@ -84,8 +84,7 @@ python () {
 
 python do_install () {
     bb.build.exec_func('external_toolchain_do_install', d)
-    if 'do_install_extra' in d:
-        bb.build.exec_func('do_install_extra', d)
+    pass # Sentinel
 }
 
 python external_toolchain_do_install () {
@@ -94,12 +93,29 @@ python external_toolchain_do_install () {
     sysroots, mirrors = oe.external.get_file_search_metadata(d)
     files = oe.external.gather_pkg_files(d)
     oe.external.copy_from_sysroots(files, sysroots, mirrors, installdest)
+    if 'do_install_extra' in d:
+        bb.build.exec_func('do_install_extra', d)
     subprocess.check_call(['chown', '-R', 'root:root', installdest])
 }
 external_toolchain_do_install[vardeps] += "${@' '.join('FILES_%s' % pkg for pkg in '${PACKAGES}'.split())}"
 
 # Change do_install's CWD to EXTERNAL_TOOLCHAIN for convenience
 do_install[dirs] = "${D} ${EXTERNAL_TOOLCHAIN}"
+
+python () {
+    # Deal with any do_install_append
+    install = d.getVar('do_install', False)
+    try:
+        base, appended = install.split('# Sentinel', 1)
+    except ValueError:
+        pass
+    else:
+        d.setVar('do_install', base)
+        if appended.strip():
+            d.setVar('do_install_appended', appended)
+            d.setVarFlag('do_install_appended', 'func', '1')
+            d.appendVarFlag('do_install', 'postfuncs', ' do_install_appended')
+}
 
 # Debug files are likely already split out
 INHIBIT_PACKAGE_STRIP = "1"
