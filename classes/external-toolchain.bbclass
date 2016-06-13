@@ -29,6 +29,9 @@ PROVIDES += "${EXTERNAL_PN}"
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = "${COMMON_LIC_CHKSUM}"
 
+# Packaging requires objcopy/etc for split and strip
+do_package[depends] += "virtual/${TARGET_PREFIX}binutils:do_populate_sysroot"
+
 do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 

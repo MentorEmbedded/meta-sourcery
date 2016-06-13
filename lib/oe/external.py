@@ -4,8 +4,6 @@ import bb
 
 
 def run(d, cmd, *args):
-    import subprocess
-
     topdir = d.getVar('TMPDIR', True)
     toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
     if toolchain_path:
@@ -14,13 +12,9 @@ def run(d, cmd, *args):
         args = [path] + list(args)
 
         try:
-            output = oe.path.check_output(args, cwd=topdir, stderr=subprocess.STDOUT)
-        except oe.path.CalledProcessError as exc:
-            import pipes
-            bb.debug(1, "{0} failed: {1}".format(' '.join(pipes.quote(a) for a in args), exc.output))
-        except OSError as exc:
-            import pipes
-            bb.debug(1, "{0} failed: {1}".format(' '.join(pipes.quote(a) for a in args), str(exc)))
+            output, _ = bb.process.run(args, cwd=topdir)
+        except bb.process.CmdError as exc:
+            bb.debug(1, str(exc))
         else:
             return output
 
