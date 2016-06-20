@@ -18,3 +18,5 @@ python () {
     cfg_deps = d.getVarFlag('do_configure', 'depends', True).split()
     d.setVarFlag('do_configure', 'depends', ' '.join(filter(lambda d: d != '{}:do_preconfigure'.format(gccs), cfg_deps)))
 }
+
+do_package[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
