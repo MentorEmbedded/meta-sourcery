@@ -6,7 +6,6 @@ require recipes-devtools/gcc/gcc-runtime.inc
 inherit external-toolchain
 
 # GCC >4.2 is GPLv3
-LICENSE = "GPL-3.0-with-GCC-exception & GPLv3"
 DEPENDS = "libgcc"
 EXTRA_OECONF = ""
 python () {
@@ -52,8 +51,4 @@ FILES_libstdc++-dev = "\
 "
 BBCLASSEXTEND = ""
 
-# libstdc++ needs glibc
 do_package[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
-do_package_write_ipk[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
-do_package_write_deb[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
-do_package_write_rpm[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
