@@ -1,16 +1,18 @@
 OpenEmbedded/Yocto layer for the Sourcery G++ toolchain
 =======================================================
 
-Layer Dependencies
-------------------
+Dependencies
+------------
 
-- [openembedded-core](https://github.com/openembedded/openembedded-core), with
-  a matching branch (i.e. master of oe-core and master of meta-sourcery)
+- [openembedded-core](https://github.com/openembedded/openembedded-core)
+  layer, with a matching branch (i.e. master of oe-core and master of
+  meta-sourcery).
+- [bitbake](https://github.com/openembedded/bitbake), with a matching branch.
+- An installed Sourcery G++ toolchain
 
 Usage & Instructions
 --------------------
 
-- Ensure that you have the Sourcery G++ toolchain installed.
 - If it's an ia32 toolchain, make sure you did *not* let it modify your PATH,
   and if you did, remove it.
 
