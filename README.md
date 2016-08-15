@@ -41,11 +41,9 @@ necessary.  The tcmode performs a number of operations:
 Contributing
 ------------
 
-URL: https://github.com/MentorEmbedded/meta-sourcery
-
-To contribute to this layer, please fork and submit pull requests to the above
-repository with github, or open issues for any bugs you find, or feature
-requests you have.
+To contribute to this layer, please fork and submit pull requests to the
+github [repository](https://github.com/MentorEmbedded/meta-sourcery), or open
+issues for any bugs you find, or feature requests you have.
 
 To Do List
 ----------
