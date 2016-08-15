@@ -7,6 +7,8 @@
   meta-sourcery).
 - [bitbake](https://github.com/openembedded/bitbake), with a matching branch.
 - An installed Sourcery G++ toolchain
+- An existing build directory configured for this bitbake and
+  openembedded-core.
 
 ## Usage & Instructions
 
