@@ -1,8 +1,6 @@
-OpenEmbedded/Yocto layer for the Sourcery G++ toolchain
-=======================================================
+# OpenEmbedded/Yocto layer for the Sourcery G++ toolchain
 
-Dependencies
-------------
+## Dependencies
 
 - [openembedded-core](https://github.com/openembedded/openembedded-core)
   layer, with a matching branch (i.e. master of oe-core and master of
@@ -10,8 +8,7 @@ Dependencies
 - [bitbake](https://github.com/openembedded/bitbake), with a matching branch.
 - An installed Sourcery G++ toolchain
 
-Usage & Instructions
---------------------
+## Usage & Instructions
 
 - If it's an ia32 toolchain, make sure you did *not* let it modify your PATH,
   and if you did, remove it.
@@ -24,8 +21,7 @@ Usage & Instructions
   priority over meta.
 - Set `EXTERNAL_TOOLCHAIN = "/path/to/your/sourcery-g++-install"` in `conf/local.conf`.
 
-Optional Functionality
-----------------------
+### Optional Functionality
 
 - If the user chooses to, they may optionally decide to rebuild the Sourcery G++ glibc
   from source, if they have downloaded the corresponding source archive from Mentor
@@ -34,8 +30,7 @@ Optional Functionality
   must also set `SOURCERY_SRC_FILE = "/path/to/your/sourcery-g++-source-tarball"` or
   `SOURCERY_SRC_URI = "http://some.domain/some-path"`.
 
-Description of Behavior
------------------------
+## Description of Behavior
 
 The meta-sourcery layer.conf automatically defines `TCMODE` for us, so this is no longer
 necessary.  The tcmode performs a number of operations:
@@ -46,14 +41,13 @@ necessary.  The tcmode performs a number of operations:
   them from source, including cross recipes which link/wrap the toolchain
   cross binaries
 
-Contributing
-------------
+## Contributing
 
 To contribute to this layer, please fork and submit pull requests to the
 github [repository](https://github.com/MentorEmbedded/meta-sourcery), or open
 issues for any bugs you find, or feature requests you have.
 
-To Do List
+## To Do List
 ----------
 
-See [TODO.md](TODO.md)
+See [TODO.md](TODO.md).
