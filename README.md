@@ -47,7 +47,12 @@ To contribute to this layer, please fork and submit pull requests to the
 github [repository](https://github.com/MentorEmbedded/meta-sourcery), or open
 issues for any bugs you find, or feature requests you have.
 
+## Maintainer
+
+This layer is maintained by [Mentor Graphics
+Corporation](https://www.mentor.com/). Please direct all support requests for
+this layer to the GitHub repository issues interface.
+
 ## To Do List
-----------
 
 See [TODO.md](TODO.md).
