@@ -30,7 +30,7 @@
   must also set `SOURCERY_SRC_FILE = "/path/to/your/sourcery-g++-source-tarball"` or
   `SOURCERY_SRC_URI = "http://some.domain/some-path"`.
 
-## Description of Behavior
+## Behavior
 
 The meta-sourcery layer.conf automatically defines `TCMODE` for us. The tcmode
 performs a number of operations:
