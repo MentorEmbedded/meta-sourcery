@@ -1,6 +1,12 @@
 OpenEmbedded/Yocto layer for the Sourcery G++ toolchain
 =======================================================
 
+Layer Dependencies
+------------------
+
+- [openembedded-core](https://github.com/openembedded/openembedded-core), with
+  a matching branch (i.e. master of oe-core and master of meta-sourcery)
+
 Usage & Instructions
 --------------------
 
