@@ -32,8 +32,8 @@
 
 ## Description of Behavior
 
-The meta-sourcery layer.conf automatically defines `TCMODE` for us, so this is no longer
-necessary.  The tcmode performs a number of operations:
+The meta-sourcery layer.conf automatically defines `TCMODE` for us. The tcmode
+performs a number of operations:
 
 - Sets `TARGET_PREFIX` appropriately, after determining what prefix is in use by the toolchain
 - Sanity checks `EXTERNAL_TOOLCHAIN`: does the path exist? does the expected sysroot exist?
