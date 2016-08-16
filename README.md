@@ -1,10 +1,17 @@
-OpenEmbedded/Yocto layer for the Sourcery G++ toolchain
-=======================================================
+# OpenEmbedded/Yocto layer for the Sourcery G++ toolchain
 
-Usage & Instructions
---------------------
+## Dependencies
 
-- Ensure that you have the Sourcery G++ toolchain installed.
+- [openembedded-core](https://github.com/openembedded/openembedded-core)
+  layer, with a matching branch (i.e. master of oe-core and master of
+  meta-sourcery).
+- [bitbake](https://github.com/openembedded/bitbake), with a matching branch.
+- An installed Sourcery G++ toolchain
+- An existing build directory configured for this bitbake and
+  openembedded-core.
+
+## Usage & Instructions
+
 - If it's an ia32 toolchain, make sure you did *not* let it modify your PATH,
   and if you did, remove it.
 
@@ -16,8 +23,7 @@ Usage & Instructions
   priority over meta.
 - Set `EXTERNAL_TOOLCHAIN = "/path/to/your/sourcery-g++-install"` in `conf/local.conf`.
 
-Optional Functionality
-----------------------
+### Optional Functionality
 
 - If the user chooses to, they may optionally decide to rebuild the Sourcery G++ glibc
   from source, if they have downloaded the corresponding source archive from Mentor
@@ -26,11 +32,10 @@ Optional Functionality
   must also set `SOURCERY_SRC_FILE = "/path/to/your/sourcery-g++-source-tarball"` or
   `SOURCERY_SRC_URI = "http://some.domain/some-path"`.
 
-Description of Behavior
------------------------
+## Behavior
 
-The meta-sourcery layer.conf automatically defines `TCMODE` for us, so this is no longer
-necessary.  The tcmode performs a number of operations:
+The meta-sourcery layer.conf automatically defines `TCMODE` for us. The tcmode
+performs a number of operations:
 
 - Sets `TARGET_PREFIX` appropriately, after determining what prefix is in use by the toolchain
 - Sanity checks `EXTERNAL_TOOLCHAIN`: does the path exist? does the expected sysroot exist?
@@ -38,16 +43,18 @@ necessary.  The tcmode performs a number of operations:
   them from source, including cross recipes which link/wrap the toolchain
   cross binaries
 
-Contributing
-------------
+## Contributing
 
-URL: https://github.com/MentorEmbedded/meta-sourcery
+To contribute to this layer, please fork and submit pull requests to the
+github [repository](https://github.com/MentorEmbedded/meta-sourcery), or open
+issues for any bugs you find, or feature requests you have.
 
-To contribute to this layer, please fork and submit pull requests to the above
-repository with github, or open issues for any bugs you find, or feature
-requests you have.
+## Maintainer
 
-To Do List
-----------
+This layer is maintained by [Mentor Graphics
+Corporation](https://www.mentor.com/). Please direct all support requests for
+this layer to the GitHub repository issues interface.
 
-See [TODO.md](TODO.md)
+## To Do List
+
+See [TODO.md](TODO.md).
