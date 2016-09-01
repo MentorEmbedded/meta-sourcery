@@ -216,3 +216,6 @@ do_package[depends] += "${MLPREFIX}libgcc:do_packagedata"
 do_package_write_ipk[depends] += "${MLPREFIX}libgcc:do_packagedata"
 do_package_write_deb[depends] += "${MLPREFIX}libgcc:do_packagedata"
 do_package_write_rpm[depends] += "${MLPREFIX}libgcc:do_packagedata"
+
+FILES_${PN}-dev_remove = "${libdir}/*_nonshared.a"
+FILES_${PN}-dev += "${libdir}/libc_nonshared.a ${libdir}/libpthread_nonshared.a"
