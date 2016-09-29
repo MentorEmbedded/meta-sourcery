@@ -4,14 +4,23 @@
 CODEBENCH_PATH ?= ""
 CODEBENCH_TOOLCHAINS_PATH ?= "${CODEBENCH_PATH}/../toolchains"
 
-python codebench_check () {
-    codebench_path = d.getVar('CODEBENCH_PATH', True)
-    if not codebench_path:
-        return
-    elif d.getVar('EXTERNAL_TOOLCHAIN', True):
-        bb.warn('Both EXTERNAL_TOOLCHAIN and CODEBENCH_PATH are set. Ignoring CODEBENCH_PATH in preference to EXTERNAL_TOOLCHAIN')
-        return
+def auto_codebench_path_fixup(exttc, d):
+    """Fixups for common issues with EXTERNAL_TOOLCHAIN with CodeBench."""
+    if os.path.exists(os.path.join(exttc, 'codebench')):
+        newtc = os.path.join(exttc, 'codebench')
+        if not os.path.exists(os.path.join(newtc, '..', 'toolchains')):
+            bb.warn('EXTERNAL_TOOLCHAIN was set to the root of a codebench install, not the toolchain path')
+            bb.warn('Adjusted EXTERNAL_TOOLCHAIN from `{}` to `{}`'.format(exttc, newtc))
+        exttc = newtc
+        d.setVar('EXTERNAL_TOOLCHAIN', exttc)
 
+    if os.path.exists(os.path.join(exttc, '..', 'toolchains')):
+        bb.warn('Detected CodeBench installation, but CODEBENCH_PATH is not set')
+        bb.warn('Adjusted CODEBENCH_PATH to `{}` and removed EXTERNAL_TOOLCHAIN'.format(exttc))
+        d.setVar('CODEBENCH_PATH', exttc)
+        d.setVar('EXTERNAL_TOOLCHAIN', '')
+
+def set_vars_from_toolchains(codebench_path, d):
     toolchains_path = d.getVar('CODEBENCH_TOOLCHAINS_PATH', True)
     if not os.path.exists(toolchains_path):
         if len(os.listdir(os.path.join(codebench_path, 'bin'))) > 1:
@@ -47,6 +56,20 @@ python codebench_check () {
     else:
         d.setVar('EXTERNAL_TARGET_SYS', triplets[0])
         d.setVar('EXTERNAL_TOOLCHAIN', os.path.join(toolchains_path, toolchain_subdir))
+
+python codebench_check () {
+    codebench_path = d.getVar('CODEBENCH_PATH', True)
+    exttc = d.getVar('EXTERNAL_TOOLCHAIN', True)
+    if exttc:
+        if codebench_path:
+            bb.warn('Both EXTERNAL_TOOLCHAIN and CODEBENCH_PATH are set. Ignoring CODEBENCH_PATH in preference to EXTERNAL_TOOLCHAIN')
+            return
+        else:
+            auto_codebench_path_fixup(exttc, d)
+            codebench_path = d.getVar('CODEBENCH_PATH', True)
+
+    if codebench_path:
+        set_vars_from_toolchains(codebench_path, d)
 }
 codebench_check[eventmask] = "bb.event.ConfigParsed"
 addhandler codebench_check
