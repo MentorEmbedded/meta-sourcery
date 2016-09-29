@@ -51,6 +51,9 @@ PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 # Support use of an external toolchain with the SDK/ADE/etc
 TOOLCHAIN_TARGET_TASK_append = " sdk-env-external-toolchain"
 
+# Set our vars based on the codebench path, if available
+INHERIT += "codebench"
+
 # Pull in our utility functions for use elsewhere
 INHERIT += "external-common"
 
