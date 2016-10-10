@@ -51,6 +51,9 @@ PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 # Support use of an external toolchain with the SDK/ADE/etc
 TOOLCHAIN_TARGET_TASK_append = " sdk-env-external-toolchain"
 
+# Set our vars based on the codebench path, if available
+INHERIT += "codebench"
+
 # Pull in our utility functions for use elsewhere
 INHERIT += "external-common"
 
@@ -80,16 +83,16 @@ PNBLACKLIST_DYNAMIC += "\
 
 # Determine the prefixes to check for based on the target architecture (before
 # any classes alter TARGET_ARCH)
-EXTERNAL_TARGET_SYSTEMS[powerpc] ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[powerpc64] ?= "powerpc-linux-gnu powerpc-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-linux-gnueabi arm-mentor-linux-gnueabi"
-EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-linux-gnu aarch64-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[mips] ?= "mips-linux-gnu mips-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[mipsel] ?= "mips-linux-gnu mips-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[mips64] ?= "mips64-nlm-linux-gnu mips-linux-gnu mips-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[x86_64] ?= "i686-pc-linux-gnu i686-mentor-linux-gnu x86_64-linux-gnu x86_64-amd-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[i686] ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[i586] ?= "i686-pc-linux-gnu i686-mentor-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[powerpc] ?= "powerpc-mentor-linux-gnu powerpc-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[powerpc64] ?= "powerpc-mentor-linux-gnu powerpc-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-mentor-linux-gnueabi arm-none-linux-gnueabi"
+EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-mentor-linux-gnu aarch64-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[mips] ?= "mips-mentor-linux-gnu mips-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[mipsel] ?= "mips-mentor-linux-gnu mips-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[mips64] ?= "mips-mentor-linux-gnu mips64-nlm-linux-gnu mips-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[x86_64] ?= "i686-mentor-linux-gnu x86_64-linux-gnu x86_64-amd-linux-gnu i686-pc-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[i686] ?= "i686-mentor-linux-gnu i686-pc-linux-gnu"
+EXTERNAL_TARGET_SYSTEMS[i586] ?= "i686-mentor-linux-gnu i686-pc-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS = "${TARGET_SYS}"
 
 def external_target_sys(d):
