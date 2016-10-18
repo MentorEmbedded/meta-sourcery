@@ -68,21 +68,18 @@ python () {
         return
 
     sysroots, mirrors = oe.external.get_file_search_metadata(d)
+    search_patterns = []
     pattern = d.getVar('EXTERNAL_PROVIDE_PATTERN', True)
-    if pattern is None:
-        files = list(oe.external.gather_pkg_files(d))
-        files = filter(lambda f: '.debug' not in f, files)
-        expanded = oe.external.expand_paths(files, mirrors)
-        paths = oe.external.search_sysroots(expanded, sysroots)
-        if not any(f for p, f in paths):
-            raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(', '.join(files)))
-    elif not pattern:
-        return
+    if pattern:
+        search_patterns.append(pattern)
     else:
-        expanded = oe.external.expand_paths([pattern], mirrors)
-        paths = oe.external.search_sysroots(expanded, sysroots)
-        if not any(f for p, f in paths):
-            raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(pattern))
+        files = oe.external.gather_pkg_files(d)
+        search_patterns.extend(filter(lambda f: '.debug' not in f, files))
+
+    expanded = oe.external.expand_paths(search_patterns, mirrors)
+    paths = oe.external.search_sysroots(expanded, sysroots)
+    if not any(f for p, f in paths):
+        raise bb.parse.SkipPackage('No files found in external toolchain sysroot for: {}'.format(', '.join(search_patterns)))
 }
 
 python do_install () {
