@@ -8,7 +8,6 @@
 # - Usual bits to handle packaging of existing binaries
 # - Automatically skips the recipe if its files aren't available in the
 #   external toolchain
-# - Automatically grabs all the .debug files for everything included
 
 # Since these are prebuilt binaries, there are no source files to checksum for
 # LIC_FILES_CHKSUM, so use the license from common-licenses

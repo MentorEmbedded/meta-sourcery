@@ -1,20 +1,5 @@
 - Adjust the hardcoded licenses based on version, for now. Better would be if
   the external toolchain provided license data.
-- Handle relocating debug files based on PACKAGE_DEBUG_SPLIT_STYLE, in
-  a general way, as a better way to handle 6d62e6f. Possibly do a regex
-  search/replace:
-
-    ```
-    If debug-file-directory:
-
-        (.*)/\.debug/([^/]*)\.debug|${libdir}/debug/\1/\2.debug
-        (.*)/\.debug/([^/]*)|${libdir}/debug/\1/\2.debug
-
-    Else:
-
-        ${libdir}/debug/(.*)/([^/]*\.debug)|\1/.debug/\2
-    ```
-
 - Fix extraction of patterns like `${libdir}/locale/*/*/libc.mo` (glibc) and
   `${libdir}/gcc/*/*/include/omp.h` (libgomp).
 
