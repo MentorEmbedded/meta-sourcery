@@ -44,7 +44,6 @@ EXTERNAL_EXTRA_FILES ?= ""
 
 # Skip this recipe if we don't have files in the external toolchain
 EXTERNAL_AUTO_PROVIDE ?= "0"
-EXTERNAL_AUTO_PROVIDE[type] = "boolean"
 EXTERNAL_AUTO_PROVIDE_class-target ?= "1"
 
 # We don't care if this path references other variables
@@ -64,7 +63,7 @@ python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
 
-    if not oe.data.typed_value('EXTERNAL_AUTO_PROVIDE', d):
+    if not bb.utils.to_boolean(d.getVar('EXTERNAL_AUTO_PROVIDE', d)):
         return
 
     sysroots, mirrors = oe.external.get_file_search_metadata(d)
