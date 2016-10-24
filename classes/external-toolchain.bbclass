@@ -8,7 +8,6 @@
 # - Usual bits to handle packaging of existing binaries
 # - Automatically skips the recipe if its files aren't available in the
 #   external toolchain
-# - Automatically grabs all the .debug files for everything included
 
 # Since these are prebuilt binaries, there are no source files to checksum for
 # LIC_FILES_CHKSUM, so use the license from common-licenses
@@ -44,7 +43,6 @@ EXTERNAL_EXTRA_FILES ?= ""
 
 # Skip this recipe if we don't have files in the external toolchain
 EXTERNAL_AUTO_PROVIDE ?= "0"
-EXTERNAL_AUTO_PROVIDE[type] = "boolean"
 EXTERNAL_AUTO_PROVIDE_class-target ?= "1"
 
 # We don't care if this path references other variables
@@ -64,25 +62,22 @@ python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
 
-    if not oe.data.typed_value('EXTERNAL_AUTO_PROVIDE', d):
+    if not bb.utils.to_boolean(d.getVar('EXTERNAL_AUTO_PROVIDE', d)):
         return
 
     sysroots, mirrors = oe.external.get_file_search_metadata(d)
+    search_patterns = []
     pattern = d.getVar('EXTERNAL_PROVIDE_PATTERN', True)
-    if pattern is None:
-        files = list(oe.external.gather_pkg_files(d))
-        files = filter(lambda f: '.debug' not in f, files)
-        expanded = oe.external.expand_paths(files, mirrors)
-        paths = oe.external.search_sysroots(expanded, sysroots)
-        if not any(f for p, f in paths):
-            raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(', '.join(files)))
-    elif not pattern:
-        return
+    if pattern:
+        search_patterns.append(pattern)
     else:
-        expanded = oe.external.expand_paths([pattern], mirrors)
-        paths = oe.external.search_sysroots(expanded, sysroots)
-        if not any(f for p, f in paths):
-            raise bb.parse.SkipPackage('No files found in external toolchain sysroot for `{}`'.format(pattern))
+        files = oe.external.gather_pkg_files(d)
+        search_patterns.extend(filter(lambda f: '.debug' not in f, files))
+
+    expanded = oe.external.expand_paths(search_patterns, mirrors)
+    paths = oe.external.search_sysroots(expanded, sysroots)
+    if not any(f for p, f in paths):
+        raise bb.parse.SkipPackage('No files found in external toolchain sysroot for: {}'.format(', '.join(search_patterns)))
 }
 
 python do_install () {
