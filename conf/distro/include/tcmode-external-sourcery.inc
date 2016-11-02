@@ -92,7 +92,7 @@ EXTERNAL_TARGET_SYSTEMS[mips64] ?= "mips64-nlm-linux-gnu mips-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[x86_64] ?= "x86_64-linux-gnu x86_64-amd-linux-gnu i686-pc-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[i686] ?= "i686-pc-linux-gnu"
 EXTERNAL_TARGET_SYSTEMS[i586] ?= "i686-pc-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS = "${TARGET_SYS}"
+EXTERNAL_TARGET_SYSTEMS = "${@d.getVarFlag('EXTERNAL_TARGET_SYSTEMS', '${TARGET_ARCH}', True) or '${TARGET_SYS}'}"
 
 def external_target_sys(d):
     toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
@@ -146,19 +146,15 @@ python toolchain_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
     d.appendVar('BB_HASHBASE_WHITELIST', ' MGLS_LICENSE_FILE LM_LICENSE_FILE')
 
-    l = d.createCopy()
-    l.finalize()
-
-    systems = l.getVarFlag('EXTERNAL_TARGET_SYSTEMS', l.getVar('TARGET_ARCH', True), True)
-    if systems:
-        d.setVar('EXTERNAL_TARGET_SYSTEMS', systems)
-
     # Remove already-added toolchain install paths from the PATH, as they can
     # break the build (in particular, the ia32 toolchain, as it provdes
     # non-prefixed binaries).
     path = d.getVar('PATH', False).split(':')
     path = filter(lambda p: not p.endswith('/codebench/bin'), path)
     d.setVar('PATH', ':'.join(path))
+
+    l = d.createCopy()
+    l.finalize()
 
     # The external toolchain may not have been built with the yocto preferred
     # gnu hash setting, so ensure that the corresponding sanity check is a
