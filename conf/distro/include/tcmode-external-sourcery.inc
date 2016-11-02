@@ -4,10 +4,9 @@
 
 EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
 
-# Ensure that pseudo builds both 32 bit and 64 bit binaries, as we need the
-# 32 bit pseudo to execute the 32 bit external toolchain binaries without
-# errors or warnings.
-NO32LIBS ?= "0"
+# When using a 32-bit external toolchain, we need 32 bit pseudo
+HAS_64BIT_TOOLCHAIN = "${@'1' if '${BUILD_ARCH}' == 'x86_64' and os.path.exists('${EXTERNAL_TOOLCHAIN}/${BUILD_SYS}-gnu') else '0'}"
+NO32LIBS ?= "${HAS_64BIT_TOOLCHAIN}"
 
 # Align paths with the external toolchain
 BASELIB_aarch64 = "lib64"
