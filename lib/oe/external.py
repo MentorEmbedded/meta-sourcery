@@ -4,7 +4,7 @@ import bb
 
 
 def run(d, cmd, *args):
-    topdir = d.getVar('TMPDIR', True)
+    topdir = d.getVar('TOPDIR', True)
     toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
     if toolchain_path:
         target_prefix = d.getVar('EXTERNAL_TARGET_SYS', True) + '-'
