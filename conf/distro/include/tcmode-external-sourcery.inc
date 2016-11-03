@@ -56,6 +56,9 @@ PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 # Support use of an external toolchain with the SDK/ADE/etc
 TOOLCHAIN_TARGET_TASK_append = " sdk-env-external-toolchain"
 
+# Sanity check the toolchain configuration and toolchain
+INHERIT += "sanity-external-toolchain"
+
 # Pull in our utility functions for use elsewhere
 INHERIT += "external-common"
 
@@ -180,7 +183,7 @@ python toolchain_metadata_setup () {
 
     with tempfile.NamedTemporaryFile(suffix='.c') as f:
         try:
-            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
+            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
         except (OSError, subprocess.CalledProcessError):
             pass
         else:
@@ -255,34 +258,6 @@ def set_vars_from_toolchains(codebench_path, d):
     else:
         d.setVar('EXTERNAL_TARGET_SYS', triplets[0])
         d.setVar('EXTERNAL_TOOLCHAIN', os.path.join(toolchains_path, toolchain_subdir))
-
-
-python toolchain_sanity_check () {
-    d = e.data
-    external_toolchain = d.getVar('EXTERNAL_TOOLCHAIN', True)
-    if not external_toolchain or external_toolchain == 'UNDEFINED':
-        bb.fatal("EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
-
-    if not os.path.exists(external_toolchain):
-        bb.fatal("EXTERNAL_TOOLCHAIN is invalid: path '%s' does not exist" % external_toolchain)
-
-    bindir = os.path.join(external_toolchain, 'bin')
-    if not os.path.exists(bindir):
-        bb.fatal("EXTERNAL_TOOLCHAIN is invalid: path '%s' does not exist" % bindir)
-
-    if d.getVar('EXTERNAL_TARGET_SYS', True) == 'UNKNOWN':
-        bb.fatal('Unable to locate prefixed gcc binary for %s in EXTERNAL_TOOLCHAIN/bin (%s/bin)' % (d.getVar('TARGET_SYS', True), d.getVar('EXTERNAL_TOOLCHAIN', True)))
-
-    if d.getVar('GCC_VERSION', True) == 'UNKNOWN':
-        bb.warn("EXTERNAL_TOOLCHAIN gcc version extraction failed, see debug messages for details")
-}
-
-# This runs at TreeDataPreparationStarted time, as we want bitbake -e to work,
-# so it has to run after ConfigParsed, and we want to see these errors rather
-# than the highly verbose unbuildable -external recipe errors which occur when
-# generating the runqueue, so we need to run before BuildStarted.
-toolchain_sanity_check[eventmask] = "bb.event.TreeDataPreparationStarted"
-addhandler toolchain_sanity_check
 
 GCCVERSION ?= "${@'.'.join('${GCC_VERSION}'.split('.')[:2])}%"
 GCC_VERSION = "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
