@@ -258,7 +258,10 @@ def set_vars_from_toolchains(codebench_path, d):
 
 
 python toolchain_sanity_check () {
-    d = e.data
+    import shlex
+    import subprocess
+    import tempfile
+
     external_toolchain = d.getVar('EXTERNAL_TOOLCHAIN', True)
     if not external_toolchain or external_toolchain == 'UNDEFINED':
         bb.fatal("EXTERNAL_TOOLCHAIN must be set to the path to your sourcery toolchain")
@@ -275,6 +278,24 @@ python toolchain_sanity_check () {
 
     if d.getVar('GCC_VERSION', True) == 'UNKNOWN':
         bb.warn("EXTERNAL_TOOLCHAIN gcc version extraction failed, see debug messages for details")
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with open(os.path.join(tmpdir, 'test.c'), 'w') as f:
+            f.write('int main() {}')
+
+        # The external toolchain recipes haven't necessarily been built, so we
+        # need to drop --sysroot= and --no-sysroot-suffix and use the bits in
+        # the external toolchain sysroots for this test
+        l = d.createCopy()
+        l.setVar('TOOLCHAIN_OPTIONS', '')
+        l.setVar('HOST_CC_ARCH_remove', '--no-sysroot-suffix')
+        cmd = l.expand('${EXTERNAL_TOOLCHAIN}/bin/${CC} ${CFLAGS} ${LDFLAGS} test.c -o test')
+        try:
+            subprocess.check_output(shlex.split(cmd), cwd=tmpdir, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as exc:
+            output = exc.output.decode()
+            output_indented = ''.join('    ' + l for l in output.splitlines(keepends=True))
+            bb.fatal("Toolchain sanity test failed:\n  Command: %s\n  Output:\n%s" % (cmd, output_indented))
 }
 
 # This runs at TreeDataPreparationStarted time, as we want bitbake -e to work,
