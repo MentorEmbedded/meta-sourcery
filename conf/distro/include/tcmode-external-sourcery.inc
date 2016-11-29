@@ -17,6 +17,7 @@ NO32LIBS ?= "${HAS_64BIT_TOOLCHAIN}"
 # Align paths with the external toolchain
 BASELIB_aarch64 = "lib64"
 BASELIB_x86-64 = "lib64"
+BASELIB_x86-64_linux-gnux32 = "libx32"
 
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
