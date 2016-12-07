@@ -1,4 +1,4 @@
-SUMMARY = "gdb - GNU debugger"
+SUMMARY = "gdbserver is a program that allows you to run GDB on a different machine than the one which is running the program being debugged"
 HOMEPAGE = "http://www.gnu.org/software/gdb/"
 SECTION = "devel"
 PV := "${@oe.external.run(d, 'gdb', '-v').splitlines()[0].split()[-1]}"
@@ -18,15 +18,7 @@ def get_gdb_license(d):
 LICENSE := "${@get_gdb_license(d)}"
 LICENSE[vardepvalue] = "${LICENSE}"
 
-FILES_${PN} = "\
-    ${bindir}/gdbserver \
-    ${datadir}/gdb/guile \
-    ${datadir}/gdb/python/gdb \
-    ${datadir}/gdb/syscalls \
-    ${datadir}/gdb/system-gdbinit \
-    ${libdir}/libinproctrace.so \
-"
-INSANE_SKIP_${PN} += "dev-so"
+FILES_${PN} = "${bindir}/gdbserver"
 FILES_${PN}-doc = "${mandir}/man1/gdbserver.1"
 
 # Ensure that our rdeps are able to be set by shlibs processing
