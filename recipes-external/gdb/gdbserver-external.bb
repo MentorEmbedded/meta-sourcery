@@ -1,4 +1,4 @@
-SUMMARY = "gdb - GNU debugger"
+SUMMARY = "gdbserver is a program that allows you to run GDB on a different machine than the one which is running the program being debugged"
 HOMEPAGE = "http://www.gnu.org/software/gdb/"
 SECTION = "devel"
 PV := "${@oe.external.run(d, 'gdb', '-v').splitlines()[0].split()[-1]}"
