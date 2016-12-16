@@ -11,7 +11,7 @@ def check_toolchain_sanity(d, generate_events=False):
 
     # Test 1: EXTERNAL_TOOLCHAIN exists
     if not os.path.exists(extpath):
-        raise_exttc_sanity_error('EXTERNAL_TOOLCHAIN path `%s` does not exist' % extdir, d, generate_events)
+        raise_exttc_sanity_error('EXTERNAL_TOOLCHAIN path `%s` does not exist' % extpath, d, generate_events)
     extpath = os.path.realpath(extpath)
 
     sanity_file = d.expand('${TOPDIR}/conf/exttc_sanity_info')
