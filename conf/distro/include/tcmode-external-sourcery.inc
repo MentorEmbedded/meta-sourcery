@@ -21,7 +21,7 @@ BASELIB_x86-64 = "lib64"
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
 # sysroot and determine this accurately.
-GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
+GLIBC_GENERATE_LOCALES_remove_pn-glibc-locale = "en_US.UTF-8"
 
 # Align localedir with the corresponding path in external toolchain
 localedir = "${exec_prefix}/lib/locale"
