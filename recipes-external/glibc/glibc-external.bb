@@ -152,7 +152,7 @@ python () {
 
     # Ensure that we pick up just libm, not all libs that start with m
     baselibs = d.getVar('libc_baselibs', False)
-    baselibs = baselibs.replace('${base_libdir}/libm*.so.*', '${base_libdir}/libm.so.*')
+    baselibs = baselibs.replace('${base_libdir}/libm*.so.*', '${base_libdir}/libm.so.* ${base_libdir}/libmvec.so.*')
     d.setVar('libc_baselibs', baselibs)
 }
 
@@ -218,4 +218,4 @@ do_package_write_deb[depends] += "${MLPREFIX}libgcc:do_packagedata"
 do_package_write_rpm[depends] += "${MLPREFIX}libgcc:do_packagedata"
 
 FILES_${PN}-dev_remove = "${base_libdir}/*_nonshared.a ${libdir}/*_nonshared.a"
-FILES_${PN}-dev += "${libdir}/libc_nonshared.a ${libdir}/libpthread_nonshared.a"
+FILES_${PN}-dev += "${libdir}/libc_nonshared.a ${libdir}/libpthread_nonshared.a ${libdir}/libmvec_nonshared.a"
