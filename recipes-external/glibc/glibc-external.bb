@@ -152,7 +152,7 @@ python () {
 
     # Ensure that we pick up just libm, not all libs that start with m
     baselibs = d.getVar('libc_baselibs', False)
-    baselibs.replace('${base_libdir}/libm*.so.*', '${base_libdir}/libm.so.*')
+    baselibs = baselibs.replace('${base_libdir}/libm*.so.*', '${base_libdir}/libm.so.*')
     d.setVar('libc_baselibs', baselibs)
 }
 
