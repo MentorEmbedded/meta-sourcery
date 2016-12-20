@@ -19,7 +19,9 @@ target_libdir = "${libdir}"
 HEADERS_MULTILIB_SUFFIX ?= "${@oe.external.run(d, 'gcc', *('${TARGET_CC_ARCH}'.split() + ['-print-sysroot-headers-suffix'])).rstrip()}"
 external_libroot = "${@os.path.realpath('${EXTERNAL_TOOLCHAIN_LIBROOT}').replace(os.path.realpath('${EXTERNAL_TOOLCHAIN}') + '/', '/')}"
 FILES_MIRRORS =. "\
-    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/|${external_libroot}/\n \
+    ${libdir}/gcc/${TARGET_SYS}/${BINV}/|${external_libroot}/\n \
+    ${libdir}/gcc/${TARGET_SYS}/${BINV}/include/|/lib/gcc/${EXTERNAL_TARGET_SYS}/${BINV}/include/ \n \
+    ${libdir}/gcc/${TARGET_SYS}/|${libdir}/gcc/${EXTERNAL_TARGET_SYS}/\n \
     ${includedir}/c\+\+/${GCC_VERSION}/${TARGET_SYS}/|${includedir}/c++/${GCC_VERSION}/${EXTERNAL_TARGET_SYS}${HEADERS_MULTILIB_SUFFIX}/\n \
     ${includedir}/c\+\+/${GCC_VERSION}/${TARGET_SYS}/|${includedir}/c++/${GCC_VERSION}/${EXTERNAL_TARGET_SYS}/\n \
 "
@@ -48,6 +50,9 @@ FILES_libstdc++-dev = "\
     ${libdir}/libstdc++.so \
     ${libdir}/libstdc++.la \
     ${libdir}/libsupc++.la \
+"
+FILES_libgomp-dev += "\
+    ${libdir}/gcc/${TARGET_SYS}/${BINV}/include/openacc.h \
 "
 BBCLASSEXTEND = ""
 
