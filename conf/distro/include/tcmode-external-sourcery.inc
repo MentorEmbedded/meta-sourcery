@@ -124,7 +124,6 @@ BB_HASHBASE_WHITELIST_remove = "EXTERNAL_TOOLCHAIN"
 EXTERNAL_TARGET_SYS ?= "${@external_target_sys(d)}"
 EXTERNAL_TARGET_SYS[vardepvalue] = "${EXTERNAL_TARGET_SYS}"
 EXTERNAL_TARGET_SYS[vardepsexclude] += "EXTERNAL_TARGET_SYSTEMS EXTERNAL_TOOLCHAIN"
-TARGET_PREFIX = "${EXTERNAL_TARGET_SYS}-"
 
 # TOOLCHAIN_OPTIONS would seem more appropriate, but that gets added to LD as
 # well, and --no-sysroot-suffix only works for gcc, not binutils.
@@ -183,7 +182,7 @@ python toolchain_metadata_setup () {
 
     with tempfile.NamedTemporaryFile(suffix='.c') as f:
         try:
-            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
+            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
         except (OSError, subprocess.CalledProcessError):
             pass
         else:

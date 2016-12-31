@@ -11,14 +11,14 @@ wrap_bin () {
     for arg in "$@"; do
         printf '%s\n' "$arg"
     done >>"$script"
-    printf 'exec ${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}%s "$@"\n' "$bin" >>"$script"
+    printf 'exec ${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-%s "$@"\n' "$bin" >>"$script"
     chmod +x "$script"
 }
 
 do_install () {
     install -d ${D}${bindir}
     for bin in ${EXTERNAL_CROSS_BINARIES}; do
-        if [ ! -e "${EXTERNAL_TOOLCHAIN}/bin/${TARGET_PREFIX}$bin" ]; then
+        if [ ! -e "${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-$bin" ]; then
             continue
         fi
 
