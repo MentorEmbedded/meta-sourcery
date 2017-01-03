@@ -117,6 +117,7 @@ python () {
 
 # Debug files are likely already split out
 INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 # Toolchain shipped binaries weren't necessarily built ideally
 WARN_QA_remove = "ldflags textrel"
