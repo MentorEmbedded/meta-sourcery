@@ -45,6 +45,7 @@ do_install_extra () {
     done
 }
 
+FILES_${PN}-dbg += "${datadir}/gdb/python/libstdcxx"
 FILES_libstdc++-dev = "\
     ${includedir}/c++ \
     ${libdir}/libstdc++.so \
