@@ -117,6 +117,7 @@ python () {
 
 # Debug files are likely already split out
 INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 
 # Toolchain shipped binaries weren't necessarily built ideally
 WARN_QA_remove = "ldflags textrel"
@@ -135,6 +136,29 @@ FILES_${PN}-dev = ""
 FILES_${PN}-staticdev = ""
 FILES_${PN}-doc = ""
 FILES_${PN}-locale = ""
+
+def debug_paths(d):
+    l = d.createCopy()
+    l.finalize()
+    paths = []
+    exclude = [
+        l.getVar('datadir', True),
+        l.getVar('includedir', True),
+    ]
+    for p in l.getVar('PACKAGES', True).split():
+        if p.endswith('-dbg'):
+            continue
+        for f in (l.getVar('FILES_%s' % p, True) or '').split():
+            if any((f == x or f.startswith(x + '/')) for x in exclude):
+                continue
+            d = os.path.dirname(f)
+            b = os.path.basename(f)
+            paths.append('/usr/lib/debug{0}/{1}.debug'.format(d, b))
+            paths.append('{0}/.debug/{1}'.format(d, b))
+            paths.append('{0}/.debug/{1}.debug'.format(d, b))
+    return set(paths)
+
+FILES_${PN}-dbg = "${@' '.join(debug_paths(d))}"
 
 # do_package[depends] += "virtual/${MLPREFIX}libc:do_packagedata"
 # do_package_write_ipk[depends] += "virtual/${MLPREFIX}libc:do_packagedata"

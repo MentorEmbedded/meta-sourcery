@@ -17,11 +17,12 @@ NO32LIBS ?= "${HAS_64BIT_TOOLCHAIN}"
 # Align paths with the external toolchain
 BASELIB_aarch64 = "lib64"
 BASELIB_x86-64 = "lib64"
+BASELIB_x86-64_linux-gnux32 = "libx32"
 
 # Ensure that we only attempt to package up locales which are available in the
 # external toolchain. In the future, we should examine the external toolchain
 # sysroot and determine this accurately.
-GLIBC_GENERATE_LOCALES_remove = "en_US.UTF-8"
+GLIBC_GENERATE_LOCALES_remove_pn-glibc-locale = "en_US.UTF-8"
 
 # Align localedir with the corresponding path in external toolchain
 localedir = "${exec_prefix}/lib/locale"
@@ -45,7 +46,7 @@ PREFERRED_PROVIDER_virtual/libc ?= "glibc-external"
 PREFERRED_PROVIDER_virtual/libintl ?= "glibc-external"
 PREFERRED_PROVIDER_virtual/libiconv ?= "glibc-external"
 
-PREFERRED_PROVIDER_gdbserver ??= "gdb"
+PREFERRED_PROVIDER_gdbserver ??= "gdbserver-external"
 PREFERRED_PROVIDER_oprofile ??= "oprofile"
 
 # These are defined in default-providers.inc, which is parsed before the
@@ -136,6 +137,7 @@ LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in '${TUNE_FEATURES}'.split() else 
 LDEMULATION_BITS = "${@'64' if 'n64' in '${TUNE_FEATURES}'.split() else '32'}"
 LDEMULATION_mips64 = "elf${LDEMULATION_BITS}${LDEMULATION_ENDIAN}smip${@bb.utils.contains('TUNE_FEATURES', 'n32', 'n32', '', d)}"
 LDEMULATION_x86-64 = "elf_${TARGET_ARCH}"
+LDEMULATION_x86-64_linux-gnux32 = "elf32_${TARGET_ARCH}"
 TUNE_LDARGS += "${@'-m ${LDEMULATION}' if '${LDEMULATION}' else ''}"
 
 # Ensure that the licensing variables are available to the toolchain.
