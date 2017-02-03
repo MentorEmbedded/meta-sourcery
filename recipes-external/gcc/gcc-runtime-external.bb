@@ -8,6 +8,8 @@ inherit external-toolchain
 # GCC >4.2 is GPLv3
 DEPENDS = "libgcc"
 EXTRA_OECONF = ""
+COMPILERDEP = ""
+
 python () {
     lic_deps = d.getVarFlag('do_populate_lic', 'depends', False)
     d.setVarFlag('do_populate_lic', 'depends', lic_deps.replace('gcc-source-${PV}:do_unpack', ''))
