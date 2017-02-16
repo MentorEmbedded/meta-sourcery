@@ -283,7 +283,10 @@ SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
 EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
 EXTERNAL_PV_SUFFIX_allarch = ""
 
-BUILDCFG_VARS += "EXTERNAL_TOOLCHAIN EXTERNAL_TARGET_SYS SOURCERY_VERSION GCC_VERSION"
+# Make it clear that this version is the toolchain, not the CodeBench IDE
+SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
+
+BUILDCFG_VARS += "EXTERNAL_TOOLCHAIN EXTERNAL_TARGET_SYS SOURCERY_TOOLCHAIN_VERSION GCC_VERSION"
 
 # Adjust tunings to ensure we're using Sourcery G++ multilibs
 require conf/distro/include/sourcery-tuning.inc
