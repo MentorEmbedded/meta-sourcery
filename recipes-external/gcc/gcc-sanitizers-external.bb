@@ -8,6 +8,7 @@ inherit external-toolchain
 # Undo various bits we don't want from the upstream include
 EXTRA_OECONF = ""
 BBCLASSEXTEND = ""
+COMPILERDEP = ""
 
 python () {
     gccs = d.expand('gcc-source-${PV}')
