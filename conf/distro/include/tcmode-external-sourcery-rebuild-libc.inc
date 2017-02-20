@@ -8,3 +8,6 @@ PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc = "glibc-sourcery"
 PREFERRED_PROVIDER_glibc = "glibc-sourcery"
 SOURCERY_SRC_URI ?= "file://${SOURCERY_SRC_FILE}"
 SOURCERY_SRC_FILE ?= "${@bb.fatal('Please set SOURCERY_SRC_FILE to the path to your sourcery src tarball')}"
+
+GLIBC_INTERNAL_USE_BINARY_LOCALE = ""
+ENABLE_BINARY_LOCALE_GENERATION = "1"
