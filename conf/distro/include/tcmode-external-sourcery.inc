@@ -293,7 +293,7 @@ python toolchain_sanity_check () {
         l.setVar('HOST_CC_ARCH_remove', '--no-sysroot-suffix')
         cmd = l.expand('${EXTERNAL_TOOLCHAIN}/bin/${CC} ${CFLAGS} ${LDFLAGS} test.c -o test')
         try:
-            subprocess.check_output(shlex.split(cmd), cwd=tmpdir, stderr=subprocess.STDOUT)
+            subprocess.check_output(shlex.split(cmd), cwd=tmpdir, stderr=subprocess.STDOUT, env=dict(os.environ, MGLS_LICENSE_FILE=d.getVar('MGLS_LICENSE_FILE', True)))
         except subprocess.CalledProcessError as exc:
             output = exc.output.decode()
             output_indented = ''.join('    ' + l for l in output.splitlines(keepends=True))
