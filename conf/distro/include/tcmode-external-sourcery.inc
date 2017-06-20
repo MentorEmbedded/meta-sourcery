@@ -1,5 +1,9 @@
 require conf/distro/include/tcmode-external.inc
 
+# This is defined in default-providers.inc, which is parsed before the tcmode,
+# so we can't use ?=
+PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
+
 # If the user hasn't set EXTERNAL_TOOLCHAIN, but CODEBENCH_PATH is set, then
 # we automatically set both EXTERNAL_TOOLCHAIN and EXTERNAL_TARGET_SYS based
 # on the installed toolchains in CODEBENCH_PATH/../toolchains.
