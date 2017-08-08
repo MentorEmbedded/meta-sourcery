@@ -74,6 +74,11 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
 
 EXTRA_OECONF += "${@get_libc_fpu_setting(bb, d)}"
 
+# Without 0005-fsl-e500-e5500-e6500-603e-fsqrt-implementation.patch from
+# oe-core, this argument will break e6500 builds. The Sourcery G++ toolchain
+# does not include this patch at this time.
+GLIBC_EXTRA_OECONF_remove = "--with-cpu=e6500"
+
 oe_runmake () {
     if [ "$1" = "config" ]; then
         return
