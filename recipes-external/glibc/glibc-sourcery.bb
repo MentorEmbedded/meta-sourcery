@@ -19,7 +19,6 @@ DEPENDS = "\
     virtual/${TARGET_PREFIX}gcc \
     linux-libc-headers \
 "
-DEPENDS_remove = "libtool-cross make-native"
 
 PROVIDES += "glibc \
              virtual/${TARGET_PREFIX}libc-for-gcc \
