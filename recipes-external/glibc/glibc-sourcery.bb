@@ -97,6 +97,10 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
+
+    # Avoid bash dependency
+    sed -e '1s#bash#sh#; s#$"#"#g' -i "${D}${bindir}/ldd"
+    sed -e '1s#bash#sh#' -i "${D}${bindir}/tzselect"
 }
 
 require recipes-external/glibc/glibc-sysroot-setup.inc
