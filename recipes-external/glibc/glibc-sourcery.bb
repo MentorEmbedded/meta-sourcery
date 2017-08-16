@@ -111,4 +111,7 @@ python () {
 
     if not d.getVar("SOURCERY_SRC_URI", True):
         raise bb.parse.SkipPackage("glibc-sourcery requires that SOURCERY_SRC_URI point to the sourcery source tarball")
+
+    install = d.getVar('do_install', False)
+    d.setVar('do_install', install.replace('oe_multilib_header bits/syscall.h bits/long-double.h', ''));
 }
