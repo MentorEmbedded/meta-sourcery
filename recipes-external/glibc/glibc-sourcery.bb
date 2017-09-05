@@ -19,7 +19,6 @@ DEPENDS = "\
     virtual/${TARGET_PREFIX}gcc \
     linux-libc-headers \
 "
-DEPENDS_remove = "libtool-cross make-native"
 
 PROVIDES += "glibc \
              virtual/${TARGET_PREFIX}libc-for-gcc \
@@ -74,6 +73,11 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
 
 EXTRA_OECONF += "${@get_libc_fpu_setting(bb, d)}"
 
+# Without 0005-fsl-e500-e5500-e6500-603e-fsqrt-implementation.patch from
+# oe-core, this argument will break e6500 builds. The Sourcery G++ toolchain
+# does not include this patch at this time.
+GLIBC_EXTRA_OECONF_remove = "--with-cpu=e6500"
+
 oe_runmake () {
     if [ "$1" = "config" ]; then
         return
@@ -92,6 +96,10 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
+
+    # Avoid bash dependency
+    sed -e '1s#bash#sh#; s#$"#"#g' -i "${D}${bindir}/ldd"
+    sed -e '1s#bash#sh#' -i "${D}${bindir}/tzselect"
 }
 
 require recipes-external/glibc/glibc-sysroot-setup.inc
@@ -103,4 +111,7 @@ python () {
 
     if not d.getVar("SOURCERY_SRC_URI", True):
         raise bb.parse.SkipPackage("glibc-sourcery requires that SOURCERY_SRC_URI point to the sourcery source tarball")
+
+    install = d.getVar('do_install', False)
+    d.setVar('do_install', install.replace('oe_multilib_header bits/syscall.h bits/long-double.h', ''));
 }
