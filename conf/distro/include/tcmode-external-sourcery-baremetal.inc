@@ -1,0 +1,13 @@
+PREFERRED_PROVIDER_linux-libc-headers = ""
+PREFERRED_PROVIDER_virtual/libc ?= ""
+PREFERRED_PROVIDER_virtual/libintl ?= ""
+PREFERRED_PROVIDER_virtual/libiconv ?= ""
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= ""
+PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial ?= ""
+USE_NLS ?= "no"
+IMAGE_LINGUAS = ""
+LIBC_DEPENDENCIES = ""
+EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-eabi"
+EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-none-elf"
+require conf/distro/include/tcmode-external-sourcery.inc
+TCLIBC = "baremetal"
