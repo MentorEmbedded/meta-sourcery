@@ -15,3 +15,5 @@ inherit multilib_header
 do_install_extra () {
     oe_multilib_header bits/syscall.h
 }
+
+COMPATIBLE_OS ?= "linux"
