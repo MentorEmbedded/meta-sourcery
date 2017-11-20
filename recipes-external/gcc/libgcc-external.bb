@@ -30,6 +30,8 @@ FILES_${PN}-dev = "${base_libdir}/libgcc_s.so \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcc.a \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcc_eh.a \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/unwind.h \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/stddef.h \
+                   ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/include/stdarg.h \
                    ${libdir}/gcc/${TARGET_SYS}/${GCC_VERSION}/libgcov.a \
                    "
 INSANE_SKIP_${PN}-dev += "staticdev"
