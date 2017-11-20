@@ -11,3 +11,4 @@ EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-eabi"
 EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-none-elf"
 require conf/distro/include/tcmode-external-sourcery.inc
 TCLIBC = "baremetal"
+BASELIB_aarch64 = "lib"
