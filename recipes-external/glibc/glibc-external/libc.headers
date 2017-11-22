@@ -26,6 +26,7 @@ features.h
 fenv.h
 fmtmsg.h
 fnmatch.h
+fpu_control-64.h
 fstab.h
 fts.h
 ftw.h
@@ -38,6 +39,7 @@ gnu-versions.h
 grp.h
 gshadow.h
 iconv.h
+ieee754-64.h
 ieee754.h
 ifaddrs.h
 inttypes.h
