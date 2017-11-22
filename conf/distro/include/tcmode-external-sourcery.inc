@@ -1,91 +1,14 @@
-#
-# Configuration to use external Sourcery G++ toolchain
-#
+require conf/distro/include/tcmode-external.inc
 
-EXTERNAL_TOOLCHAIN ?= "UNDEFINED"
+# This is defined in default-providers.inc, which is parsed before the tcmode,
+# so we can't use ?=
+PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 
 # If the user hasn't set EXTERNAL_TOOLCHAIN, but CODEBENCH_PATH is set, then
 # we automatically set both EXTERNAL_TOOLCHAIN and EXTERNAL_TARGET_SYS based
 # on the installed toolchains in CODEBENCH_PATH/../toolchains.
 CODEBENCH_PATH ?= ""
 CODEBENCH_TOOLCHAINS_PATH ?= "${CODEBENCH_PATH}/../toolchains"
-
-# When using a 32-bit external toolchain, we need 32 bit pseudo
-HAS_64BIT_TOOLCHAIN = "${@'1' if '${BUILD_ARCH}' == 'x86_64' and os.path.exists('${EXTERNAL_TOOLCHAIN}/${BUILD_SYS}-gnu') else '0'}"
-NO32LIBS ?= "${HAS_64BIT_TOOLCHAIN}"
-
-# Align paths with the external toolchain
-BASELIB_aarch64 = "lib64"
-BASELIB_x86-64 = "lib64"
-BASELIB_x86-64_linux-gnux32 = "libx32"
-
-# Ensure that we only attempt to package up locales which are available in the
-# external toolchain. In the future, we should examine the external toolchain
-# sysroot and determine this accurately.
-GLIBC_GENERATE_LOCALES_remove_pn-glibc-locale = "en_US.UTF-8"
-
-# Align localedir with the corresponding path in external toolchain
-localedir = "${exec_prefix}/lib/locale"
-
-# No need to re-compile the locale files
-GLIBC_INTERNAL_USE_BINARY_LOCALE ?= "precompiled"
-ENABLE_BINARY_LOCALE_GENERATION = ""
-
-# Prefer our recipes which extract files from the external toolchain
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc ?= "gcc-external-cross-${TARGET_ARCH}"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-initial ?= "gcc-external-cross-${TARGET_ARCH}"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}gcc-intermediate ?= "gcc-external-cross-${TARGET_ARCH}"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}g++ ?= "gcc-external-cross-${TARGET_ARCH}"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils ?= "binutils-external-cross-${TARGET_ARCH}"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs ?= "gcc-runtime-external"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "glibc-external"
-PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial ?= "glibc-external"
-PREFERRED_PROVIDER_gcc-sanitizers ?= "gcc-sanitizers-external"
-PREFERRED_PROVIDER_glibc ?= "glibc-external"
-PREFERRED_PROVIDER_virtual/libc ?= "glibc-external"
-PREFERRED_PROVIDER_virtual/libintl ?= "glibc-external"
-PREFERRED_PROVIDER_virtual/libiconv ?= "glibc-external"
-
-PREFERRED_PROVIDER_gdbserver ??= "gdbserver-external"
-PREFERRED_PROVIDER_oprofile ??= "oprofile"
-
-# These are defined in default-providers.inc, which is parsed before the
-# tcmode, so we can't use ?= for them.
-PREFERRED_PROVIDER_libgcc = "libgcc-external"
-PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
-
-# Support use of an external toolchain with the SDK/ADE/etc
-TOOLCHAIN_TARGET_TASK_append = " sdk-env-external-toolchain"
-
-# Sanity check the toolchain configuration and toolchain
-INHERIT += "sanity-external-toolchain"
-
-# Pull in our utility functions for use elsewhere
-INHERIT += "external-common"
-
-# Ensure that we don't pull in any internal toolchain recipes
-INHERIT += "blacklist blacklist_dynamic"
-PNBLACKLIST[uclibc] = "not building with an external toolchain"
-PNBLACKLIST[uclibc-initial] = "not building with an external toolchain"
-PNBLACKLIST[glibc] = "not building with an external toolchain"
-PNBLACKLIST[glibc-initial] = "not building with an external toolchain"
-PNBLACKLIST[glibc-intermediate] = "not building with an external toolchain"
-PNBLACKLIST[gcc-runtime] = "not building with an external toolchain"
-PNBLACKLIST[gcc-sanitizers] = "not building with an external toolchain"
-PNBLACKLIST[gcc-source] = "not building with an external toolchain"
-PNBLACKLIST[libgcc-initial] = "not building with an external toolchain"
-PNBLACKLIST[libgcc] = "not building with an external toolchain"
-PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
-PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain"
-PNBLACKLIST[external-sourcery-toolchain] = "using meta-sourcery, not poky's external toolchain"
-
-PNBLACKLIST_DYNAMIC += "\
-    ${MLPREFIX}gcc-cross-${TARGET_ARCH} \
-    ${MLPREFIX}gcc-cross-initial-${TARGET_ARCH} \
-    ${MLPREFIX}binutils-cross-${TARGET_ARCH} \
-    \
-    gcc-source-${@'${GCCVERSION}'.replace('%', '')} \
-"
 
 # Determine the prefixes to check for based on the target architecture (before
 # any classes alter TARGET_ARCH)
@@ -116,71 +39,89 @@ def external_target_sys(d):
 
     return 'UNKNOWN'
 
-# We need our -cross recipes to rebuild when the external toolchain changes,
-# to recreate the links / wrapper scripts
-BB_HASHBASE_WHITELIST_remove = "EXTERNAL_TOOLCHAIN"
-
 # All we care about for the signatures is the result, not how we got there, so
 # we don't want EXTERNAL_TARGET_SYSTEMS included.
-EXTERNAL_TARGET_SYS ?= "${@external_target_sys(d)}"
+EXTERNAL_TARGET_SYS ??= "${@external_target_sys(d)}"
 EXTERNAL_TARGET_SYS[vardepvalue] = "${EXTERNAL_TARGET_SYS}"
 EXTERNAL_TARGET_SYS[vardepsexclude] += "EXTERNAL_TARGET_SYSTEMS EXTERNAL_TOOLCHAIN"
 
-# TOOLCHAIN_OPTIONS would seem more appropriate, but that gets added to LD as
-# well, and --no-sysroot-suffix only works for gcc, not binutils.
-HOST_CC_ARCH += "--no-sysroot-suffix"
+# When using a 32-bit external toolchain, we need 32 bit pseudo
+HAS_64BIT_TOOLCHAIN = "${@'1' if '${BUILD_ARCH}' == 'x86_64' and os.path.exists('${EXTERNAL_TOOLCHAIN}/${BUILD_SYS}-gnu') else '0'}"
+NO32LIBS ?= "${HAS_64BIT_TOOLCHAIN}"
+
+# Align paths with the external toolchain
+BASELIB_aarch64 = "lib64"
+BASELIB_x86-64 = "lib64"
+BASELIB_x86-64_linux-gnux32 = "libx32"
+
+localedir = "${exec_prefix}/lib/locale"
+
+# Adjust tunings to ensure we're using Sourcery G++ multilibs
+require conf/distro/include/sourcery-tuning.inc
+
+# Ensure that we only attempt to package up locales which are available in the
+# external toolchain. In the future, we should examine the external toolchain
+# sysroot and determine this accurately.
+GLIBC_GENERATE_LOCALES_remove_pn-glibc-locale = "en_US.UTF-8"
+
+# No need to re-compile the locale files
+GLIBC_INTERNAL_USE_BINARY_LOCALE ?= "precompiled"
+ENABLE_BINARY_LOCALE_GENERATION = ""
 
 CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
-
-LDEMULATION = ""
-LDEMULATION_ENDIAN = "${@'bt' if 'bigendian' in '${TUNE_FEATURES}'.split() else 'lt'}"
-LDEMULATION_BITS = "${@'64' if 'n64' in '${TUNE_FEATURES}'.split() else '32'}"
-LDEMULATION_mips64 = "elf${LDEMULATION_BITS}${LDEMULATION_ENDIAN}smip${@bb.utils.contains('TUNE_FEATURES', 'n32', 'n32', '', d)}"
-LDEMULATION_x86-64 = "elf_${TARGET_ARCH}"
-LDEMULATION_x86-64_linux-gnux32 = "elf32_${TARGET_ARCH}"
-TUNE_LDARGS += "${@'-m ${LDEMULATION}' if '${LDEMULATION}' else ''}"
 
 # Ensure that the licensing variables are available to the toolchain.
 export MGLS_LICENSE_FILE
 export LM_LICENSE_FILE
 
-python toolchain_metadata_setup () {
+def sourcery_version(d):
+    version = oe.external.run(d, 'gcc', '-v').splitlines()[-1]
+    if version != 'UNKNOWN':
+        main_version = version.split()[-1].rstrip(')')
+        if main_version == 'Preview':
+            main_version = version.split()[-3]
+        return main_version
+    else:
+        return version
+
+SOURCERY_VERSION = "${@sourcery_version(d)}"
+SOURCERY_VERSION_allarch = ""
+SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
+
+# Add sourcery toolchain version to external recipe versions
+EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
+EXTERNAL_PV_SUFFIX_allarch = ""
+
+# Make it clear that this version is the toolchain, not the CodeBench IDE
+SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
+
+BUILDCFG_VARS += "SOURCERY_TOOLCHAIN_VERSION"
+
+python sourcery_metadata_setup () {
     import subprocess
     import tempfile
 
-    d = e.data
-
-    # Ensure that changes to toolchain licensing don't affect checksums
-    d.appendVar('BB_HASHBASE_WHITELIST', ' MGLS_LICENSE_FILE LM_LICENSE_FILE')
-
     # Remove already-added toolchain install paths from the PATH, as they can
-    # break the build (in particular, the ia32 toolchain, as it provdes
+    # break the build (in particular, the ia32 toolchain, as it provides
     # non-prefixed binaries).
     path = d.getVar('PATH', False).split(':')
     path = filter(lambda p: not p.endswith('/codebench/bin'), path)
     d.setVar('PATH', ':'.join(path))
 
-    l = d.createCopy()
-    l.finalize()
+    # Deal with CODEBENCH_PATH vs EXTERNAL_TOOLCHAIN
+    codebench_check(d)
 
-    # The external toolchain may not have been built with the yocto preferred
-    # gnu hash setting, so ensure that the corresponding sanity check is a
-    # warning, not an error.
-    error_qa = (l.getVar('ERROR_QA', True) or '').split()
-    if 'ldflags' in error_qa:
-        error_qa.remove('ldflags')
-        d.setVar('ERROR_QA', ' '.join(error_qa))
-        d.appendVar('WARN_QA', ' ldflags')
+    # Ensure that changes to toolchain licensing don't affect checksums
+    license_vars = ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']
+    d.appendVar('BB_HASHBASE_WHITELIST', ' ' + ' '.join(license_vars))
 
     # Determine if '-msgxx-glibc' is a valid toolchain option.
     # If so then we need to use it to ensure that the libraries included with
     # the toolchain are used rather than the build host native libraries.
     testenv = os.environ.copy()
-    for var in ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']:
+    for var in license_vars:
         if var in d:
            testenv[var] = d.getVar(var, True)
-
-    codebench_check(d)
 
     with tempfile.NamedTemporaryFile(suffix='.c') as f:
         try:
@@ -190,8 +131,8 @@ python toolchain_metadata_setup () {
         else:
             d.appendVar('TUNE_CCARGS', ' -msgxx-glibc')
 }
-toolchain_metadata_setup[eventmask] = "bb.event.ConfigParsed"
-addhandler toolchain_metadata_setup
+sourcery_metadata_setup[eventmask] = "bb.event.ConfigParsed"
+addhandler sourcery_metadata_setup
 
 def codebench_check(d):
     codebench_path = d.getVar('CODEBENCH_PATH', True)
@@ -259,37 +200,3 @@ def set_vars_from_toolchains(codebench_path, d):
     else:
         d.setVar('EXTERNAL_TARGET_SYS', triplets[0])
         d.setVar('EXTERNAL_TOOLCHAIN', os.path.join(toolchains_path, toolchain_subdir))
-
-GCCVERSION ?= "${@'.'.join('${GCC_VERSION}'.split('.')[:2])}%"
-GCC_VERSION = "${@external_run(d, 'gcc', '-dumpversion').rstrip()}"
-GCC_VERSION_allarch = ""
-GCC_VERSION[vardepvalue] = "${GCC_VERSION}"
-
-def sourcery_version(d):
-    version = oe.external.run(d, 'gcc', '-v').splitlines()[-1]
-    if version != 'UNKNOWN':
-        main_version = version.split()[-1].rstrip(')')
-        if main_version == 'Preview':
-            main_version = version.split()[-3]
-        return main_version
-    else:
-        return version
-
-SOURCERY_VERSION = "${@sourcery_version(d)}"
-SOURCERY_VERSION_allarch = ""
-SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
-
-# Add sourcery toolchain version to external recipe versions
-EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
-EXTERNAL_PV_SUFFIX_allarch = ""
-
-# Make it clear that this version is the toolchain, not the CodeBench IDE
-SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
-
-BUILDCFG_VARS += "EXTERNAL_TOOLCHAIN EXTERNAL_TARGET_SYS SOURCERY_TOOLCHAIN_VERSION GCC_VERSION"
-
-# Adjust tunings to ensure we're using Sourcery G++ multilibs
-require conf/distro/include/sourcery-tuning.inc
-
-# Use -Wl,--as-needed
-require conf/distro/include/as-needed.inc

@@ -5,6 +5,8 @@
 - [openembedded-core](https://github.com/openembedded/openembedded-core)
   layer, with a matching branch (i.e. master of oe-core and master of
   meta-sourcery).
+- [meta-external-toolchain](git://git.yoctoproject.org/meta-external-toolchain)
+  layer ([browse](https://github.com/MentorEmbedded/meta-mentor/pull/1029)), with a matching branch
 - [bitbake](https://github.com/openembedded/bitbake), with a matching branch.
 - An installed Sourcery G++ toolchain
 - An existing build directory configured for this bitbake and

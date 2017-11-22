@@ -14,4 +14,7 @@ inherit multilib_header
 
 do_install_extra () {
     oe_multilib_header bits/syscall.h
+    if [ -e "${D}${includedir}/bits/long-double.h" ]; then
+        oe_multilib_header bits/long-double.h
+    fi
 }
