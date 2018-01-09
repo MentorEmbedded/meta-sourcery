@@ -29,31 +29,34 @@ PROVIDES += "glibc \
 
 TOOLCHAIN_OPTIONS = ""
 
-SOURCERY_SRC_URI ?= ""
-SRC_URI = "${SOURCERY_SRC_URI} \
-           file://etc/ld.so.conf \
-           file://generate-supported.mk"
 
-S = "${WORKDIR}/glibc-${SRC_PV}"
-B = "${WORKDIR}/build-${TARGET_SYS}"
+SRCREV ?= "ea23815a795f72035262953dad5beb03e09c17dd"
 
-do_unpack[vardeps] += "unpack_libc"
-do_unpack[postfuncs] += "unpack_libc"
+SRCBRANCH ?= "release/${PV}/master"
 
-unpack_libc () {
-    rm -rf ${S}
-    tar jxf */glibc-*.tar.bz2
-    if tar jxf */glibc_ports-*.tar.bz2 2>/dev/null; then
-        mv glibc-ports-${SRC_PV}/ ${S}/ports
-    fi
+GLIBC_GIT_URI ?= "git://sourceware.org/git/glibc.git"
+UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>\d+\.\d+(\.\d+)*)"
 
-    # Ensure that we can build with make 4.0 even with older glibc
-    #sed -i -e '/critic_missing make/s/\(\[3\.79\*[^,]*\)\],/[\1 | 4\.0],/' ${S}/configure.in
-    if [ -e "${S}/configure" ]; then
-        sed -i -e 's/\(^ *3.79\*[^)]*\))/\1 | 4.0)/' ${S}/configure
-    fi
-}
-unpack_libc[dirs] = "${WORKDIR}"
+SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.24/master;name=glibc \
+          file://0001-Add-release-note-for-update-to-glibc-2.24.patch \
+          file://0002-Merge-VFP-ABI-dynamic-linker-compatibility-release-n.patch \
+          file://0003-Merge-AF_BUS-changes.patch \
+          file://0004-Fix-uninitialized-variable-in-dynamic-linker.patch \
+          file://0005-Install-extra-files-for-use-of-mklibs.patch \
+          file://0006-Add-release-note-for-increased-Linux-kernel-version-.patch \
+          file://0007-powerpc-fix-ifunc-sel.h-with-GCC-6.patch \
+          file://0008-powerpc-fix-ifunc-sel.h-fix-asm-constraints-and-clob.patch \
+          file://0009-Fix-sNaN-handling-in-nearbyint-on-32-bit-sparc.patch \
+          file://0010-sparc-remove-fdim-sparc-specific-implementations.patch \
+          file://0011-Do-not-override-objects-in-libc.a-in-other-static-li.patch \
+          file://0012-arm-mark-__startcontext-as-.cantunwind-bug-20435.patch \
+          file://0013-argp-Do-not-override-GCC-keywords-with-macros-BZ-169.patch \
+          file://0014-nptl-tst-once5-Reduce-time-to-expected-failure.patch \
+          file://0015-CVE-2017-1000366.patch \
+          file://0016-warning_variable_cancel_routine_might_be_clobbered.patch \
+          file://etc/ld.so.conf \
+          file://generate-supported.mk \
+          "
 
 TUNE_CCARGS_mips := "${@oe_filter_out('-march=mips32', '${TUNE_CCARGS}', d)}"
 CPPFLAGS[unexport] = "1"
@@ -96,22 +99,22 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
-
-    # Avoid bash dependency
-    sed -e '1s#bash#sh#; s#$"#"#g' -i "${D}${bindir}/ldd"
-    sed -e '1s#bash#sh#' -i "${D}${bindir}/tzselect"
 }
 
 require recipes-external/glibc/glibc-sysroot-setup.inc
 require recipes-external/glibc/glibc-package-adjusted.inc
 
+S = "${WORKDIR}/git"
+B = "${WORKDIR}/build-${TARGET_SYS}"
+
+RDEPENDS_tzcode += "bash"
+
 python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
-
-    if not d.getVar("SOURCERY_SRC_URI", True):
-        raise bb.parse.SkipPackage("glibc-sourcery requires that SOURCERY_SRC_URI point to the sourcery source tarball")
-
+    
+    #removing oe_multilib_header bits/syscall.h from do_install
     install = d.getVar('do_install', False)
     d.setVar('do_install', install.replace('oe_multilib_header bits/syscall.h bits/long-double.h', ''));
+
 }
