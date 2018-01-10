@@ -1,5 +1,5 @@
 PREFERRED_PROVIDER_linux-libc-headers = ""
-PREFERRED_PROVIDER_virtual/libc ?= ""
+PREFERRED_PROVIDER_virtual/libc ?= "newlib-external"
 PREFERRED_PROVIDER_virtual/libintl ?= ""
 PREFERRED_PROVIDER_virtual/libiconv ?= ""
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= ""
@@ -10,5 +10,6 @@ LIBC_DEPENDENCIES = ""
 EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-eabi"
 EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-none-elf"
 require conf/distro/include/tcmode-external-sourcery.inc
+PREFERRED_PROVIDER_newlib = "newlib-external"
 TCLIBC = "baremetal"
 BASELIB_aarch64 = "lib"
