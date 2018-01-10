@@ -10,3 +10,8 @@ inherit external-toolchain
 
 FILES_${PN}-dev += "${includedir}/sys/*.h ${includedir}/machine/*.h ${includedir}/*.h"
 FILES_${PN}-staticdev += "${libdir}/libc.a ${libdir}/libm.a ${libdir}/lib.a"
+
+ALLOW_EMPTY_${PN} = "1"
+RPROVIDES_${PN} += "newlib"
+RPROVIDES_${PN}-dev += "newlib-dev"
+RPROVIDES_${PN}-staticdev += "newlib-staticdev"
