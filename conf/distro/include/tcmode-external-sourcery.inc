@@ -40,6 +40,13 @@ PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}binutils ?= "binutils-external-cross-
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}compilerlibs ?= "gcc-runtime-external"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-for-gcc ?= "glibc-external"
 PREFERRED_PROVIDER_virtual/${TARGET_PREFIX}libc-initial ?= "glibc-external"
+PREFERRED_PROVIDER_gcc-cross-canadian-${TRANSLATED_TARGET_ARCH} ?= "gcc-external-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+
+PREFERRED_PROVIDER_binutils-cross-canadian-${TRANSLATED_TARGET_ARCH} ?= "binutils-external-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+PREFERRED_PROVIDER_gdb-cross-canadian-${TRANSLATED_TARGET_ARCH} ?= "gdb-external-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+BINUTILS_pn-packagegroup-cross-canadian-${MACHINE} = "binutils-external-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+GCC_pn-packagegroup-cross-canadian-${MACHINE} = "gcc-external-cross-canadian-${TRANSLATED_TARGET_ARCH}"
+GDB_pn-packagegroup-cross-canadian-${MACHINE} = "gdb-external-cross-canadian-${TRANSLATED_TARGET_ARCH}"
 PREFERRED_PROVIDER_gcc-sanitizers ?= "gcc-sanitizers-external"
 PREFERRED_PROVIDER_glibc ?= "glibc-external"
 PREFERRED_PROVIDER_virtual/libc ?= "glibc-external"
