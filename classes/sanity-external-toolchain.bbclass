@@ -80,7 +80,7 @@ def raise_exttc_sanity_error(msg, d, generate_events):
 def exttc_sanity_run(cmd, d, generate_events, cwd='/'):
     import subprocess
     try:
-        return subprocess.check_output(cmd, stderr=subprocess.STDOUT, cwd=cwd)
+        return subprocess.check_output(cmd, stderr=subprocess.STDOUT, cwd=cwd, env=dict(os.environ, MGLS_LICENSE_FILE=d.getVar('MGLS_LICENSE_FILE', True)))
     except subprocess.CalledProcessError as exc:
         if not isinstance(cmd, str):
             cmd = subprocess.list2cmdline(cmd)
