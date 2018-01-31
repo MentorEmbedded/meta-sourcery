@@ -57,7 +57,7 @@ SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.24/master;name=gl
           file://generate-supported.mk \
           "
 
-TUNE_CCARGS_mips := "${@oe_filter_out('-march=mips32', '${TUNE_CCARGS}', d)}"
+TUNE_CCARGS_mips := "${@oe.utils.str_filter_out('-march=mips32', '${TUNE_CCARGS}', d)}"
 CPPFLAGS[unexport] = "1"
 LDFLAGS[unexport] = "1"
 BUILD_CPPFLAGS = "-I${STAGING_INCDIR_NATIVE}"
