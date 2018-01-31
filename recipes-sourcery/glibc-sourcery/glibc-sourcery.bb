@@ -1,7 +1,6 @@
 require recipes-core/glibc/glibc.inc
 require recipes-external/glibc/glibc-external-version.inc
 
-
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@oe.external.run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
 
 LICENSE = "CLOSED"
@@ -99,6 +98,13 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
+}
+
+bberror_task-install () {
+    # Silence any errors from oe_multilib_header, as we don't care about
+    # missing multilib headers, as the oe-core glibc version isn't necessarily
+    # the same as our own.
+    :
 }
 
 require recipes-external/glibc/glibc-sysroot-setup.inc
