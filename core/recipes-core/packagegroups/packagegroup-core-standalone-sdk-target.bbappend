@@ -2,4 +2,4 @@
 # for aarch64 architecture
 UNSUPPORTED_AARCH64_LIBS = "libatomic libatomic-dev"
 
-RDEPENDS_packagegroup-core-standalone-sdk-target_remove_aarch64 = "${UNSUPPORTED_AARCH64_LIBS}"
+RDEPENDS_packagegroup-core-standalone-sdk-target_remove_aarch64_tcmode-external-sourcery = "${UNSUPPORTED_AARCH64_LIBS}"
