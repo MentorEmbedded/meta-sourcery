@@ -118,9 +118,4 @@ RDEPENDS_tzcode += "bash"
 python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
-    
-    #removing oe_multilib_header bits/syscall.h from do_install
-    install = d.getVar('do_install', False)
-    d.setVar('do_install', install.replace('oe_multilib_header bits/syscall.h bits/long-double.h', ''));
-
 }
