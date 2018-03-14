@@ -1,7 +1,7 @@
 require recipes-core/glibc/glibc.inc
 require recipes-external/glibc/glibc-external-version.inc
 
-EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@oe.external.run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
+EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
 
 LICENSE = "CLOSED"
 LIC_FILES_CHKSUM = ""
