@@ -5,6 +5,8 @@ TCMODEOVERRIDES .= ":tcmode-external-sourcery"
 # This is defined in default-providers.inc, which is parsed before the tcmode,
 # so we can't use ?=
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
+PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
+PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain"
 
 # If the user hasn't set EXTERNAL_TOOLCHAIN, but CODEBENCH_PATH is set, then
 # we automatically set both EXTERNAL_TOOLCHAIN and EXTERNAL_TARGET_SYS based
