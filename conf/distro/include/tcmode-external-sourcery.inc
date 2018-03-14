@@ -1,5 +1,7 @@
 require conf/distro/include/tcmode-external.inc
 
+TCMODEOVERRIDES .= ":tcmode-external-sourcery"
+
 # This is defined in default-providers.inc, which is parsed before the tcmode,
 # so we can't use ?=
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
