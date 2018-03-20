@@ -14,6 +14,9 @@ PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain
 CODEBENCH_PATH ?= ""
 CODEBENCH_TOOLCHAINS_PATH ?= "${CODEBENCH_PATH}/../toolchains"
 
+# Disable pseudo for these cross binaries
+EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
+
 # Determine the prefixes to check for based on the target architecture (before
 # any classes alter TARGET_ARCH)
 EXTERNAL_TARGET_SYSTEMS[powerpc] ?= "powerpc-linux-gnu"
