@@ -98,6 +98,7 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
+    rm -rf "${D}${libdir}/libnsl"* "${D}${includedir}/rpcsvc"
 }
 
 bberror_task-install () {
