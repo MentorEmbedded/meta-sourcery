@@ -29,7 +29,7 @@ PROVIDES += "glibc \
              virtual/libiconv"
 
 TOOLCHAIN_OPTIONS = ""
-
+HOST_CC_ARCH_remove = "--no-sysroot-suffix"
 
 SRCREV ?= "b4108a361f05ee87122b86aa7d799e4512013588"
 
