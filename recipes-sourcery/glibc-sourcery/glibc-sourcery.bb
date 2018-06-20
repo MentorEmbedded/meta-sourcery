@@ -1,6 +1,7 @@
 require recipes-core/glibc/glibc.inc
 require recipes-external/glibc/glibc-external-version.inc
 
+FILESPATH .= ":${COREBASE}/meta/recipes-core/glibc/glibc"
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
 
 LICENSE = "CLOSED"
@@ -90,6 +91,7 @@ SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.27/master;name=gl
           file://0050-libio-Avoid-_allocate_buffer-_free_buffer-function-p.patch \
           file://0051-posix-Fix-posix_spawnp-to-not-execute-invalid-binari.patch \
           file://0052-Mention-BZ-23264-in-NEWS.patch \
+          file://0010-eglibc-run-libm-err-tab.pl-with-specific-dirs-in-S.patch \
           file://etc/ld.so.conf \
           file://generate-supported.mk \
           "
