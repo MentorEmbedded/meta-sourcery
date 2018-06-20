@@ -17,6 +17,7 @@ INHIBIT_DEFAULT_DEPS = "1"
 DEPENDS = "\
     virtual/${TARGET_PREFIX}gcc \
     linux-libc-headers \
+    bison-native \
 "
 
 PROVIDES += "glibc \
