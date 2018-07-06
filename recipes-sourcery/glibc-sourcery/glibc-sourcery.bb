@@ -69,6 +69,7 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
                 --enable-clocale=gnu \
                 --enable-add-ons \
                 --enable-obsolete-rpc \
+                --enable-obsolete-nsl \
                 --with-headers=${STAGING_INCDIR} \
                 --without-selinux \
                 ${GLIBC_EXTRA_OECONF}"
