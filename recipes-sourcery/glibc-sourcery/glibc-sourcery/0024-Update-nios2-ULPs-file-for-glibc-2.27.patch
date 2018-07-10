@@ -1,0 +1,81 @@
+From 00c4310a2d9e32516c8bc8fad2871825b7064ee6 Mon Sep 17 00:00:00 2001
+From: Sandra Loosemore <sandra@codesourcery.com>
+Date: Sat, 17 Mar 2018 20:22:08 -0700
+Subject: [PATCH 24/52] Update nios2 ULPs file for glibc 2.27.
+
+2018-03-17  Chung-Lin Tang <cltang@codesourcery.com>
+	    Sandra Loosemore  <sandra@codesourcery.com>
+
+	Apply missing upstream patch.
+
+	* sysdeps/nios2/libm-test-ulps: Update for glibc 2.27.
+---
+ ChangeLog.csl                |  7 +++++++
+ sysdeps/nios2/libm-test-ulps | 16 ++++++++--------
+ 2 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/ChangeLog.csl b/ChangeLog.csl
+index 73cc64570f..b33e248ccb 100644
+--- a/ChangeLog.csl
++++ b/ChangeLog.csl
+@@ -1,3 +1,10 @@
++2018-03-17  Chung-Lin Tang <cltang@codesourcery.com>
++	    Sandra Loosemore  <sandra@codesourcery.com>
++
++	Apply missing upstream patch.
++
++	* sysdeps/nios2/libm-test-ulps: Update for glibc 2.27.
++
+ 2018-02-01  Joseph Myers  <joseph@codesourcery.com>
+ 
+ 	Merge from SCB glibc 2.26:
+diff --git a/sysdeps/nios2/libm-test-ulps b/sysdeps/nios2/libm-test-ulps
+index a9d2c23143..20881f7225 100644
+--- a/sysdeps/nios2/libm-test-ulps
++++ b/sysdeps/nios2/libm-test-ulps
+@@ -191,9 +191,9 @@ ifloat: 1
+ 
+ Function: Real part of "cpow":
+ double: 2
+-float: 4
++float: 5
+ idouble: 2
+-ifloat: 4
++ifloat: 5
+ 
+ Function: Imaginary part of "cpow":
+ float: 2
+@@ -235,15 +235,15 @@ ifloat: 1
+ 
+ Function: Imaginary part of "ctan":
+ double: 2
+-float: 1
++float: 2
+ idouble: 2
+-ifloat: 1
++ifloat: 2
+ 
+ Function: Real part of "ctanh":
+ double: 2
+-float: 1
++float: 2
+ idouble: 2
+-ifloat: 1
++ifloat: 2
+ 
+ Function: Imaginary part of "ctanh":
+ double: 2
+@@ -387,8 +387,8 @@ ifloat: 2
+ 
+ Function: "yn":
+ double: 3
+-float: 2
++float: 3
+ idouble: 3
+-ifloat: 2
++ifloat: 3
+ 
+ # end of automatic generation
+-- 
+2.11.1
+
