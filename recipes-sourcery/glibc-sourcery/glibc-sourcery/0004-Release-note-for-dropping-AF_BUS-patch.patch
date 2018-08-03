@@ -1,0 +1,64 @@
+From 1aa43bfdd3b91a370fc16281f900e5a9115de68a Mon Sep 17 00:00:00 2001
+From: Sandra Loosemore <sandra@codesourcery.com>
+Date: Wed, 15 Mar 2017 14:49:45 -0700
+Subject: [PATCH 04/52] Release note for dropping AF_BUS patch.
+
+	Merge from SCB glibc 2.26:
+
+	2017-03-15  Sandra Loosemore  <sandra@codesourcery.com>
+
+	CB-3023
+	* release-notes-csl.xml (AF_BUS support removed): New note.
+---
+ ChangeLog.csl         |  7 +++++++
+ release-notes-csl.xml | 16 ++++++++++++++++
+ 2 files changed, 23 insertions(+)
+
+diff --git a/ChangeLog.csl b/ChangeLog.csl
+index 30eac2e70f..59bfe17779 100644
+--- a/ChangeLog.csl
++++ b/ChangeLog.csl
+@@ -2,6 +2,13 @@
+ 
+ 	Merge from SCB glibc 2.26:
+ 
++	2017-03-15  Sandra Loosemore  <sandra@codesourcery.com>
++
++	CB-3023
++	* release-notes-csl.xml (AF_BUS support removed): New note.
++
++	Merge from SCB glibc 2.26:
++
+ 	2015-02-11  James Lemke  <jwlemke@codesourcery.com>
+ 
+         * Makefiles ($(addprefix
+diff --git a/release-notes-csl.xml b/release-notes-csl.xml
+index 9cb1f0cf47..7c8c08d538 100644
+--- a/release-notes-csl.xml
++++ b/release-notes-csl.xml
+@@ -5,6 +5,22 @@
+      relevant; it may be removed if it is relevant to all targets.
+  -->
+ 
++      <!-- UUID: 9ec854c5-c6c1-4e55-b5b1-bdfe02bdf399 -->
++      <!-- TARGET: * -->
++      <!-- FEATURES: -->
++      <!-- COMPONENTS: glibc -->
++      <!-- SORT: glibc -->
++      <!-- ISSUE: CB-3023 -->
++      <formalpara>
++        <title><code>AF_BUS</code> support removed</title>
++        <para>
++          Support for the <code>AF_BUS</code> address family has been
++	  removed from the GNU C Library in this version of &csl_prod;.
++	  This extension was formerly provided for compliance with old
++	  versions of the GENIVI specification that are now obsolete.
++        </para>
++      </formalpara>
++
+       <!-- UUID: 9c8b059e-a81f-4b31-934c-1d0b24ff1271 -->
+       <!-- TARGET: * -->
+       <!-- FEATURES: -->
+-- 
+2.11.1
+
