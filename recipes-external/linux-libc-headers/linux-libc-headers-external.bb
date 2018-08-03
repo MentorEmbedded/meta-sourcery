@@ -18,3 +18,10 @@ do_install_extra () {
         oe_multilib_header bits/long-double.h
     fi
 }
+
+bberror_task-install () {
+    # Silence any errors from oe_multilib_header, as we don't care about
+    # missing multilib headers, as the oe-core glibc version isn't necessarily
+    # the same as our own.
+    :
+}
