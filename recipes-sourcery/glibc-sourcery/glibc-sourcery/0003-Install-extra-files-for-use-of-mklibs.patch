@@ -1,12 +1,12 @@
-From f5239d0e5b532d253b30a9b3955774867ee4785f Mon Sep 17 00:00:00 2001
+From 15bdf432bc28520cfd7cf2d635c41b7fed303035 Mon Sep 17 00:00:00 2001
 From: Joseph Myers <joseph@codesourcery.com>
 Date: Tue, 9 Aug 2016 14:33:07 -0700
-Subject: [PATCH 05/16] Install extra files for use of mklibs.
+Subject: [PATCH 03/52] Install extra files for use of mklibs.
 
 EGLIBC patch: <http://www.eglibc.org/archives/patches/msg00431.html>.
 Not considered appropriate for upstream glibc.
 
-	Merge from SCB glibc 2.23:
+	Merge from SCB glibc 2.26:
 
         2015-02-11  James Lemke  <jwlemke@codesourcery.com>
 
@@ -27,19 +27,19 @@ Not considered appropriate for upstream glibc.
         (install-no-libc.a-nosubdir): Depend on install-map-nosubdir and
         install-extras-nosubdir.
 ---
- ChangeLog.csl | 23 +++++++++++++++++++++++
+ ChangeLog.csl | 21 +++++++++++++++++++++
  Makerules     | 42 ++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 63 insertions(+), 2 deletions(-)
+ 2 files changed, 61 insertions(+), 2 deletions(-)
 
 diff --git a/ChangeLog.csl b/ChangeLog.csl
-index 7378e77..9997a70 100644
+index a53eef31cc..30eac2e70f 100644
 --- a/ChangeLog.csl
 +++ b/ChangeLog.csl
-@@ -2,6 +2,29 @@
+@@ -2,6 +2,27 @@
  
- 	Merge from SCB glibc 2.23:
+ 	Merge from SCB glibc 2.26:
  
-+        2015-02-11  James Lemke  <jwlemke@codesourcery.com>
++	2015-02-11  James Lemke  <jwlemke@codesourcery.com>
 +
 +        * Makefiles ($(addprefix
 +        $(inst_libdir)/libc_pic/,$(install-extras))): Use $(elf-objpfx)
@@ -58,18 +58,16 @@ index 7378e77..9997a70 100644
 +        (install-no-libc.a-nosubdir): Depend on install-map-nosubdir and
 +        install-extras-nosubdir.
 +
-+2016-08-09  Joseph Myers  <joseph@codesourcery.com>
++	Merge from SCB glibc 2.26:
 +
-+	Merge from SCB glibc 2.23:
-+
-         2015-03-23  Sandra Loosemore  <sandra@codesourcery.com>
+ 	2015-03-23  Sandra Loosemore  <sandra@codesourcery.com>
  
          * elf/rtld.c (_dl_start): Zero-initialize the entire bootstrap_map
 diff --git a/Makerules b/Makerules
-index 7e4077e..2a87602 100644
+index ef6abeac6d..a8ccbf81fe 100644
 --- a/Makerules
 +++ b/Makerules
-@@ -721,6 +721,9 @@ ifeq ($(build-shared),yes)
+@@ -778,6 +778,9 @@ ifeq ($(build-shared),yes)
  $(common-objpfx)libc.so: $(common-objpfx)libc.map
  endif
  common-generated += libc.so libc_pic.os
@@ -79,7 +77,7 @@ index 7e4077e..2a87602 100644
  ifdef libc.so-version
  $(common-objpfx)libc.so$(libc.so-version): $(common-objpfx)libc.so
  	$(make-link)
-@@ -943,6 +946,7 @@ endef
+@@ -1009,6 +1012,7 @@ endef
  installed-libcs := $(foreach o,$(filter-out .os,$(object-suffixes-for-libc)),\
  			     $(inst_libdir)/$(patsubst %,$(libtype$o),\
  						     $(libprefix)$(libc-name)))
@@ -87,7 +85,7 @@ index 7e4077e..2a87602 100644
  
  .PHONY: check-install-supported
  check-install-supported:
-@@ -991,6 +995,22 @@ versioned := $(strip $(foreach so,$(install-lib.so),\
+@@ -1057,6 +1061,22 @@ versioned := $(strip $(foreach so,$(install-lib.so),\
  install-lib.so-versioned := $(filter $(versioned), $(install-lib.so))
  install-lib.so-unversioned := $(filter-out $(versioned), $(install-lib.so))
  
@@ -110,7 +108,7 @@ index 7e4077e..2a87602 100644
  # For versioned libraries, we install three files:
  #	$(inst_libdir)/libfoo.so	-- for linking, symlink or ld script
  #	$(inst_slibdir)/libfoo.so.NN	-- for loading by SONAME, symlink
-@@ -1233,9 +1253,22 @@ $(addprefix $(inst_includedir)/,$(headers-nonh)): $(inst_includedir)/%: \
+@@ -1311,9 +1331,22 @@ $(addprefix $(inst_includedir)/,$(headers-nonh)): $(inst_includedir)/%: \
  endif	# headers-nonh
  endif	# headers
  
@@ -134,7 +132,7 @@ index 7e4077e..2a87602 100644
  install-bin-nosubdir: $(addprefix $(inst_bindir)/,$(install-bin))
  install-bin-script-nosubdir: $(addprefix $(inst_bindir)/,$(install-bin-script))
  install-rootsbin-nosubdir: \
-@@ -1248,6 +1281,10 @@ install-data-nosubdir: $(addprefix $(inst_datadir)/,$(install-data))
+@@ -1326,6 +1359,10 @@ install-data-nosubdir: $(addprefix $(inst_datadir)/,$(install-data))
  install-headers-nosubdir: $(addprefix $(inst_includedir)/,$(headers))
  install-others-nosubdir: $(install-others)
  install-others-programs-nosubdir: $(install-others-programs)
@@ -145,7 +143,7 @@ index 7e4077e..2a87602 100644
  
  # We need all the `-nosubdir' targets so that `install' in the parent
  # doesn't depend on several things which each iterate over the subdirs.
-@@ -1257,7 +1294,8 @@ install-%:: install-%-nosubdir ;
+@@ -1335,7 +1372,8 @@ install-%:: install-%-nosubdir ;
  
  .PHONY: install install-no-libc.a-nosubdir
  install-no-libc.a-nosubdir: install-headers-nosubdir install-data-nosubdir \
@@ -156,5 +154,5 @@ index 7e4077e..2a87602 100644
  install-no-libc.a-nosubdir: install-bin-nosubdir install-bin-script-nosubdir \
  			    install-rootsbin-nosubdir install-sbin-nosubdir \
 -- 
-2.8.1
+2.11.1
 

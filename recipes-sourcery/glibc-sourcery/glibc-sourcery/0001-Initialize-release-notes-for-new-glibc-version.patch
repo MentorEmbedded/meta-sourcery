@@ -1,32 +1,31 @@
-From 742366010b6e573eecb8683ec8ed4fac9e2ff5b6 Mon Sep 17 00:00:00 2001
+From 5d9887f2804391de132ac62d9dedb16f7977a5fe Mon Sep 17 00:00:00 2001
 From: Joseph Myers <joseph@codesourcery.com>
-Date: Tue, 9 Aug 2016 14:15:24 -0700
-Subject: [PATCH 01/16] Add release note for update to glibc 2.24.
+Date: Mon, 13 Mar 2017 12:55:13 -0700
+Subject: [PATCH 01/52] Initialize release notes for new glibc version.
 
+	* release-notes-csl.xml (GNU C Library version 2.27): New note.
 ---
- ChangeLog.csl         |  5 +++++
- release-notes-csl.xml | 22 ++++++++++++++++++++++
- 2 files changed, 27 insertions(+)
+ ChangeLog.csl         |  3 +++
+ release-notes-csl.xml | 25 +++++++++++++++++++++++++
+ 2 files changed, 28 insertions(+)
  create mode 100644 ChangeLog.csl
  create mode 100644 release-notes-csl.xml
 
 diff --git a/ChangeLog.csl b/ChangeLog.csl
 new file mode 100644
-index 0000000..440335a
+index 0000000000..6a3729552c
 --- /dev/null
 +++ b/ChangeLog.csl
-@@ -0,0 +1,5 @@
-+2016-08-09  Joseph Myers  <joseph@codesourcery.com>
+@@ -0,0 +1,3 @@
++2018-02-01  Joseph Myers  <joseph@codesourcery.com>
 +
-+	* release-notes-csl.xml (GNU C Library version 2.24): New release
-+	note.
-+
++	* release-notes-csl.xml (GNU C Library version 2.27): New note.
 diff --git a/release-notes-csl.xml b/release-notes-csl.xml
 new file mode 100644
-index 0000000..66077bd
+index 0000000000..9cb1f0cf47
 --- /dev/null
 +++ b/release-notes-csl.xml
-@@ -0,0 +1,22 @@
+@@ -0,0 +1,25 @@
 +<!-- This file contains a series of release note fragments processed
 +     by gnu-notes.  To add a note to it, use "gnu-notes -a
 +     $release_config glibc".  The TARGET line should contain a
@@ -34,15 +33,18 @@ index 0000000..66077bd
 +     relevant; it may be removed if it is relevant to all targets.
 + -->
 +
-+      <!-- UUID: 0941c3aa-342a-4884-b463-c34005850845 -->
++      <!-- UUID: 9c8b059e-a81f-4b31-934c-1d0b24ff1271 -->
 +      <!-- TARGET: * -->
++      <!-- FEATURES: -->
++      <!-- COMPONENTS: glibc -->
 +      <!-- SORT: glibc -->
 +      <!-- ISSUE: -->
 +      <formalpara>
-+        <title>GNU C Library version 2.24</title>
++        <title>GNU C Library version 2.27</title>
 +        <para>
 +	  &csl_prod; for &csl_target_name; now includes the GNU C
-+	  Library version 2.24.
++	  Library version 2.27, git revision
++	  23158b08a0908f381459f273a984c6fd328363cb.
 +	  For more information about changes, see
 +	  <uri>https://www.gnu.org/software/libc/</uri>.
 +        </para>
@@ -50,5 +52,5 @@ index 0000000..66077bd
 +
 +<!-- Release notes end here.  -->
 -- 
-2.8.1
+2.11.1
 
