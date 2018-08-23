@@ -153,6 +153,12 @@ def codebench_check(d):
             codebench_path = d.getVar('CODEBENCH_PATH', True)
 
     if codebench_path:
+        if not os.path.exists(codebench_path):
+            bb.fatal('CODEBENCH_PATH `%s` does not exist' % codebench_path)
+        else:
+            # Resolve CODEBENCH_PATH to deal with it potentially being a symlink
+            codebench_path = os.path.realpath(codebench_path)
+            d.setVar('CODEBENCH_PATH', codebench_path)
         set_vars_from_toolchains(codebench_path, d)
 
 def auto_codebench_path_fixup(exttc, d):
