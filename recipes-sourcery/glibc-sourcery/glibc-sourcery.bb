@@ -4,9 +4,6 @@ require recipes-external/glibc/glibc-external-version.inc
 FILESPATH .= ":${COREBASE}/meta/recipes-core/glibc/glibc"
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
 
-LICENSE = "CLOSED"
-LIC_FILES_CHKSUM = ""
-
 EXTERNAL_PV_PREFIX ?= ""
 EXTERNAL_PV_SUFFIX ?= ""
 PV_prepend = "${@'${EXTERNAL_PV_PREFIX}' if '${EXTERNAL_PV_PREFIX}' else ''}"
