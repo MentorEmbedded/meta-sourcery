@@ -11,6 +11,11 @@ PV_append = "${@'${EXTERNAL_PV_SUFFIX}' if '${EXTERNAL_PV_SUFFIX}' else ''}"
 
 SRC_PV = "${@'-'.join('${PV}'.split('-')[:-1])}"
 
+LIC_FILES_CHKSUM = "file://LICENSES;md5=e9a558e243b36d3209f380deb394b213 \
+                    file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+                    file://posix/rxspencer/COPYRIGHT;md5=dc5485bb394a13b2332ec1c785f5d83a \
+                    file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
+
 INHIBIT_DEFAULT_DEPS = "1"
 DEPENDS = "\
     virtual/${TARGET_PREFIX}gcc \
