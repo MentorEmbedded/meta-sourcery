@@ -134,16 +134,6 @@ do_configure () {
     CPPFLAGS="" oe_runconf
 }
 
-require recipes-external/glibc/glibc-sysroot-setup.inc
-require recipes-external/glibc/glibc-package-adjusted.inc
-
-bberror_task-install () {
-    # Silence any errors from oe_multilib_header, as we don't care about
-    # missing multilib headers, as the oe-core glibc version isn't necessarily
-    # the same as our own.
-    :
-}
-
 linux_include_subdirs = "asm asm-generic bits drm linux mtd rdma sound sys video"
 
 do_install_append () {
@@ -152,11 +142,15 @@ do_install_append () {
     done
 }
 
-cleanup_libdir () {
-    rmdir "${PKGDEST}${prefix}/lib" || :
-    rmdir "${PKGDEST}${libdir}" || :
+bberror_task-install () {
+    # Silence any errors from oe_multilib_header, as we don't care about
+    # missing multilib headers, as the oe-core glibc version isn't necessarily
+    # the same as our own.
+    :
 }
-PACKAGEFUNCS .= "cleanup_libdir;"
+
+require recipes-external/glibc/glibc-sysroot-setup.inc
+require recipes-external/glibc/glibc-package-adjusted.inc
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
