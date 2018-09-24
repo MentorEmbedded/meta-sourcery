@@ -150,8 +150,14 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
+}
+
+# This should be dropped once it starts failing
+# a patch has been submitted upstream already to
+# the master branch for coping up with this.
+do_poststash_install_cleanup_append () {
     if [ "${baselib}" != "lib" ]; then
-        rmdir --ignore-fail-on-non-empty "${D}${prefix}/lib/locale" "${D}${prefix}/lib"
+        rmdir --ignore-fail-on-non-empty "${D}${prefix}/lib"
     fi
 }
 
