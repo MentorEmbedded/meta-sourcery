@@ -164,8 +164,6 @@ do_poststash_install_cleanup_append () {
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
 
-RDEPENDS_tzcode += "bash"
-
 python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
