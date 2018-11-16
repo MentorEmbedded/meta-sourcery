@@ -92,7 +92,7 @@ SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.27/master;name=gl
           file://0050-libio-Avoid-_allocate_buffer-_free_buffer-function-p.patch \
           file://0051-posix-Fix-posix_spawnp-to-not-execute-invalid-binari.patch \
           file://0052-Mention-BZ-23264-in-NEWS.patch \
-          file://0010-eglibc-run-libm-err-tab.pl-with-specific-dirs-in-S.patch \
+          file://0011-eglibc-run-libm-err-tab.pl-with-specific-dirs-in-S.patch \
           file://etc/ld.so.conf \
           file://generate-supported.mk \
           file://makedbs.sh \
