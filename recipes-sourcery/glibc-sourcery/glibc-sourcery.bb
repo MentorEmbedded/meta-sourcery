@@ -22,8 +22,6 @@ DEPENDS = "\
 "
 
 PROVIDES += "glibc \
-             virtual/${TARGET_PREFIX}libc-for-gcc \
-             virtual/${TARGET_PREFIX}libc-initial \
              virtual/libc \
              virtual/libintl \
              virtual/libiconv \
