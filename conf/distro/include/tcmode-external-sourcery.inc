@@ -153,7 +153,25 @@ def codebench_check(d):
             codebench_path = d.getVar('CODEBENCH_PATH', True)
 
     if codebench_path:
-        set_vars_from_toolchains(codebench_path, d)
+        if not os.path.exists(codebench_path):
+            bb.fatal('CODEBENCH_PATH `%s` does not exist' % codebench_path)
+        else:
+            # Resolve CODEBENCH_PATH to deal with it potentially being a symlink
+            codebench_path = os.path.realpath(codebench_path)
+            d.setVar('CODEBENCH_PATH', codebench_path)
+        tcvars = get_vars_from_toolchains(codebench_path, d)
+        d.update(tcvars)
+
+        localdata = bb.data.createCopy(d)
+        overrides = d.getVar('OVERRIDES')
+        variants = d.getVar('MULTILIB_VARIANTS') or ''
+        for item in variants.split():
+            override = 'virtclass-multilib-' + item
+            localdata.setVar('OVERRIDES', overrides + ':' + override)
+            localdata.setVar('MLPREFIX', item + '-')
+            tcvars = get_vars_from_toolchains(codebench_path, localdata)
+            for k, v in tcvars.items():
+                d.setVar(k + '_' + override, v)
 
 def auto_codebench_path_fixup(exttc, d):
     """Fixups for common issues with EXTERNAL_TOOLCHAIN with CodeBench."""
@@ -171,7 +189,7 @@ def auto_codebench_path_fixup(exttc, d):
         d.setVar('CODEBENCH_PATH', exttc)
         d.setVar('EXTERNAL_TOOLCHAIN', '')
 
-def set_vars_from_toolchains(codebench_path, d):
+def get_vars_from_toolchains(codebench_path, d):
     toolchains_path = d.getVar('CODEBENCH_TOOLCHAINS_PATH', True)
     if not os.path.exists(toolchains_path):
         if len(os.listdir(os.path.join(codebench_path, 'bin'))) > 1:
@@ -205,5 +223,8 @@ def set_vars_from_toolchains(codebench_path, d):
     elif not triplets:
         bb.fatal('Unable to locate appropriate toolchain in `{}`, please set EXTERNAL_TOOLCHAIN to the correct toolchain path, or install the required CodeBench version'.format(toolchains_path))
     else:
-        d.setVar('EXTERNAL_TARGET_SYS', triplets[0])
-        d.setVar('EXTERNAL_TOOLCHAIN', os.path.join(toolchains_path, toolchain_subdir))
+        vars = {
+            'EXTERNAL_TARGET_SYS': triplets[0],
+            'EXTERNAL_TOOLCHAIN': os.path.join(toolchains_path, toolchain_subdir),
+        }
+        return vars

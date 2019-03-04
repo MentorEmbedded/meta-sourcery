@@ -4,15 +4,17 @@ require recipes-external/glibc/glibc-external-version.inc
 FILESPATH .= ":${COREBASE}/meta/recipes-core/glibc/glibc"
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
 
-LICENSE = "CLOSED"
-LIC_FILES_CHKSUM = ""
-
 EXTERNAL_PV_PREFIX ?= ""
 EXTERNAL_PV_SUFFIX ?= ""
 PV_prepend = "${@'${EXTERNAL_PV_PREFIX}' if '${EXTERNAL_PV_PREFIX}' else ''}"
 PV_append = "${@'${EXTERNAL_PV_SUFFIX}' if '${EXTERNAL_PV_SUFFIX}' else ''}"
 
 SRC_PV = "${@'-'.join('${PV}'.split('-')[:-1])}"
+
+LIC_FILES_CHKSUM = "file://LICENSES;md5=e9a558e243b36d3209f380deb394b213 \
+                    file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263 \
+                    file://posix/rxspencer/COPYRIGHT;md5=dc5485bb394a13b2332ec1c785f5d83a \
+                    file://COPYING.LIB;md5=4fbd65380cdd255951079008b364516c"
 
 INHIBIT_DEFAULT_DEPS = "1"
 DEPENDS = "\
@@ -132,6 +134,16 @@ do_configure () {
     CPPFLAGS="" oe_runconf
 }
 
+require recipes-external/glibc/glibc-sysroot-setup.inc
+require recipes-external/glibc/glibc-package-adjusted.inc
+
+bberror_task-install () {
+    # Silence any errors from oe_multilib_header, as we don't care about
+    # missing multilib headers, as the oe-core glibc version isn't necessarily
+    # the same as our own.
+    :
+}
+
 linux_include_subdirs = "asm asm-generic bits drm linux mtd rdma sound sys video"
 
 do_install_append () {
@@ -141,24 +153,24 @@ do_install_append () {
     rm -rf "${D}${libdir}/libnsl"* "${D}${includedir}/rpcsvc"
 }
 
-bberror_task-install () {
-    # Silence any errors from oe_multilib_header, as we don't care about
-    # missing multilib headers, as the oe-core glibc version isn't necessarily
-    # the same as our own.
-    :
+# This should be dropped once it starts failing
+# a patch has been submitted upstream already to
+# the master branch for coping up with this.
+do_poststash_install_cleanup_append () {
+    if [ "${baselib}" != "lib" ]; then
+        rmdir --ignore-fail-on-non-empty "${D}${prefix}/lib"
+    fi
 }
-
-require recipes-external/glibc/glibc-sysroot-setup.inc
-require recipes-external/glibc/glibc-package-adjusted.inc
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
 
 libc_baselibs += "${base_libdir}/libcrypt*.so.* ${base_libdir}/libcrypt-*.so"
 
-RDEPENDS_tzcode += "bash"
-
 python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
 }
+
+# glibc may need libssp for -fstack-protector builds
+do_packagedata[depends] += "gcc-runtime:do_packagedata"
