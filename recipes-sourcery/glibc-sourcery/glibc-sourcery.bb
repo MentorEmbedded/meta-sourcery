@@ -153,15 +153,6 @@ do_install_append () {
     rm -rf "${D}${libdir}/libnsl"* "${D}${includedir}/rpcsvc"
 }
 
-# This should be dropped once it starts failing
-# a patch has been submitted upstream already to
-# the master branch for coping up with this.
-do_poststash_install_cleanup_append () {
-    if [ "${baselib}" != "lib" ]; then
-        rmdir --ignore-fail-on-non-empty "${D}${prefix}/lib"
-    fi
-}
-
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
 
