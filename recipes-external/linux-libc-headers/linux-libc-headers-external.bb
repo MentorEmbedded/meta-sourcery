@@ -1,6 +1,8 @@
 require recipes-kernel/linux-libc-headers/linux-libc-headers.inc
 inherit external-toolchain
 
+# Restore, overwritten by external-toolchain.bbclass
+LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "${COMMON_LIC_CHKSUM}"
 DEPENDS = ""
 SRC_URI = ""
