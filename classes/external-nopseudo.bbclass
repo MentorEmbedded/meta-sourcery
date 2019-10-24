@@ -5,7 +5,7 @@ do_install_tcmode-external-sourcery () {
     # support EXTERNAL_CROSS_NOPSEUDO
     install -d ${D}${bindir}
     for bin in ${EXTERNAL_CROSS_BINARIES}; do
-        if [ ! -e "${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-$bin" ]; then
+        if [ ! -e "${EXTERNAL_TOOLCHAIN_BIN}/${EXTERNAL_TARGET_SYS}-$bin" ]; then
             continue
         fi
 

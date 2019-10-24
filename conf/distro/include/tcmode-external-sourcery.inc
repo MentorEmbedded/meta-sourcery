@@ -132,7 +132,7 @@ python sourcery_metadata_setup () {
 
     with tempfile.NamedTemporaryFile(suffix='.c') as f:
         try:
-            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN}/bin/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
+            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN_BIN}/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
         except (OSError, subprocess.CalledProcessError):
             pass
         else:
