@@ -150,7 +150,7 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
-    rm -rf "${D}${libdir}/libnsl"* "${D}${includedir}/rpcsvc"
+    rm -rf "${D}${base_libdir}/libnsl"* "${D}${libdir}/libnsl"* "${D}${includedir}/rpcsvc"
 }
 
 S = "${WORKDIR}/git"
