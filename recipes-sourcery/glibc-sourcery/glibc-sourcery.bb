@@ -26,8 +26,7 @@ DEPENDS = "\
 PROVIDES += "glibc \
              virtual/libc \
              virtual/libintl \
-             virtual/libiconv \
-             virtual/crypt"
+             virtual/libiconv"
 
 TOOLCHAIN_OPTIONS = ""
 HOST_CC_ARCH_remove = "--no-sysroot-suffix"
@@ -109,8 +108,6 @@ EXTRA_OECONF = "--enable-kernel=${OLDEST_KERNEL} \
                 --without-cvs --disable-profile --disable-debug --without-gd \
                 --enable-clocale=gnu \
                 --enable-add-ons \
-                --enable-obsolete-rpc \
-                --disable-obsolete-nsl \
                 --with-headers=${STAGING_INCDIR} \
                 --without-selinux \
                 ${GLIBC_EXTRA_OECONF}"
@@ -150,13 +147,10 @@ do_install_append () {
     for dir in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$dir"
     done
-    rm -rf "${D}${base_libdir}/libnsl"* "${D}${libdir}/libnsl"* "${D}${includedir}/rpcsvc"
 }
 
 S = "${WORKDIR}/git"
 B = "${WORKDIR}/build-${TARGET_SYS}"
-
-libc_baselibs += "${base_libdir}/libcrypt*.so.* ${base_libdir}/libcrypt-*.so"
 
 python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
