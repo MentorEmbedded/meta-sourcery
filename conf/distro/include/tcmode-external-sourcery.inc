@@ -112,27 +112,29 @@ export MGLS_LICENSE_FILE
 export LM_LICENSE_FILE
 
 def sourcery_version(d):
-    version = oe.external.run(d, 'gcc', '-v').splitlines()[-1]
+    version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
+    version = version_output.splitlines()[-1]
     if version != 'UNKNOWN':
         main_version = version.split()[-1].rstrip(')')
         if main_version == 'Preview':
             main_version = version.split()[-3]
-        return main_version
-    else:
-        return version
+        elif main_version != '(GCC':
+            return main_version
+    return 'UNKNOWN'
 
 SOURCERY_VERSION = "${@sourcery_version(d)}"
 SOURCERY_VERSION_allarch = ""
 SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
 
 # Add sourcery toolchain version to external recipe versions
-EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
+EXTERNAL_PV_SUFFIX ?= "${@'-${SOURCERY_VERSION}' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
+EXTERNAL_PV_SUFFIX[vardepvalue] = "${EXTERNAL_PV_SUFFIX}"
 EXTERNAL_PV_SUFFIX_allarch = ""
 
 # Make it clear that this version is the toolchain, not the CodeBench IDE
 SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
 
-BUILDCFG_VARS += "SOURCERY_TOOLCHAIN_VERSION"
+BUILDCFG_VERS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
 
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
