@@ -1,4 +1,4 @@
-require conf/distro/include/tcmode-external.inc
+require conf/distro/include/tcmode-external-oe-sdk.inc
 
 TCMODEOVERRIDES .= ":tcmode-external-sourcery"
 
@@ -8,223 +8,138 @@ PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
 PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
 PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain"
 
-# If the user hasn't set EXTERNAL_TOOLCHAIN, but CODEBENCH_PATH is set, then
-# we automatically set both EXTERNAL_TOOLCHAIN and EXTERNAL_TARGET_SYS based
-# on the installed toolchains in CODEBENCH_PATH/../toolchains.
-CODEBENCH_PATH ?= ""
-CODEBENCH_TOOLCHAINS_PATH ?= "${CODEBENCH_PATH}/../toolchains"
-
 # Disable pseudo for these cross binaries
 EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
 
-# Determine the prefixes to check for based on the target architecture (before
-# any classes alter TARGET_ARCH)
-EXTERNAL_TARGET_SYSTEMS[powerpc] ?= "powerpc-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[powerpc64] ?= "powerpc-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[arm] ?= "arm-none-linux-gnueabi"
-EXTERNAL_TARGET_SYSTEMS[aarch64] ?= "aarch64-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[mips] ?= "mips-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[mipsel] ?= "mips-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[mips64] ?= "mips64-nlm-linux-gnu mips-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[x86_64] ?= "x86_64-linux-gnu x86_64-amd-linux-gnu i686-pc-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[i686] ?= "i686-pc-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS[i586] ?= "i686-pc-linux-gnu"
-EXTERNAL_TARGET_SYSTEMS = "${@d.getVarFlag('EXTERNAL_TARGET_SYSTEMS', '${TARGET_ARCH}', True) or '${TARGET_SYS}'}"
+# Use tuning-defined baselib to align with multilib and external toolchain
+baselib = "${@d.getVar('BASE_LIB_tune-' + (d.getVar('DEFAULTTUNE') or 'INVALID')) or d.getVar('BASELIB')}"
 
-def external_target_sys(d):
-    toolchain_path = d.getVar('EXTERNAL_TOOLCHAIN', True)
+# This overrides the function from external-oe-sdk to handle multiple scripts
+python extract_env_setup_metadata() {
+    import pathlib
 
-    systems = d.getVar('EXTERNAL_TARGET_SYSTEMS', True).split()
-    target = d.getVar('TARGET_SYS', True)
-    if target not in systems:
-        systems.append(target)
+    external_toolchain = pathlib.Path(d.getVar('EXTERNAL_TOOLCHAIN'))
+    if external_toolchain.is_absolute() and external_toolchain.is_dir():
+        setup = d.getVar('EXTERNAL_TOOLCHAIN_SETUP_SCRIPT')
+        if setup:
+            setup = pathlib.Path(setup)
+            env = parse_setup_script(setups[0])
+        else:
+            candidates = select_appropriate_setup_script(d, external_toolchain)
+            if not candidates:
+                setup = None
+            elif len(candidates) > 1:
+                bb.fatal("tcmode-external-sourcery: multiple candidate setup scripts found, please specify with EXTERNAL_TOOLCHAIN_SETUP_SCRIPT: {}".format(" ".join(candidates)))
+            else:
+                setup, env = candidates[0]
+                bb.debug(1, "tcmode-external-sourcery: selected setup script {}".format(setup))
 
-    for triplet in systems:
-        gcc = os.path.join(toolchain_path, 'bin', triplet + '-gcc')
-        if os.path.exists(gcc):
-            return triplet
+        if not setup:
+            bb.fatal('tcmode-external-sourcery: failed to determine setup script path for sdk at {}, please set EXTERNAL_TOOLCHAIN_SETUP_SCRIPT to the full path to the environment setup script.'.format(external_toolchain))
 
-    return 'UNKNOWN'
+        target_sys = env.get('TARGET_PREFIX')[:-1]
+        native_sysroot = pathlib.Path(env.get('OECORE_NATIVE_SYSROOT'))
 
-# All we care about for the signatures is the result, not how we got there, so
-# we don't want EXTERNAL_TARGET_SYSTEMS included.
-EXTERNAL_TARGET_SYS ??= "${@external_target_sys(d)}"
-EXTERNAL_TARGET_SYS[vardepvalue] = "${EXTERNAL_TARGET_SYS}"
-EXTERNAL_TARGET_SYS[vardepsexclude] += "EXTERNAL_TARGET_SYSTEMS EXTERNAL_TOOLCHAIN"
+        d.setVar('EXTERNAL_TARGET_SYS', str(target_sys))
+        d.setVar('EXTERNAL_TOOLCHAIN_BIN', str(native_sysroot / 'usr' / 'bin' / target_sys))
+        d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', env.get('SDKTARGETSYSROOT'))
+}
 
-# When using a 32-bit external toolchain, we need 32 bit pseudo
-HAS_64BIT_TOOLCHAIN = "${@'1' if '${BUILD_ARCH}' == 'x86_64' and os.path.exists('${EXTERNAL_TOOLCHAIN}/${BUILD_SYS}-gnu') else '0'}"
-NO32LIBS ?= "${HAS_64BIT_TOOLCHAIN}"
+# These are treated as prefixes to items in PACKAGE_ARCHS at this time.
+#
+# An armv7-a sysroot will run fine with armv7ve machines, as the latter just
+# have virtualization extensions. We need to handle this sort of thing
+# directly in this case, as for some reason the armv7-a tunes aren't listed in
+# the armv7ve PACKAGE_ARCHS.
+EXTERNAL_TOOLCHAIN_ARCH_COMPAT[armv7ve] += "armv7a"
 
-# Align paths with the external toolchain
-BASELIB_aarch64 = "lib64"
-BASELIB_x86-64 = "lib64"
-BASELIB_x86-64_linux-gnux32 = "libx32"
+def select_appropriate_setup_script(d, external_toolchain):
+    candidates = []
 
-localedir = "${exec_prefix}/lib/locale"
+    tune_pkgarch = d.getVar('TUNE_PKGARCH')
+    arch_setups = list(external_toolchain.glob('environment-setup-' + tune_pkgarch + '-*'))
+    if arch_setups:
+        # Exact match
+        for setup in arch_setups:
+            setup_env = parse_setup_script(setup)
+            candidates.append((setup, setup_env))
+        return candidates
 
-# Adjust tunings to ensure we're using Sourcery G++ multilibs
-require conf/distro/include/sourcery-tuning.inc
+    target_arch = d.getVar('TARGET_ARCH')
+    target_os = d.getVar('TARGET_OS')
+    baselib = d.getVar('baselib')
+    #tune_ccargs = d.getVar('TUNE_CCARGS')
+    package_archs = d.getVar('PACKAGE_ARCHS').split()
 
-# Ensure that we only attempt to package up locales which are available in the
-# external toolchain. In the future, we should examine the external toolchain
-# sysroot and determine this accurately.
-GLIBC_GENERATE_LOCALES_remove_pn-glibc-locale = "en_US.UTF-8"
+    arch_compat = d.getVarFlags('EXTERNAL_TOOLCHAIN_ARCH_COMPAT')
+    setups = external_toolchain.glob('environment-setup-*')
+    for setup in setups:
+        setup_env = parse_setup_script(setup)
+        if target_arch != setup_get(setup_env, 'OECORE_TARGET_ARCH'):
+            bb.debug(1, "tcmode-external-sourcery: TARGET_ARCH `{}` doesn't match `{}` in `{}`".format(target_arch, setup_get(setup_env, 'OECORE_TARGET_ARCH'), setup))
+            continue
+        if target_os != setup_get(setup_env, 'OECORE_TARGET_OS'):
+            bb.debug(1, "tcmode-external-sourcery: TARGET_OS `{}` doesn't match `{}` in `{}`".format(target_os, setup_get(setup_env, 'OECORE_TARGET_OS'), setup))
+            continue
+        if baselib != setup_get(setup_env, 'OECORE_BASELIB'):
+            bb.debug(1, "tcmode-external-sourcery: BASELIB `{}` doesn't match `{}` in `{}`".format(baselib, setup_get(setup_env, 'OECORE_BASELIB'), setup))
+            continue
 
-# No need to re-compile the locale files
-GLIBC_INTERNAL_USE_BINARY_LOCALE ?= "precompiled"
-ENABLE_BINARY_LOCALE_GENERATION = ""
+        setup_tune_pkgarch = setup_env.get('TUNE_PKGARCH')
+        if setup_tune_pkgarch:
+            if setup_tune_pkgarch not in package_archs:
+                compatible = False
+                for from_arch, compat_archs in arch_compat.items():
+                    for compat_arch in compat_archs.split():
+                        adjusted_archs = [a.replace(from_arch, compat_arch) for a in package_archs]
+                        if setup_tune_pkgarch in adjusted_archs:
+                            compatible = True
 
-CSL_IS_PRO = "${@'1' if os.path.exists('${EXTERNAL_TOOLCHAIN}/license') else '0'}"
+                if not compatible:
+                    bb.debug(1, "tcmode-external-sourcery: skipping incompatible {}: TUNE_PKGARCH `{}` not found in PACKAGE_ARCHS `{}`".format(setup, setup_tune_pkgarch, package_archs))
+                    continue
+        candidates.append((setup, setup_env))
+
+    return candidates
+
+def setup_get(setup, field):
+    if not field in setup:
+        bb.fatal("tcmode-external-sourcery: no variable `{}` found in `{}`".format(field, setup))
+    return setup[field]
 
 # Ensure that the licensing variables are available to the toolchain.
 export MGLS_LICENSE_FILE
 export LM_LICENSE_FILE
 
 def sourcery_version(d):
-    version = oe.external.run(d, 'gcc', '-v').splitlines()[-1]
+    version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
+    version = version_output.splitlines()[-1]
     if version != 'UNKNOWN':
         main_version = version.split()[-1].rstrip(')')
         if main_version == 'Preview':
             main_version = version.split()[-3]
-        return main_version
-    else:
-        return version
+        elif main_version != '(GCC':
+            return main_version
+    return 'UNKNOWN'
 
 SOURCERY_VERSION = "${@sourcery_version(d)}"
 SOURCERY_VERSION_allarch = ""
 SOURCERY_VERSION[vardepvalue] = "${SOURCERY_VERSION}"
 
 # Add sourcery toolchain version to external recipe versions
-EXTERNAL_PV_SUFFIX ?= "-${SOURCERY_VERSION}"
+EXTERNAL_PV_SUFFIX ?= "${@'-${SOURCERY_VERSION}' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
+EXTERNAL_PV_SUFFIX[vardepvalue] = "${EXTERNAL_PV_SUFFIX}"
 EXTERNAL_PV_SUFFIX_allarch = ""
 
 # Make it clear that this version is the toolchain, not the CodeBench IDE
 SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
 
-BUILDCFG_VARS += "SOURCERY_TOOLCHAIN_VERSION"
+BUILDCFG_VERS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
 
 python sourcery_metadata_setup () {
-    import subprocess
-    import tempfile
-
-    # Remove already-added toolchain install paths from the PATH, as they can
-    # break the build (in particular, the ia32 toolchain, as it provides
-    # non-prefixed binaries).
-    path = d.getVar('PATH', False).split(':')
-    path = filter(lambda p: not p.endswith('/codebench/bin'), path)
-    d.setVar('PATH', ':'.join(path))
-
-    # Deal with CODEBENCH_PATH vs EXTERNAL_TOOLCHAIN
-    codebench_check(d)
-
     # Ensure that changes to toolchain licensing don't affect checksums
     license_vars = ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']
     d.appendVar('BB_HASHBASE_WHITELIST', ' ' + ' '.join(license_vars))
-
-    # Determine if '-msgxx-glibc' is a valid toolchain option.
-    # If so then we need to use it to ensure that the libraries included with
-    # the toolchain are used rather than the build host native libraries.
-    testenv = os.environ.copy()
-    for var in license_vars:
-        if var in d:
-           testenv[var] = d.getVar(var, True)
-
-    with tempfile.NamedTemporaryFile(suffix='.c') as f:
-        try:
-            subprocess.check_output([d.expand('${EXTERNAL_TOOLCHAIN_BIN}/${EXTERNAL_TARGET_SYS}-gcc'), '-msgxx-glibc', '-E', f.name], stderr=subprocess.STDOUT, env=testenv, cwd=d.getVar('TOPDIR', True))
-        except (OSError, subprocess.CalledProcessError):
-            pass
-        else:
-            d.appendVar('TUNE_CCARGS', ' -msgxx-glibc')
 }
 sourcery_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler sourcery_metadata_setup
-
-def codebench_check(d):
-    codebench_path = d.getVar('CODEBENCH_PATH', True)
-    exttc = d.getVar('EXTERNAL_TOOLCHAIN', True)
-    if exttc and exttc != 'UNDEFINED':
-        if codebench_path:
-            bb.warn('Both EXTERNAL_TOOLCHAIN and CODEBENCH_PATH are set. Ignoring CODEBENCH_PATH in preference to EXTERNAL_TOOLCHAIN')
-            return
-        else:
-            auto_codebench_path_fixup(exttc, d)
-            codebench_path = d.getVar('CODEBENCH_PATH', True)
-
-    if codebench_path:
-        if not os.path.exists(codebench_path):
-            bb.fatal('CODEBENCH_PATH `%s` does not exist' % codebench_path)
-        else:
-            # Resolve CODEBENCH_PATH to deal with it potentially being a symlink
-            codebench_path = os.path.realpath(codebench_path)
-            d.setVar('CODEBENCH_PATH', codebench_path)
-        tcvars = get_vars_from_toolchains(codebench_path, d)
-        d.update(tcvars)
-
-        localdata = bb.data.createCopy(d)
-        overrides = d.getVar('OVERRIDES')
-        variants = d.getVar('MULTILIB_VARIANTS') or ''
-        for item in variants.split():
-            override = 'virtclass-multilib-' + item
-            localdata.setVar('OVERRIDES', overrides + ':' + override)
-            localdata.setVar('MLPREFIX', item + '-')
-            tcvars = get_vars_from_toolchains(codebench_path, localdata)
-            for k, v in tcvars.items():
-                d.setVar(k + '_' + override, v)
-
-def auto_codebench_path_fixup(exttc, d):
-    """Fixups for common issues with EXTERNAL_TOOLCHAIN with CodeBench."""
-    if os.path.exists(os.path.join(exttc, 'codebench')):
-        newtc = os.path.join(exttc, 'codebench')
-        if not os.path.exists(os.path.join(newtc, '..', 'toolchains')):
-            bb.warn('EXTERNAL_TOOLCHAIN was set to the root of a codebench install, not the toolchain path')
-            bb.warn('Adjusted EXTERNAL_TOOLCHAIN from `{}` to `{}`'.format(exttc, newtc))
-        exttc = newtc
-        d.setVar('EXTERNAL_TOOLCHAIN', exttc)
-
-    if os.path.exists(os.path.join(exttc, '..', 'toolchains')):
-        bb.warn('Detected CodeBench installation, but CODEBENCH_PATH is not set')
-        bb.warn('Adjusted CODEBENCH_PATH to `{}` and removed EXTERNAL_TOOLCHAIN'.format(exttc))
-        d.setVar('CODEBENCH_PATH', exttc)
-        d.setVar('EXTERNAL_TOOLCHAIN', '')
-
-def get_vars_from_toolchains(codebench_path, d):
-    toolchains_path = d.getVar('CODEBENCH_TOOLCHAINS_PATH', True)
-    if not os.path.exists(toolchains_path):
-        if len(os.listdir(os.path.join(codebench_path, 'bin'))) > 1:
-            bb.warn('CODEBENCH_PATH is set, but the expected toolchains path ({}) does not exist. Defaulting EXTERNAL_TOOLCHAIN to CODEBENCH_PATH, assuming an old codebench version.'.format(toolchains_path))
-        else:
-            bb.fatal('Expected toolchains path `{}` does not exist, please ensure that CODEBENCH_PATH is set to a valid CodeBench installation'.format(toolchains_path))
-
-    required_version = d.getVar('SOURCERY_VERSION_REQUIRED', True)
-    if required_version:
-        required_version = required_version.split('-', 1)[0]
-
-    subdirs = os.listdir(toolchains_path)
-    triplets, toolchain_subdir = [], None
-    for triplet in d.getVar('EXTERNAL_TARGET_SYSTEMS', True).split():
-        if required_version:
-            expected_subdir = triplet + '.' + required_version
-            if expected_subdir in subdirs:
-                triplets.append(triplet)
-                toolchain_subdir = expected_subdir
-        else:
-            for subdir in subdirs:
-                if subdir.startswith(triplet + '.'):
-                    triplets.append(triplet)
-                    toolchain_subdir = subdir
-
-        if triplets:
-            break
-
-    if len(triplets) > 1:
-        bb.fatal('Error: unable to determine which toolchain to use, as multiple are available ({}). Please set EXTERNAL_TOOLCHAIN manually to the appropriate path in `{}`'.format(', '.join(triplets), toolchains_path))
-    elif not triplets:
-        bb.fatal('Unable to locate appropriate toolchain in `{}`, please set EXTERNAL_TOOLCHAIN to the correct toolchain path, or install the required CodeBench version'.format(toolchains_path))
-    else:
-        vars = {
-            'EXTERNAL_TARGET_SYS': triplets[0],
-            'EXTERNAL_TOOLCHAIN': os.path.join(toolchains_path, toolchain_subdir),
-        }
-        return vars
