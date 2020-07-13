@@ -23,7 +23,7 @@ python extract_env_setup_metadata() {
         setup = d.getVar('EXTERNAL_TOOLCHAIN_SETUP_SCRIPT')
         if setup:
             setup = pathlib.Path(setup)
-            env = parse_setup_script(setups[0])
+            env = parse_setup_script(setup)
         else:
             candidates = select_appropriate_setup_script(d, external_toolchain)
             if not candidates:
