@@ -39,10 +39,15 @@ python extract_env_setup_metadata() {
 
         target_sys = env.get('TARGET_PREFIX')[:-1]
         native_sysroot = pathlib.Path(env.get('OECORE_NATIVE_SYSROOT'))
+        if str(native_sysroot).startswith('$scriptdir/'):
+            native_sysroot = setup.parent / native_sysroot.relative_to('$scriptdir')
+        target_sysroot = pathlib.Path(env.get('SDKTARGETSYSROOT'))
+        if str(target_sysroot).startswith('$scriptdir/'):
+            target_sysroot = setup.parent / target_sysroot.relative_to('$scriptdir')
 
         d.setVar('EXTERNAL_TARGET_SYS', str(target_sys))
         d.setVar('EXTERNAL_TOOLCHAIN_BIN', str(native_sysroot / 'usr' / 'bin' / target_sys))
-        d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', env.get('SDKTARGETSYSROOT'))
+        d.setVar('EXTERNAL_TOOLCHAIN_SYSROOT', str(target_sysroot))
 }
 
 # These are treated as prefixes to items in PACKAGE_ARCHS at this time.
