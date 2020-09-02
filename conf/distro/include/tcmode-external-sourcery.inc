@@ -41,7 +41,7 @@ EXTERNAL_PV_SUFFIX_allarch = ""
 # Make it clear that this version is the toolchain, not the CodeBench IDE
 SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
 
-BUILDCFG_VERS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
+BUILDCFG_VARS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
 
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
