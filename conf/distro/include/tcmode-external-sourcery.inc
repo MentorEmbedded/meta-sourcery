@@ -60,7 +60,7 @@ python extract_env_setup_metadata_prepend() {
             codebench_path = d.getVar('CODEBENCH_PATH')
             if not codebench_path:
                 bb.fatal('EXTERNAL_TOOLCHAIN, EXTERNAL_TOOLCHAINS, or CODEBENCH_PATH must be set')
-            external_toolchains = ' '.join(str(p) for p in Path(codebench_path).parent.glob('toolchains/*'))
+            external_toolchains = ' '.join(str(p) for p in Path(codebench_path).resolve().parent.glob('toolchains/*'))
             if not external_toolchains:
                 bb.fatal('{}/../toolchains does not exist or is empty'.format(codebench_path))
             d.setVar('EXTERNAL_TOOLCHAINS', external_toolchains)
