@@ -7,7 +7,7 @@ sourceryver="${SOURCERY_VERSION}"
 sys="${EXTERNAL_TARGET_SYS}"
 sysroot="${SDK_ARCH}-oesdk-${SDK_OS}"
 toolchainsdir="${SDKPATH}/../../../toolchains"
-bindir="\$toolchainsdir/\$sys.\${sourceryver%-*}/sysroots/\$sysroot/usr/bin/\$sys"
+bindir="\$toolchainsdir/\$sys.\${sourceryver%.*}/sysroots/\$sysroot/usr/bin/\$sys"
 if [ -e "\$bindir" ]; then
     PATH="\$PATH:\$bindir"
 else
