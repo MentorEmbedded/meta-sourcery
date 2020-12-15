@@ -4,7 +4,7 @@ do_install_append_tcmode-external-sourcery () {
     install -d "${D}/environment-setup.d"
     cat >"${D}/environment-setup.d/external-codebench-toolchains.sh" <<END
 sourceryver="${SOURCERY_VERSION}"
-dirsuffix="$(echo "$sourceryver" | cut -d. -f1-2)"
+dirsuffix="\$(echo "\$sourceryver" | cut -d. -f1-2)"
 sys="${EXTERNAL_TARGET_SYS}"
 sysroot="${SDK_ARCH}-oesdk-${SDK_OS}"
 toolchainsdir="${SDKPATH}/../../../toolchains"
