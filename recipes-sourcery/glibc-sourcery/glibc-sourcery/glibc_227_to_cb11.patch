@@ -1,0 +1,272 @@
+diff -raupN c/elf/rtld.c a/elf/rtld.c
+--- c/elf/rtld.c	2021-01-18 06:36:15.753305485 -0800
++++ a/elf/rtld.c	2021-01-18 06:25:48.450038962 -0800
+@@ -465,7 +465,7 @@ _dl_start (void *arg)
+     HP_TIMING_NOW (info.start_time);
+ #endif
+ 
+-  /* Partly clean the `bootstrap_map' structure up.  Don't use
++  /* Zero-initialize the `bootstrap_map' structure.  Don't use
+      `memset' since it might not be built in or inlined and we cannot
+      make function calls at this point.  Use '__builtin_memset' if we
+      know it is available.  We do not have to clear the memory if we
+@@ -473,12 +473,14 @@ _dl_start (void *arg)
+      are initialized to zero by default.  */
+ #ifndef DONT_USE_BOOTSTRAP_MAP
+ # ifdef HAVE_BUILTIN_MEMSET
+-  __builtin_memset (bootstrap_map.l_info, '\0', sizeof (bootstrap_map.l_info));
++  __builtin_memset (&bootstrap_map, '\0', sizeof (struct link_map));
+ # else
+-  for (size_t cnt = 0;
+-       cnt < sizeof (bootstrap_map.l_info) / sizeof (bootstrap_map.l_info[0]);
+-       ++cnt)
+-    bootstrap_map.l_info[cnt] = 0;
++  {
++    char *p = (char *) &bootstrap_map;
++    char *pend = p + sizeof (struct link_map);
++    while (p < pend)
++      *(p++) = '\0';
++  }
+ # endif
+ #endif
+ 
+diff -raupN c/Makerules a/Makerules
+--- c/Makerules	2021-01-18 06:36:15.489305786 -0800
++++ a/Makerules	2021-01-18 06:25:47.726040157 -0800
+@@ -778,6 +778,9 @@ ifeq ($(build-shared),yes)
+ $(common-objpfx)libc.so: $(common-objpfx)libc.map
+ endif
+ common-generated += libc.so libc_pic.os
++ifndef subdir
++install-extras := soinit.o sofini.o
++endif
+ ifdef libc.so-version
+ $(common-objpfx)libc.so$(libc.so-version): $(common-objpfx)libc.so
+ 	$(make-link)
+@@ -1009,6 +1012,7 @@ endef
+ installed-libcs := $(foreach o,$(filter-out .os,$(object-suffixes-for-libc)),\
+ 			     $(inst_libdir)/$(patsubst %,$(libtype$o),\
+ 						     $(libprefix)$(libc-name)))
++installed-libcs := $(installed-libcs) $(inst_libdir)/libc_pic.a
+ 
+ .PHONY: check-install-supported
+ check-install-supported:
+@@ -1057,6 +1061,22 @@ versioned := $(strip $(foreach so,$(inst
+ install-lib.so-versioned := $(filter $(versioned), $(install-lib.so))
+ install-lib.so-unversioned := $(filter-out $(versioned), $(install-lib.so))
+ 
++# Install the _pic.a files for versioned libraries, and corresponding
++# .map files.
++# libpthread_pic.a breaks mklibs, so don't install it and its map.
++install-lib := $(install-lib) $(install-lib.so-versioned:%.so=%_pic.a)
++install-lib := $(filter-out libpthread_pic.a,$(install-lib))
++# Despite having a soname libhurduser and libmachuser do not use symbol
++# versioning, so don't install the corresponding .map files.
++ifeq ($(build-shared),yes)
++install-map := $(patsubst %.so,%.map,\
++			$(foreach L,$(install-lib.so-versioned),$(notdir $L)))
++install-map := $(filter-out libhurduser.map libmachuser.map libpthread.map,$(install-map))
++ifndef subdir
++install-map := $(install-map) libc.map
++endif
++endif
++
+ # For versioned libraries, we install three files:
+ #	$(inst_libdir)/libfoo.so	-- for linking, symlink or ld script
+ #	$(inst_slibdir)/libfoo.so.NN	-- for loading by SONAME, symlink
+@@ -1311,9 +1331,22 @@ $(addprefix $(inst_includedir)/,$(header
+ endif	# headers-nonh
+ endif	# headers
+ 
++ifdef install-map
++$(addprefix $(inst_libdir)/,$(patsubst lib%.map,lib%_pic.map,$(install-map))): \
++  $(inst_libdir)/lib%_pic.map: $(common-objpfx)lib%.map $(+force)
++	$(do-install)
++endif
++
++ifdef install-extras
++$(addprefix $(inst_libdir)/libc_pic/,$(install-extras)): \
++  $(inst_libdir)/libc_pic/%.o: $(elf-objpfx)%.os $(+force)
++	$(do-install)
++endif
++
+ .PHONY: install-bin-nosubdir install-bin-script-nosubdir \
+ 	install-rootsbin-nosubdir install-sbin-nosubdir install-lib-nosubdir \
+-	install-data-nosubdir install-headers-nosubdir
++	install-data-nosubdir install-headers-nosubdir install-map-nosubdir \
++	install-extras-nosubdir
+ install-bin-nosubdir: $(addprefix $(inst_bindir)/,$(install-bin))
+ install-bin-script-nosubdir: $(addprefix $(inst_bindir)/,$(install-bin-script))
+ install-rootsbin-nosubdir: \
+@@ -1326,6 +1359,10 @@ install-data-nosubdir: $(addprefix $(ins
+ install-headers-nosubdir: $(addprefix $(inst_includedir)/,$(headers))
+ install-others-nosubdir: $(install-others)
+ install-others-programs-nosubdir: $(install-others-programs)
++install-map-nosubdir: $(addprefix $(inst_libdir)/,\
++		       $(patsubst lib%.map,lib%_pic.map,$(install-map)))
++install-extras-nosubdir: $(addprefix $(inst_libdir)/libc_pic/,\
++		       $(install-extras))
+ 
+ # We need all the `-nosubdir' targets so that `install' in the parent
+ # doesn't depend on several things which each iterate over the subdirs.
+@@ -1335,7 +1372,8 @@ install-%:: install-%-nosubdir ;
+ 
+ .PHONY: install install-no-libc.a-nosubdir
+ install-no-libc.a-nosubdir: install-headers-nosubdir install-data-nosubdir \
+-			    install-lib-nosubdir install-others-nosubdir
++			    install-lib-nosubdir install-others-nosubdir \
++			    install-map-nosubdir install-extras-nosubdir
+ ifeq ($(build-programs),yes)
+ install-no-libc.a-nosubdir: install-bin-nosubdir install-bin-script-nosubdir \
+ 			    install-rootsbin-nosubdir install-sbin-nosubdir \
+diff -raupN c/nptl/Makefile a/nptl/Makefile
+--- c/nptl/Makefile	2021-01-18 06:36:15.921305293 -0800
++++ a/nptl/Makefile	2021-01-18 06:25:48.194039384 -0800
+@@ -309,7 +309,7 @@ tests = tst-attr1 tst-attr2 tst-attr3 ts
+ 	tst-thread_local1 tst-mutex-errorcheck tst-robust10 \
+ 	tst-robust-fork tst-create-detached tst-memstream \
+ 	tst-thread-exit-clobber tst-minstack-cancel tst-minstack-exit \
+-	tst-minstack-throw
++	tst-minstack-throw tst-clobbered
+ 
+ tests-internal := tst-rwlock19 tst-rwlock20 \
+ 		  tst-sem11 tst-sem12 tst-sem13 \
+diff -raupN c/nptl/tst-clobbered.c a/nptl/tst-clobbered.c
+--- c/nptl/tst-clobbered.c	1969-12-31 16:00:00.000000000 -0800
++++ a/nptl/tst-clobbered.c	2021-01-18 06:25:48.182039404 -0800
+@@ -0,0 +1,39 @@
++#include <pthread.h>
++#pragma GCC diagnostic error "-Wclobbered"
++
++#include <stdlib.h>
++
++void cleanup_fn(void *mutex)
++{
++}
++
++typedef struct {
++  size_t progress;
++  size_t total;
++  pthread_mutex_t mutex;
++  pthread_cond_t cond;
++  double min_wait;
++} dmnsn_future;
++
++void
++dmnsn_future_wait(dmnsn_future *future, double progress)
++{
++  pthread_mutex_lock(&future->mutex);
++  while ((double)future->progress/future->total < progress) {
++    /* Warning goes away without this block */
++    if (progress < future->min_wait) {
++      future->min_wait = progress;
++    }
++
++    pthread_cleanup_push(cleanup_fn, &future->mutex);
++    pthread_cond_wait(&future->cond, &future->mutex);
++    pthread_cleanup_pop(0);
++  }
++  pthread_mutex_unlock(&future->mutex);
++}
++
++int
++main(int argc, char *argv[])
++{
++	exit(0);
++}
+diff -raupN c/sysdeps/nios2/libm-test-ulps a/sysdeps/nios2/libm-test-ulps
+--- c/sysdeps/nios2/libm-test-ulps	2021-01-18 06:36:16.045305151 -0800
++++ a/sysdeps/nios2/libm-test-ulps	2021-01-18 06:25:46.366042401 -0800
+@@ -191,9 +191,9 @@ ifloat: 1
+ 
+ Function: Real part of "cpow":
+ double: 2
+-float: 4
++float: 5
+ idouble: 2
+-ifloat: 4
++ifloat: 5
+ 
+ Function: Imaginary part of "cpow":
+ float: 2
+@@ -235,15 +235,15 @@ ifloat: 1
+ 
+ Function: Imaginary part of "ctan":
+ double: 2
+-float: 1
++float: 2
+ idouble: 2
+-ifloat: 1
++ifloat: 2
+ 
+ Function: Real part of "ctanh":
+ double: 2
+-float: 1
++float: 2
+ idouble: 2
+-ifloat: 1
++ifloat: 2
+ 
+ Function: Imaginary part of "ctanh":
+ double: 2
+@@ -387,8 +387,8 @@ ifloat: 2
+ 
+ Function: "yn":
+ double: 3
+-float: 2
++float: 3
+ idouble: 3
+-ifloat: 2
++ifloat: 3
+ 
+ # end of automatic generation
+diff -raupN c/sysdeps/nptl/pthread.h a/sysdeps/nptl/pthread.h
+--- c/sysdeps/nptl/pthread.h	2021-01-18 06:36:16.045305151 -0800
++++ a/sysdeps/nptl/pthread.h	2021-01-18 06:25:46.082042870 -0800
+@@ -665,8 +665,8 @@ __pthread_cleanup_routine (struct __pthr
+ # define pthread_cleanup_push(routine, arg) \
+   do {									      \
+     __pthread_unwind_buf_t __cancel_buf;				      \
+-    void (*__cancel_routine) (void *) = (routine);			      \
+-    void *__cancel_arg = (arg);						      \
++    void (* volatile __cancel_routine) (void *) = (routine);		      \
++    void * volatile __cancel_arg = (arg);				      \
+     int __not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)     \
+ 					__cancel_buf.__cancel_jmp_buf, 0);    \
+     if (__glibc_unlikely (__not_first_call))				      \
+@@ -700,8 +700,8 @@ extern void __pthread_unregister_cancel
+ #  define pthread_cleanup_push_defer_np(routine, arg) \
+   do {									      \
+     __pthread_unwind_buf_t __cancel_buf;				      \
+-    void (*__cancel_routine) (void *) = (routine);			      \
+-    void *__cancel_arg = (arg);						      \
++    void (* volatile __cancel_routine) (void *) = (routine);		      \
++    void * volatile __cancel_arg = (arg);				      \
+     int __not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)     \
+ 					__cancel_buf.__cancel_jmp_buf, 0);    \
+     if (__glibc_unlikely (__not_first_call))				      \
+diff -raupN c/sysdeps/unix/sysv/linux/hppa/pthread.h a/sysdeps/unix/sysv/linux/hppa/pthread.h
+--- c/sysdeps/unix/sysv/linux/hppa/pthread.h	2021-01-18 06:36:16.109305079 -0800
++++ a/sysdeps/unix/sysv/linux/hppa/pthread.h	2021-01-18 06:25:46.582042045 -0800
+@@ -641,8 +641,8 @@ __pthread_cleanup_routine (struct __pthr
+ # define pthread_cleanup_push(routine, arg) \
+   do {									      \
+     __pthread_unwind_buf_t __cancel_buf;				      \
+-    void (*__cancel_routine) (void *) = (routine);			      \
+-    void *__cancel_arg = (arg);						      \
++    void (* volatile __cancel_routine) (void *) = (routine);		      \
++    void * volatile __cancel_arg = (arg);				      \
+     int __not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)     \
+ 					__cancel_buf.__cancel_jmp_buf, 0);    \
+     if (__glibc_unlikely (__not_first_call))				      \
+@@ -676,8 +676,8 @@ extern void __pthread_unregister_cancel
+ #  define pthread_cleanup_push_defer_np(routine, arg) \
+   do {									      \
+     __pthread_unwind_buf_t __cancel_buf;				      \
+-    void (*__cancel_routine) (void *) = (routine);			      \
+-    void *__cancel_arg = (arg);						      \
++    void (* volatile __cancel_routine) (void *) = (routine);		      \
++    void * volatile __cancel_arg = (arg);				      \
+     int __not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)     \
+ 					__cancel_buf.__cancel_jmp_buf, 0);    \
+     if (__glibc_unlikely (__not_first_call))				      \
