@@ -1,0 +1,36 @@
+From ba44f4a57302c17f7187e6c71411f60e711ba8eb Mon Sep 17 00:00:00 2001
+From: Joseph Myers <joseph@codesourcery.com>
+Date: Tue, 3 Mar 2020 17:39:37 -0800
+Subject: [PATCH] Do not subtract thread pointer in AArch64
+ _dl_tlsdesc_undefweak.
+
+This is a workaround for issues with prelinking for TLS descriptors on
+AArch64.  The need for such a hack was described in the original
+Samsung AArch64 prelink changes, and supporting prelinking for TLS
+descriptors without such a hack seems hard.
+
+	* sysdeps/aarch64/dl-tlsdesc.S (_dl_tlsdesc_undefweak): Do not
+	subtract thread pointer from return value.
+---
+ sysdeps/aarch64/dl-tlsdesc.S | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/sysdeps/aarch64/dl-tlsdesc.S b/sysdeps/aarch64/dl-tlsdesc.S
+index 194a8531da..97c32489cd 100644
+--- a/sysdeps/aarch64/dl-tlsdesc.S
++++ b/sysdeps/aarch64/dl-tlsdesc.S
+@@ -97,14 +97,8 @@ _dl_tlsdesc_return:
+ 	cfi_startproc
+ 	.align  2
+ _dl_tlsdesc_undefweak:
+-	str	x1, [sp, #-16]!
+-	cfi_adjust_cfa_offset (16)
+ 	DELOUSE (0)
+ 	ldr	PTR_REG (0), [x0, #PTR_SIZE]
+-	mrs	x1, tpidr_el0
+-	sub	PTR_REG (0), PTR_REG (0), PTR_REG (1)
+-	ldr	x1, [sp], #16
+-	cfi_adjust_cfa_offset (-16)
+ 	RET
+ 	cfi_endproc
+ 	.size	_dl_tlsdesc_undefweak, .-_dl_tlsdesc_undefweak
