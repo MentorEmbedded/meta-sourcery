@@ -25,5 +25,5 @@ def get_pkgversion(d):
 SOURCERY_NAME ?= "Sourcery CodeBench"
 PKGVERSION = "${@get_pkgversion(d) or '${SOURCERY_NAME} ${SOURCERY_VERSION}'}"
 
-EXTRA_OECONF_append = " --with-pkgversion="${PKGVERSION}""
-EXTRA_OECONF_append = " --with-bugurl=${BUG_REPORT_URL}"
+EXTRA_OECONF_append_tcmode-external-sourcery = " --with-pkgversion="${PKGVERSION}""
+EXTRA_OECONF_append_tcmode-external-sourcery = " --with-bugurl=${BUG_REPORT_URL}"
