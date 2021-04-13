@@ -15,14 +15,14 @@ descriptors without such a hack seems hard.
  sysdeps/aarch64/dl-tlsdesc.S | 6 ------
  1 file changed, 6 deletions(-)
 
-diff --git a/sysdeps/aarch64/dl-tlsdesc.S b/sysdeps/aarch64/dl-tlsdesc.S
-index 194a8531da..97c32489cd 100644
---- a/sysdeps/aarch64/dl-tlsdesc.S
-+++ b/sysdeps/aarch64/dl-tlsdesc.S
-@@ -97,14 +97,8 @@ _dl_tlsdesc_return:
- 	cfi_startproc
+Index: git/sysdeps/aarch64/dl-tlsdesc.S
+===================================================================
+--- git.orig/sysdeps/aarch64/dl-tlsdesc.S
++++ git/sysdeps/aarch64/dl-tlsdesc.S
+@@ -99,14 +99,8 @@ _dl_tlsdesc_return:
  	.align  2
  _dl_tlsdesc_undefweak:
+ 	BTI_C
 -	str	x1, [sp, #-16]!
 -	cfi_adjust_cfa_offset (16)
  	DELOUSE (0)
