@@ -43,6 +43,15 @@ UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>\d+\.\d+(\.\d+)*)"
 SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.27/master;name=glibc \
           file://glibc_227_to_cb11.patch \
           file://0010-eglibc-run-libm-err-tab.pl-with-specific-dirs-in-S.patch \
+          \
+          file://Sync-gnulib-regex-implementation.patch \
+          file://CVE-2016-10739.patch \
+          file://CVE-2018-19591.patch \
+          file://CVE-2019-9169.patch \
+          file://CVE-2020-1752.patch \
+          file://CVE-2020-6096.patch \
+          file://CVE-2020-10029.patch \
+          \
           file://etc/ld.so.conf \
           file://generate-supported.mk \
           "
