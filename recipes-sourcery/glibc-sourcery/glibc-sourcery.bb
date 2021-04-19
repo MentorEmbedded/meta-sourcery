@@ -168,3 +168,12 @@ python () {
     if not d.getVar("EXTERNAL_TOOLCHAIN", True):
         raise bb.parse.SkipPackage("External toolchain not configured (EXTERNAL_TOOLCHAIN not set).")
 }
+
+# glibc's utils need libgcc
+do_package[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_ipk[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_deb[depends] += "${MLPREFIX}libgcc:do_packagedata"
+do_package_write_rpm[depends] += "${MLPREFIX}libgcc:do_packagedata"
+
+# glibc may need libssp for -fstack-protector builds
+do_packagedata[depends] += "gcc-runtime:do_packagedata"
