@@ -33,7 +33,7 @@ PROVIDES += "glibc \
 TOOLCHAIN_OPTIONS = ""
 HOST_CC_ARCH_remove = "--no-sysroot-suffix"
 
-SRCREV ?= "b4108a361f05ee87122b86aa7d799e4512013588"
+SRCREV = "4a871574351e40d298d65949426a502c0ecaffcc"
 
 SRCBRANCH ?= "release/${PV}/master"
 
@@ -41,58 +41,7 @@ GLIBC_GIT_URI ?= "git://sourceware.org/git/glibc.git"
 UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>\d+\.\d+(\.\d+)*)"
 
 SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.27/master;name=glibc \
-          file://0001-Initialize-release-notes-for-new-glibc-version.patch \
-          file://0002-Fix-uninitialized-variable-in-dynamic-linker.patch \
-          file://0003-Install-extra-files-for-use-of-mklibs.patch \
-          file://0004-Release-note-for-dropping-AF_BUS-patch.patch \
-          file://0005-Work-around-Wclobbered-warning-from-pthread.h-ITS-15.patch \
-          file://0006-powerpc-Fix-TLE-build-for-SPE-BZ-22926.patch \
-          file://0007-sparc32-Add-nop-before-__startcontext-to-stop-unwind.patch \
-          file://0008-NEWS-add-entries-for-bugs-22919-and-22926.patch \
-          file://0009-manual-Document-missing-feature-test-macros.patch \
-          file://0010-manual-Update-the-_ISOC99_SOURCE-description.patch \
-          file://0011-Fix-a-typo-in-a-comment.patch \
-          file://0012-Add-missing-reorder-end-in-LC_COLLATE-of-et_EE-BZ-22.patch \
-          file://0013-powerpc-Undefine-Linux-ptrace-macros-that-conflict-w.patch \
-          file://0014-linux-powerpc-sync-sys-ptrace.h-with-Linux-4.15-BZ-2.patch \
-          file://0015-BZ-22342-Fix-netgroup-cache-keys.patch \
-          file://0016-Fix-multiple-definitions-of-__nss_-_database-bug-229.patch \
-          file://0017-i386-Fix-i386-sigaction-sa_restorer-initialization-B.patch \
-          file://0018-Update-translations-from-the-Translation-Project.patch \
-          file://0019-ca_ES-locale-Update-LC_TIME-bug-22848.patch \
-          file://0020-lt_LT-locale-Update-abbreviated-month-names-bug-2293.patch \
-          file://0021-Greek-el_CY-el_GR-locales-Introduce-ab_alt_mon-bug-2.patch \
-          file://0022-cs_CZ-locale-Add-alternative-month-names-bug-22963.patch \
-          file://0023-NEWS-Add-entries-for-bugs-22848-22932-22937-22963.patch \
-          file://0024-Update-nios2-ULPs-file-for-glibc-2.27.patch \
-          file://0025-RISC-V-Do-not-initialize-gp-in-TLS-macros.patch \
-          file://0026-RISC-V-fmax-fmin-Handle-signalling-NaNs-correctly.patch \
-          file://0027-Update-ChangeLog-for-BZ-22884-riscv-fmax-fmin.patch \
-          file://0028-Fix-i386-memmove-issue-bug-22644.patch \
-          file://0029-Linux-i386-tst-bz21269-triggers-SIGBUS-on-some-kerne.patch \
-          file://0030-RISC-V-fix-struct-kernel_sigaction-to-match-the-kern.patch \
-          file://0031-Add-tst-sigaction.c-to-test-BZ-23069.patch \
-          file://0032-Fix-signed-integer-overflow-in-random_r-bug-17343.patch \
-          file://0033-Fix-crash-in-resolver-on-memory-allocation-failure-b.patch \
-          file://0034-getlogin_r-return-early-when-linux-sentinel-value-is.patch \
-          file://0035-Update-RWF_SUPPORTED-for-Linux-kernel-4.16-BZ-22947.patch \
-          file://0036-manual-Move-mbstouwcs-to-an-example-C-file.patch \
-          file://0037-manual-Various-fixes-to-the-mbstouwcs-example-and-mb.patch \
-          file://0038-resolv-Fully-initialize-struct-mmsghdr-in-send_dg-BZ.patch \
-          file://0039-Add-PTRACE_SECCOMP_GET_METADATA-from-Linux-4.16-to-s.patch \
-          file://0040-Fix-blocking-pthread_join.-BZ-23137.patch \
-          file://0041-Fix-stack-overflow-with-huge-PT_NOTE-segment-BZ-2041.patch \
-          file://0042-Fix-path-length-overflow-in-realpath-BZ-22786.patch \
-          file://0043-NEWS-add-entries-for-bugs-17343-20419-22644-22786-22.patch \
-          file://0044-gd_GB-Fix-typo-in-abbreviated-May-bug-23152.patch \
-          file://0045-sunrpc-Remove-stray-exports-without-enable-obsolete-.patch \
-          file://0046-Don-t-write-beyond-destination-in-__mempcpy_avx512_n.patch \
-          file://0047-Add-a-test-case-for-BZ-23196.patch \
-          file://0048-Add-references-to-CVE-2018-11236-CVE-2017-18269.patch \
-          file://0049-NEWS-Move-security-lated-changes-before-bug-list.patch \
-          file://0050-libio-Avoid-_allocate_buffer-_free_buffer-function-p.patch \
-          file://0051-posix-Fix-posix_spawnp-to-not-execute-invalid-binari.patch \
-          file://0052-Mention-BZ-23264-in-NEWS.patch \
+          file://glibc_227_to_cb11.patch \
           file://0010-eglibc-run-libm-err-tab.pl-with-specific-dirs-in-S.patch \
           file://etc/ld.so.conf \
           file://generate-supported.mk \
