@@ -54,7 +54,9 @@ SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.27/master;name=gl
           \
           file://etc/ld.so.conf \
           file://generate-supported.mk \
-          "
+          \
+          file://0001-Align-with-Sourcery-toolchain-glibc.patch \
+"
 
 TUNE_CCARGS_mips := "${@oe.utils.str_filter_out('-march=mips32', '${TUNE_CCARGS}', d)}"
 CPPFLAGS[unexport] = "1"
