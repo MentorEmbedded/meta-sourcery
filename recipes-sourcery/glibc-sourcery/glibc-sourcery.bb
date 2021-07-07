@@ -42,6 +42,7 @@ UPSTREAM_CHECK_GITTAGREGEX = "(?P<pver>\d+\.\d+(\.\d+)*)"
 
 SRC_URI = "git://sourceware.org/git/glibc.git;branch=release/2.27/master;name=glibc \
           file://glibc_227_to_cb11.patch \
+          file://glibc_2018.05-7_to_2018.05-17.patch \
           file://0010-eglibc-run-libm-err-tab.pl-with-specific-dirs-in-S.patch \
           file://etc/ld.so.conf \
           file://generate-supported.mk \

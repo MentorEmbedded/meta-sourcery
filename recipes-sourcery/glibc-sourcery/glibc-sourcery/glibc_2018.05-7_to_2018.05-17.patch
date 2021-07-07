@@ -1,0 +1,23 @@
+2020-03-04  Joseph Myers  <joseph@codesourcery.com>
+
+        * sysdeps/aarch64/dl-tlsdesc.S (_dl_tlsdesc_undefweak): Do not
+        subtract thread pointer from return value.
+
+diff -Naurp glibc-2.27-2018.05-7/sysdeps/aarch64/dl-tlsdesc.S glibc-2.27-2018.05-7-bosch/sysdeps/aarch64/dl-tlsdesc.S
+--- glibc-2.27-2018.05-7/sysdeps/aarch64/dl-tlsdesc.S	2021-07-07 12:11:41.000000000 +1000
++++ glibc-2.27-2018.05-7-bosch/sysdeps/aarch64/dl-tlsdesc.S	2020-03-04 11:39:14.000000000 +1000
+@@ -95,14 +95,8 @@ _dl_tlsdesc_return:
+ 	cfi_startproc
+ 	.align  2
+ _dl_tlsdesc_undefweak:
+-	str	x1, [sp, #-16]!
+-	cfi_adjust_cfa_offset (16)
+ 	DELOUSE (0)
+ 	ldr	PTR_REG (0), [x0, #PTR_SIZE]
+-	mrs	x1, tpidr_el0
+-	sub	PTR_REG (0), PTR_REG (0), PTR_REG (1)
+-	ldr	x1, [sp], #16
+-	cfi_adjust_cfa_offset (-16)
+ 	RET
+ 	cfi_endproc
+ 	.size	_dl_tlsdesc_undefweak, .-_dl_tlsdesc_undefweak
