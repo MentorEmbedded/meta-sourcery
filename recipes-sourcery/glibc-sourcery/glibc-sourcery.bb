@@ -1,5 +1,6 @@
 require recipes-core/glibc/glibc.inc
 require recipes-external/glibc/glibc-external-version.inc
+include glibc-pkgversion.inc
 
 FILESPATH .= ":${COREBASE}/meta/recipes-core/glibc/glibc"
 EXTERNAL_TOOLCHAIN_SYSROOT ?= "${@external_run(d, 'gcc', *(TARGET_CC_ARCH.split() + ['-print-sysroot'])).rstrip()}"
