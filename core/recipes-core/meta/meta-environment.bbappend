@@ -10,7 +10,7 @@ def get_toolchain_bindir(d):
             return Path(external.name) / bin.relative_to(external)
     return 'UNKNOWN'
 
-create_sdk_files_append_tcmode-external-sourcery () {
+create_sdk_files:append:tcmode-external-sourcery () {
     script=${SDK_OUTPUT}/${SDKPATH}/environment-setup-${REAL_MULTIMACH_TARGET_SYS}
     cat >>"$script" <<END
 toolchainsdir="${SDKPATH}/../../../toolchains"

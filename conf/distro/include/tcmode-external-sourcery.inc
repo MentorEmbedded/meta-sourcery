@@ -12,7 +12,7 @@ PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain
 EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
 
 # Use tuning-defined baselib to align with multilib and external toolchain
-baselib = "${@d.getVar('BASE_LIB_tune-' + (d.getVar('DEFAULTTUNE') or 'INVALID')) or d.getVar('BASELIB')}"
+baselib = "${@d.getVar('BASE_LIB:tune-' + (d.getVar('DEFAULTTUNE') or 'INVALID')) or d.getVar('BASELIB')}"
 
 # Ensure that the licensing variables are available to the toolchain.
 export MGLS_LICENSE_FILE
@@ -51,7 +51,7 @@ python sourcery_metadata_setup () {
 sourcery_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler sourcery_metadata_setup
 
-python extract_env_setup_metadata_prepend() {
+python extract_env_setup_metadata:prepend() {
     from pathlib import Path
     external_toolchain = d.getVar('EXTERNAL_TOOLCHAIN')
     if not external_toolchain or external_toolchain == 'UNKNOWN':

@@ -1,15 +1,15 @@
 # Remove files provided by linux-libc-headers
 linux_include_subdirs = "asm asm-generic bits drm linux mtd rdma sound sys video"
 
-do_install_append_tcmode-external-sourcery_class-target () {
+do_install:append:tcmode-external-sourcery:class-target () {
     for d in ${linux_include_subdirs}; do
         rm -rf "${D}${includedir}/$d"
     done
 }
 
-RDEPENDS_${PN}-dev_append_tcmode-external-sourcery_class-target = " linux-libc-headers-dev"
+RDEPENDS:${PN}-dev:append:tcmode-external-sourcery:class-target = " linux-libc-headers-dev"
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += "file://0001-Do-not-subtract-thread-pointer-in-AArch64-_dl_tlsdes.patch"
 
@@ -25,5 +25,5 @@ def get_pkgversion(d):
 SOURCERY_NAME ?= "Sourcery CodeBench"
 PKGVERSION = "${@get_pkgversion(d) or '${SOURCERY_NAME} ${SOURCERY_VERSION}'}"
 
-EXTRA_OECONF_append_tcmode-external-sourcery = " --with-pkgversion="${PKGVERSION}""
-EXTRA_OECONF_append_tcmode-external-sourcery = " --with-bugurl=${BUG_REPORT_URL}"
+EXTRA_OECONF:append:tcmode-external-sourcery = " --with-pkgversion="${PKGVERSION}""
+EXTRA_OECONF:append:tcmode-external-sourcery = " --with-bugurl=${BUG_REPORT_URL}"

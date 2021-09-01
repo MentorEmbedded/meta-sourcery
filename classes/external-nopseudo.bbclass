@@ -1,6 +1,6 @@
 EXTERNAL_CROSS_NOPSEUDO ?= ""
 
-do_install_tcmode-external-sourcery () {
+do_install:tcmode-external-sourcery () {
     # Identical to do_install in external-toolchain-cross.bbclass, altered to
     # support EXTERNAL_CROSS_NOPSEUDO
     install -d ${D}${bindir}
