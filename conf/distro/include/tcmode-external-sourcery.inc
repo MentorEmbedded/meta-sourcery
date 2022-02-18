@@ -20,7 +20,14 @@ export LM_LICENSE_FILE
 
 def sourcery_version(d):
     version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
-    version = version_output.splitlines()[-1]
+    bb.warn(version_output.rstrip())
+
+    try:
+        version = version_output.splitlines()[-1]
+    except IndexError:
+        bb.error('Unexpected output for {}: {}'.format(d.getVar('EXTERNAL_TOOLCHAIN_BIN') + '/' + (d.getVar('EXTERNAL_CC') or 'gcc') + ' -v', version_output))
+        version = 'UNKNOWN'
+
     if version != 'UNKNOWN':
         main_version = version.split()[-1].rstrip(')')
         if main_version == 'Preview':
