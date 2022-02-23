@@ -5,8 +5,8 @@ TCMODEOVERRIDES .= ":tcmode-external-sourcery"
 # This is defined in default-providers.inc, which is parsed before the tcmode,
 # so we can't use ?=
 PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
-PNBLACKLIST[linux-libc-headers] = "not building with an external toolchain"
-PNBLACKLIST[linux-libc-headers-yocto] = "not building with an external toolchain"
+SKIP_RECIPE[linux-libc-headers] = "not building with an external toolchain"
+SKIP_RECIPE[linux-libc-headers-yocto] = "not building with an external toolchain"
 
 # Disable pseudo for these cross binaries
 EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
@@ -53,7 +53,7 @@ BUILDCFG_VARS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION'
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
     license_vars = ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']
-    d.appendVar('BB_HASHBASE_WHITELIST', ' ' + ' '.join(license_vars))
+    d.appendVar('BB_BASEHASH_IGNORE_VARS', ' ' + ' '.join(license_vars))
 }
 sourcery_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler sourcery_metadata_setup
