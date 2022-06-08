@@ -20,7 +20,6 @@ export LM_LICENSE_FILE
 
 def sourcery_version(d):
     version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
-    bb.warn(version_output.rstrip())
 
     try:
         version = version_output.splitlines()[-1]
