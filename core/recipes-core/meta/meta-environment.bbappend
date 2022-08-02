@@ -1,3 +1,6 @@
+# CodeBench needs TARGET_PREFIX to align with the external toolchain
+TARGET_PREFIX:tcmode-external-sourcery = "${EXTERNAL_TARGET_SYS}-"
+
 def get_toolchain_bindir(d):
     from pathlib import Path
 
