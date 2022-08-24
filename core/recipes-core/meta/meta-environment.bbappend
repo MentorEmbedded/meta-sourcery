@@ -15,13 +15,16 @@ def get_toolchain_bindir(d):
 
 create_sdk_files:append:tcmode-external-sourcery () {
     script=${SDK_OUTPUT}/${SDKPATH}/environment-setup-${REAL_MULTIMACH_TARGET_SYS}
-    cat >>"$script" <<END
+    bindir=${@get_toolchain_bindir(d)}
+    if [ "$bindir" != "UNKNOWN" ]; then
+        cat >>"$script" <<END
 toolchainsdir="${SDKPATH}/../../../toolchains"
-bindir="\$toolchainsdir/${@get_toolchain_bindir(d)}"
+bindir="\$toolchainsdir/$bindir"
 if [ -e "\$bindir" ]; then
     PATH="\$PATH:\$bindir"
 else
     echo >&2 "Warning: failed to add \$bindir to the path: No such file or directory"
 fi
 END
+    fi
 }
