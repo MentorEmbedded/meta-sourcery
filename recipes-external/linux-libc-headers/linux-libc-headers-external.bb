@@ -7,8 +7,14 @@ LIC_FILES_CHKSUM = "${COMMON_LIC_CHKSUM}"
 DEPENDS = ""
 SRC_URI = ""
 
-linux_include_subdirs = "asm asm-generic bits drm linux mtd rdma sound sys video"
+linux_include_subdirs = "asm asm-generic bits drm linux mtd rdma sound video"
 FILES:${PN}-dev = "${@' '.join('${includedir}/%s' % d for d in '${linux_include_subdirs}'.split())}"
+
+libc_headers_file = "${@bb.utils.which('${BBPATH}', 'recipes-external/glibc/glibc-external/libc.headers')}"
+FILES:${PN}-dev += "\
+    ${@' '.join('${includedir}/' + f.rstrip() for f in oe.utils.read_file('${libc_headers_file}').splitlines() if f.startswith('sys/'))} \
+"
+FILES:${PN}-dev[file-checksums] += "${libc_headers_file}:True"
 
 BBCLASSEXTEND = ""
 
