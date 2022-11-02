@@ -15,8 +15,7 @@ EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
 baselib = "${@d.getVar('BASE_LIB:tune-' + (d.getVar('DEFAULTTUNE') or 'INVALID')) or d.getVar('BASELIB')}"
 
 # Ensure that the licensing variables are available to the toolchain.
-export MGLS_LICENSE_FILE
-export LM_LICENSE_FILE
+export SALT_LICENSE_SERVER
 
 def sourcery_version(d):
     version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
@@ -51,8 +50,7 @@ BUILDCFG_VARS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION'
 
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
-    license_vars = ['MGLS_LICENSE_FILE', 'LM_LICENSE_FILE']
-    d.appendVar('BB_BASEHASH_IGNORE_VARS', ' ' + ' '.join(license_vars))
+    d.appendVar('BB_BASEHASH_IGNORE_VARS', ' SALT_LICENSE_SERVER')
 }
 sourcery_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler sourcery_metadata_setup
