@@ -1,5 +1,15 @@
 require conf/distro/include/tcmode-external-oe-sdk.inc
 
+def codebench_toolchain_dirname(d):
+    external, toolchains = d.getVar('EXTERNAL_TOOLCHAIN'), d.getVar('TOOLCHAINS_PATH')
+    if external and toolchains and oe.path.is_path_parent(toolchains, external):
+        return os.path.relpath(external, toolchains)
+
+EXTERNAL_TOOLCHAINS_DIR = "${@codebench_toolchain_dirname(d) or d.getVar('EXTERNAL_TARGET_SYS')}"
+EXTERNAL_TOOLCHAINS_DIR[vardepvalue] = "${EXTERNAL_TOOLCHAINS_DIR}"
+
+SDKPATHTOOLCHAIN ?= "${SDKPATH}/toolchains/${EXTERNAL_TOOLCHAINS_DIR}"
+
 TCMODEOVERRIDES .= ":tcmode-external-sourcery"
 
 # This is defined in default-providers.inc, which is parsed before the tcmode,
