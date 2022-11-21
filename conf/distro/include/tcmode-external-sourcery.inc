@@ -58,9 +58,16 @@ SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
 
 BUILDCFG_VARS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
 
+SOURCERY_LICENSE_NETWORK_TASKS = "do_configure do_compile do_compile_kernelmodules do_install"
+
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
     d.appendVar('BB_BASEHASH_IGNORE_VARS', ' SALT_LICENSE_SERVER')
+
+    # Let the toolchain contact the license server by enabling networking in compile tasks
+    if d.getVar('SALT_LICENSE_SERVER'):
+        for task in d.getVar('SOURCERY_LICENSE_NETWORK_TASKS').split():
+            d.setVarFlag(task, 'network', '1')
 }
 sourcery_metadata_setup[eventmask] = "bb.event.ConfigParsed"
 addhandler sourcery_metadata_setup
