@@ -10,6 +10,9 @@ LICENSE = "CLOSED"
 PN .= "-${TRANSLATED_TARGET_ARCH}"
 SKIPPED = "1"
 SKIPPED:tcmode-external = "0"
+INHIBIT_PACKAGE_STRIP = "1"
+INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
+INHIBIT_SYSROOT_STRIP = "1"
 
 python () {
     external = d.getVar("EXTERNAL_TOOLCHAIN")
@@ -27,4 +30,3 @@ do_install () {
 }
 
 FILES:${PN} += "${SDKPATHTOOLCHAIN}"
-INSANE_SKIP:${PN} += "already-stripped"
