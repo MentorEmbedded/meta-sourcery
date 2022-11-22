@@ -1,5 +1,10 @@
 require conf/distro/include/tcmode-external-oe-sdk.inc
 
+# Also relocate the included external toolchain
+SDK_CLASSES ??= ""
+SDK_CLASSES:append = " sdk-relocate-toolchain"
+IMAGE_CLASSES:append = " ${SDK_CLASSES}"
+
 def codebench_toolchain_dirname(d):
     external, toolchains = d.getVar('EXTERNAL_TOOLCHAIN'), d.getVar('TOOLCHAINS_PATH')
     if external and toolchains and oe.path.is_path_parent(toolchains, external):
