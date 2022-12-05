@@ -9,10 +9,6 @@ do_install:append:tcmode-external-sourcery:class-target () {
 
 RDEPENDS:${PN}-dev:append:tcmode-external-sourcery:class-target = " linux-libc-headers-dev"
 
-FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
-
-SRC_URI += "file://0001-Do-not-subtract-thread-pointer-in-AArch64-_dl_tlsdes.patch"
-
 def get_pkgversion(d):
     import re
     version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
