@@ -50,6 +50,20 @@ do_install () {
     cp -a "${EXTERNAL_TOOLCHAIN}/." "${D}/${SDKPATHTOOLCHAIN}/"
 }
 
+LICENSE_PATH += "${WORKDIR}/licenses"
+
+link_license () {
+    if ! [ -e "${LICENSE_FILE}" ]; then
+        bbwarn "No license file present at ${LICENSE_FILE}, skipping"
+    else
+        ln -s "${WORKDIR}/ReadMe_OSS.html" "${WORKDIR}/licenses/${LICENSE}"
+    fi
+}
+link_license[dirs] += "${WORKDIR}/licenses"
+link_license[cleandirs] += "${WORKDIR}/licenses"
+
+do_populate_lic[prefuncs] += "link_license"
+
 do_package_qa[noexec] = "1"
 
 FILES:${PN} += "${SDKPATHTOOLCHAIN}"
