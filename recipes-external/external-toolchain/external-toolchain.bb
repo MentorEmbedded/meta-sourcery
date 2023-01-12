@@ -29,4 +29,6 @@ do_install () {
     cp -a "${EXTERNAL_TOOLCHAIN}/." "${D}/${SDKPATHTOOLCHAIN}/"
 }
 
+do_package_qa[noexec] = "1"
+
 FILES:${PN} += "${SDKPATHTOOLCHAIN}"
