@@ -2,10 +2,10 @@ SDKPATHTOOLCHAIN ?= "${SDKPATH}/toolchain"
 
 inherit cross-canadian
 
-# FIXME: Set to the union of all included component licenses. Ideally this would
-# adapt to the components utilized. Alternatively, package up each component of
-# the toolchain separately.
-LICENSE = "CLOSED"
+# This license is simply an identifier to refer to the union of all the licenses of all
+# the included components of the external toolchain, as described in the included
+# ReadMe_OSS.html file.
+LICENSE = "Sourcery-Toolchain"
 
 PN .= "-${TRANSLATED_TARGET_ARCH}"
 SKIPPED = "1"
