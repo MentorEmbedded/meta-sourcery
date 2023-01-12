@@ -25,6 +25,12 @@ python () {
     external = d.getVar("EXTERNAL_TOOLCHAIN")
     if not external or not os.path.isdir(external) or d.getVar("SKIPPED") == "1":
         raise bb.parse.SkipRecipe("An existing external toolchain at EXTERNAL_TOOLCHAIN is required and TCMODE must be set appropriately")
+
+    # Allow for the readme to be optional, as it's not present in all toolchain versions
+    license_file = d.getVar("LICENSE_FILE")
+    if not os.path.exists(license_file):
+        d.setVar("SRC_URI", "")
+        d.setVar("LIC_FILES_CHKSUM", "")
 }
 
 do_unpack[postfuncs] += "move_readme"
