@@ -50,6 +50,9 @@ do_install () {
     cp -a "${EXTERNAL_TOOLCHAIN}/." "${D}/${SDKPATHTOOLCHAIN}/"
 }
 
+ERROR_QA:remove = "license-checksum"
+WARN_QA:remove = "license-checksum"
+
 LICENSE_PATH += "${WORKDIR}/licenses"
 
 link_license () {
