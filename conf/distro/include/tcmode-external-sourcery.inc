@@ -17,12 +17,6 @@ SDKPATHTOOLCHAIN ?= "${SDKPATH}/toolchains/${EXTERNAL_TOOLCHAINS_DIR}"
 
 TCMODEOVERRIDES .= ":tcmode-external-sourcery"
 
-# This is defined in default-providers.inc, which is parsed before the tcmode,
-# so we can't use ?=
-PREFERRED_PROVIDER_linux-libc-headers = "linux-libc-headers-external"
-SKIP_RECIPE[linux-libc-headers] = "not building with an external toolchain"
-SKIP_RECIPE[linux-libc-headers-yocto] = "not building with an external toolchain"
-
 # Disable pseudo for these cross binaries
 EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
 
