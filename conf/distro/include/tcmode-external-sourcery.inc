@@ -24,7 +24,12 @@ EXTERNAL_CROSS_NOPSEUDO = "gcc g++ cpp"
 baselib = "${@d.getVar('BASE_LIB:tune-' + (d.getVar('DEFAULTTUNE') or 'INVALID')) or d.getVar('BASELIB')}"
 
 # Ensure that the licensing variables are available to the toolchain.
+export SALT_EXCLUDE_LICENSES
+export SALT_INCLUDE_LICENSES
 export SALT_LICENSE_SERVER
+export SALT_LICENSE_SOURCE 
+export SALT_LOGGING_DIR
+export SALT_PKGINFO_FILE
 
 def sourcery_version(d):
     version_output = external_run(d, d.getVar('EXTERNAL_CC') or 'gcc', '-v')
@@ -61,7 +66,7 @@ SOURCERY_LICENSE_NETWORK_TASKS = "do_configure do_compile do_compile_kernelmodul
 
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
-    d.appendVar('BB_BASEHASH_IGNORE_VARS', ' SALT_LICENSE_SERVER')
+    d.appendVar('BB_BASEHASH_IGNORE_VARS', ' SALT_LICENSE_SERVER SALT_EXCLUDE_LICENSES SALT_INCLUDE_LICENSES SALT_LOGGING_DIR SALT_PKGINFO_FILE SALT_LICENSE_SOURCE ')
 
     # Let the toolchain contact the license server by enabling networking in compile tasks
     if d.getVar('SALT_LICENSE_SERVER'):
