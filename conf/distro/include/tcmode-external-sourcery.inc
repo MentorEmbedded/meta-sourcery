@@ -57,7 +57,7 @@ SOURCERY_TOOLCHAIN_VERSION = "${SOURCERY_VERSION}"
 
 BUILDCFG_VARS += "${@'SOURCERY_TOOLCHAIN_VERSION' if d.getVar('SOURCERY_VERSION') != 'UNKNOWN' else ''}"
 
-SOURCERY_LICENSE_NETWORK_TASKS = "do_configure do_compile do_compile_kernelmodules do_install"
+SOURCERY_LICENSE_NETWORK_TASKS = "do_configure do_compile do_compile_kernelmodules do_install do_bundle_initramfs"
 
 python sourcery_metadata_setup () {
     # Ensure that changes to toolchain licensing don't affect checksums
