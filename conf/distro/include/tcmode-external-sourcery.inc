@@ -66,6 +66,7 @@ SOURCERY_LICENSE_NETWORK_TASKS = "\
     do_configure \
     do_compile \
     do_compile_kernelmodules \
+    do_kernel_configme \
     do_install \
     do_bundle_initramfs \
     do_configure_ptest \
