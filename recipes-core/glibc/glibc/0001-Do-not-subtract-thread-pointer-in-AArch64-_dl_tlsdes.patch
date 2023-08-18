@@ -11,6 +11,8 @@ descriptors without such a hack seems hard.
 
 	* sysdeps/aarch64/dl-tlsdesc.S (_dl_tlsdesc_undefweak): Do not
 	subtract thread pointer from return value.
+
+Upstream-Status: Pending
 ---
  sysdeps/aarch64/dl-tlsdesc.S | 6 ------
  1 file changed, 6 deletions(-)
