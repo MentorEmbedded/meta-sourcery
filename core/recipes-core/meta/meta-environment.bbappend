@@ -1,27 +1,16 @@
 # CodeBench needs TARGET_PREFIX to align with the external toolchain
 TARGET_PREFIX:tcmode-external-sourcery = "${EXTERNAL_TARGET_SYS}-"
 
-def get_toolchain_bindir(d):
-    from pathlib import Path
-
-    external = d.getVar('EXTERNAL_TOOLCHAIN')
-    bin = d.getVar('EXTERNAL_TOOLCHAIN_BIN')
-    if external and bin:
-        external = Path(external)
-        bin = Path(bin)
-        if external.parent.name == 'toolchains':
-            return Path(external.name) / bin.relative_to(external)
-    return 'UNKNOWN'
+SDKPATHTOOLCHAIN ?= "${SDKPATH}/toolchain"
+EXTERNAL_TOOLCHAIN_RELBIN = "${@os.path.relpath(d.getVar('EXTERNAL_TOOLCHAIN_BIN'), d.getVar('EXTERNAL_TOOLCHAIN'))}"
+TOOLCHAIN_PATH:tcmode-external-sourcery = "${SDKPATHTOOLCHAIN}/${EXTERNAL_TOOLCHAIN_RELBIN}"
 
 create_sdk_files:append:tcmode-external-sourcery () {
     script=${SDK_OUTPUT}/${SDKPATH}/environment-setup-${REAL_MULTIMACH_TARGET_SYS}
     cat >>"$script" <<END
-toolchainsdir="${SDKPATH}/../../../toolchains"
-bindir="\$toolchainsdir/${@get_toolchain_bindir(d)}"
-if [ -e "\$bindir" ]; then
-    PATH="\$PATH:\$bindir"
-else
-    echo >&2 "Warning: failed to add \$bindir to the path: No such file or directory"
+TOOLCHAIN_PATH=${TOOLCHAIN_PATH}
+if [ -e "\$TOOLCHAIN_PATH" ]; then
+    PATH="\$PATH:\$TOOLCHAIN_PATH"
 fi
 END
 }
